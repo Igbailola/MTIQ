@@ -1,0 +1,160 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+
+/**
+ * GET /api/meetings/[meetingId] - Fetch single meeting with decisions and commitments
+ * PATCH /api/meetings/[meetingId] - Update meeting summary / details
+ * DELETE /api/meetings/[meetingId] - Delete meeting (admin only)
+ */
+
+interface RouteParams {
+  params: Promise<{
+    meetingId: string;
+  }>;
+}
+
+export async function GET(request: Request, { params }: RouteParams) {
+  try {
+    const { meetingId } = await params;
+    const supabase = await createClient();
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Fetch meeting details
+    const { data: meeting, error: meetingError } = await supabase
+      .from('meetings')
+      .select('*')
+      .eq('id', meetingId)
+      .single();
+
+    if (meetingError || !meeting) {
+      return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
+    }
+
+    // Fetch decisions
+    const { data: decisions, error: decisionsError } = await supabase
+      .from('decisions')
+      .select('*')
+      .eq('meeting_id', meetingId);
+
+    // Fetch commitments
+    const { data: commitments, error: commitmentsError } = await supabase
+      .from('commitments')
+      .select('*')
+      .eq('meeting_id', meetingId);
+
+    // Fetch uploader profile
+    const { data: uploader } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', meeting.uploaded_by)
+      .single();
+
+    return NextResponse.json(
+      {
+        ...meeting,
+        uploader,
+        decisions: decisions || [],
+        commitments: commitments || [],
+      },
+      { status: 200 }
+    );
+  } catch (err) {
+    console.error('Error fetching meeting details:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: Request, { params }: RouteParams) {
+  try {
+    const { meetingId } = await params;
+    const supabase = await createClient();
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    
+    // Update meeting details (like summary)
+    const { data: meeting, error: updateError } = await supabase
+      .from('meetings')
+      .update(body)
+      .eq('id', meetingId)
+      .select()
+      .single();
+
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    }
+
+    return NextResponse.json(meeting, { status: 200 });
+  } catch (err) {
+    console.error('Error updating meeting:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request, { params }: RouteParams) {
+  try {
+    const { meetingId } = await params;
+    const supabase = await createClient();
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get the meeting first to check workspace ID
+    const { data: meeting, error: meetingError } = await supabase
+      .from('meetings')
+      .select('workspace_id, title')
+      .eq('id', meetingId)
+      .single();
+
+    if (meetingError || !meeting) {
+      return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
+    }
+
+    // Check if the current user is an admin in the workspace
+    const { data: member, error: memberError } = await supabase
+      .from('workspace_members')
+      .select('role')
+      .eq('workspace_id', meeting.workspace_id)
+      .eq('user_id', user.id)
+      .single();
+
+    if (memberError || member?.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden: Admin role required to delete meetings' }, { status: 403 });
+    }
+
+    // Delete meeting (cascade delete will handle decisions and commitments)
+    const { error: deleteError } = await supabase
+      .from('meetings')
+      .delete()
+      .eq('id', meetingId);
+
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    }
+
+    // Log in activity feed
+    await supabase.from('activity_feed').insert({
+      workspace_id: meeting.workspace_id,
+      actor_id: user.id,
+      action: 'meeting_deleted',
+      entity_type: 'meeting',
+      entity_id: meetingId,
+      details: { title: meeting.title },
+    });
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (err) {
+    console.error('Error deleting meeting:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

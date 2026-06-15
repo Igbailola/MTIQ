@@ -1,0 +1,790 @@
+PRODUCT REQUIREMENTS DOCUMENT (PRD)
+
+MeetIQ
+AI-Powered Execution & Accountability Platform
+Tagline: From Conversation to Execution
+Version: 1.0
+Last Updated: June 2026
+
+1. Product Overview
+MeetIQ is an AI-powered execution and accountability platform that transforms meeting conversations into confirmed commitments, ownership, and measurable outcomes.
+
+Instead of simply generating meeting notes, MeetIQ ensures that decisions made during discussions become actionable, assigned, acknowledged, and tracked until completion.
+
+MeetIQ serves as the missing layer between conversation and execution, helping teams improve accountability, visibility, and follow-through.
+
+2. Problem Statement
+Teams spend countless hours in meetings discussing priorities, making decisions, and assigning responsibilities.
+
+However, after meetings end:
+
+Decisions are forgotten
+
+Ownership becomes unclear
+
+Action items are buried in notes
+
+Deadlines are missed
+
+Accountability becomes difficult to track
+
+Most existing tools focus on documenting meetings rather than ensuring execution.
+
+The result is slower project delivery, reduced productivity, and poor operational visibility.
+
+3. Solution
+MeetIQ converts meetings into structured commitments that can be tracked from creation to completion.
+
+Using AI, MeetIQ analyzes uploaded meeting notes or transcripts and automatically:
+
+Generates meeting summaries
+
+Extracts decisions
+
+Identifies action items and converts them into commitments
+
+Suggests owners based on who said what in the transcript
+
+Detects deadlines
+
+Flags ambiguous responsibilities
+
+MeetIQ then transforms these outputs into confirmed commitments that team members can acknowledge, manage, and complete.
+
+This creates a clear execution workflow that ensures discussions lead to measurable outcomes.
+
+4. Product Vision
+To become the accountability layer that connects team conversations to real execution.
+
+MeetIQ aims to help organizations ensure that every meeting produces ownership, accountability, and progress.
+
+5. Product Positioning
+MeetIQ is not:
+
+A note-taking tool
+
+A transcription platform
+
+A generic task manager
+
+MeetIQ is:
+
+An AI-powered execution accountability platform designed to turn discussions into deliverables.
+
+Category:
+
+AI Execution Accountability Platform
+
+6. Target Users
+Primary Users
+
+Product Teams
+
+Product Managers
+
+Product Designers
+
+Software Engineers
+
+Engineering Managers
+
+Startup Teams
+
+Founders
+
+Early-stage operators
+
+Cross-functional teams
+
+Remote Teams
+
+Distributed organizations
+
+Hybrid teams
+
+Agencies
+
+Client service teams
+
+Project managers
+
+Early Adopter Persona: "Alex the Overwhelmed PM"
+
+Alex is a Product Manager at a 40-person SaaS startup. She attends 15+ meetings weekly across engineering, design, and leadership. After each meeting, she manually creates Jira tickets, Slack follow-ups, and Notion checklists — but ownership remains fuzzy, and roughly 30% of action items slip through the cracks. Alex needs a tool that automatically surfaces who committed to what, forces explicit acknowledgment, and flags overdue items before the next sync. She is willing to try new productivity tools if they save her 3+ hours per week and reduce missed deadlines.
+
+7. User Needs
+Users need:
+
+Clear ownership after meetings
+
+Better accountability
+
+Faster follow-through
+
+Improved visibility into commitments
+
+Reduced manual task management
+
+Reliable execution tracking
+
+Trust in AI-generated outputs
+
+A lightweight, non-disruptive workflow
+
+8. Product Goals
+Business Goals
+
+Validate market demand
+
+Acquire first 100 active teams within 90 days of launch
+
+Achieve product-market fit
+
+Establish a foundation for monetization
+
+Build a waitlist of 500+ users pre-launch
+
+Product Goals
+
+Improve meeting accountability
+
+Increase commitment completion rates
+
+Reduce missed deadlines
+
+Improve execution visibility
+
+Build trust in AI-generated commitments
+
+Achieve >80% AI extraction accuracy on first pass
+
+Maintain <5% false positive rate on owner assignment
+
+9. Core Product Workflow
+Meeting occurs
+
+User uploads notes or transcript
+
+AI analyzes content
+
+AI extracts: Summary, Decisions, Commitments, Owners, Deadlines
+
+AI flags low-confidence items and ambiguous responsibilities
+
+Team reviews outputs with confidence indicators
+
+Owners receive confirmation requests
+
+Owners explicitly accept, reject, or request changes
+
+Unconfirmed commitments escalate after 48 hours
+
+Dashboard tracks progress
+
+Team completes commitments
+
+10. Key Features (MVP)
+10.1 Authentication
+User Registration (email + password, or Google OAuth)
+
+User Login (email + password, or Google OAuth)
+
+Password Reset
+
+Email Verification
+
+Session Management
+
+10.2 Workspace Management
+Create Workspace
+
+Invite Team Members
+
+Role-Based Access Control
+
+Roles & Permissions Matrix:
+
+Permission	Admin	Member
+Create/Delete Workspace	Yes	No
+Invite/Remove Members	Yes	No
+Upload Meetings	Yes	Yes
+View All Commitments	Yes	Yes
+Edit Any Commitment	Yes	No
+Edit Own Commitment	Yes	Yes
+Change Workspace Settings	Yes	No
+View Dashboard & Analytics	Yes	Yes
+Export Data	Yes	No
+Confirm Own Commitments	Yes	Yes
+10.3 Meeting Upload
+Supported Formats:
+
+TXT
+
+DOCX
+
+PDF
+
+Meeting Metadata:
+
+Title (required)
+
+Date (required)
+
+Participants (optional, AI can extract)
+
+Upload Constraints:
+
+Max file size: 10MB
+
+Max meeting duration context: 4 hours of conversation
+
+Error States & Edge Cases:
+
+Scenario	System Response
+Unsupported file format	Toast error: "Format not supported. Use TXT, DOCX, or PDF."
+File exceeds 10MB	Toast error: "File too large. Max 10MB."
+Corrupted file	Toast error: "Unable to read file. Please re-upload."
+No text extracted	Prompt: "We couldn't find readable text. Try pasting your notes directly."
+AI cannot detect any owners	Warning card: "No owners detected. Please assign manually."
+AI confidence <50% on all items	Full-review mode: all items flagged for manual confirmation
+Empty State:
+"Upload your first meeting notes to see AI-powered commitments in action. Drag and drop a .txt, .docx, or .pdf file, or paste your notes directly."
+
+10.4 AI Processing Engine
+Generate:
+
+Meeting Summary (structured, 3-5 bullet sections)
+
+Key Decisions (with context snippets)
+
+Action Items → Commitments
+
+Suggested Owners (with confidence score)
+
+Suggested Deadlines (with confidence score)
+
+Ambiguity Detection (flagged items)
+
+Speaker-Aware Extraction:
+
+The AI prompt is explicitly instructed to:
+
+Identify speakers by name wherever possible (e.g., "Tolu said…", "Sarah will…").
+
+Extract commitments directly from the speaker's own words or from explicit delegation.
+
+When a speaker claims a task ("I’ll design the landing page"), assign that speaker as the owner.
+
+When a task is delegated ("Tolu, can you handle the design?"), assign the named person as the owner.
+
+Map extracted names to workspace members when suggesting owners. If no match exists, leave the suggestion empty and flag as "Needs Owner".
+
+For every commitment, include a short quote or line reference from the transcript that supports the extraction.
+
+Confidence Scoring:
+
+Each AI output displays a confidence indicator:
+
+High Confidence (Green): Clear owner and deadline detected
+
+Medium Confidence (Yellow): Some interpretation required, review recommended
+
+Low Confidence (Red): AI uncertain, manual review required
+
+AI Disclaimer:
+
+Every AI-generated section carries a subtle "AI Generated" label with a tooltip: "This output was generated by AI. Please review for accuracy before publishing."
+
+Processing Time:
+
+Target: <30 seconds for standard meeting notes
+
+Loading state: Skeleton cards with pulsing animation and "Analyzing your meeting..." message
+
+AI Feedback Loop (Thumbs Up/Down):
+
+Each AI output includes 👍 👎 buttons
+
+Thumbs down opens a quick feedback form: "What was incorrect? (Owner / Deadline / Action Item / Summary)"
+
+Feedback is stored and used to fine-tune future model behavior
+
+Aggregated feedback is reviewed weekly by the product team
+
+10.5 Commitment Management
+Create commitments from AI outputs.
+
+Features:
+
+Assign Owner
+
+Edit Commitment (title, description)
+
+Set Due Date
+
+Add Notes
+
+Change Status
+
+Link to Source Decision
+
+Set Priority (High, Medium, Low)
+
+Statuses:
+
+Pending Confirmation
+
+In Progress
+
+Blocked (with optional blocker description)
+
+Completed
+
+Overdue
+
+Commitment Card Design:
+
+Each commitment card displays:
+
+Title (bold, 16px)
+
+Owner avatar + name
+
+Due date with status chip
+
+AI confidence badge (if applicable)
+
+Source meeting link
+
+Status dropdown
+
+Context snippet (expandable, 2-line preview)
+
+10.6 Commitment Confirmation System
+Assigned users must explicitly respond to each commitment. This ensures accountability is explicit rather than assumed.
+
+Confirmation Options:
+
+Accept Commitment (green confirmation)
+
+Reject Commitment (reason required)
+
+Request Changes (specify what needs updating)
+
+Confirmation Flow Details:
+
+AI generates commitments post-upload
+
+Workspace admin/uploader reviews and publishes
+
+Assigned owners receive in-app notification
+
+Owners have 48 hours to respond
+
+Unconfirmed commitments are flagged and highlighted on dashboard
+
+After 48 hours, workspace admins receive escalation notification
+
+Rejected or change-requested items return to uploader for reassignment
+
+Uploader can reassign, edit, or dismiss
+
+Escalation Path:
+
+24h after assignment: Gentle reminder notification
+
+48h after assignment: Escalation to workspace admin
+
+72h after assignment: Commitment auto-marked as "At Risk"
+
+Micro-interactions:
+
+Accept: Green checkmark animation (200ms ease-out)
+
+Reject: Red pulse with reason modal
+
+Request Changes: Yellow highlight with inline comment field
+
+10.7 Dashboard
+Workspace Dashboard Sections:
+
+KPI Overview Cards:
+
+Total Meetings This Week
+
+Total Commitments
+
+Confirmation Rate (%)
+
+Completion Rate (%)
+
+KPI Card Design: White surface, 12px radius, subtle border. Metric number large (24px, Geist 600). Label small (12px, Inter 400, Neutral). Trend arrow (up/down) with green/red color.
+
+Commitment Status Breakdown:
+
+Pending Confirmations (count + owner avatars)
+
+In Progress (progress bar)
+
+Blocked (reason previews, 1-line)
+
+Overdue (highlighted red, count badge)
+
+Completed This Week (green check + count)
+
+Recent Meetings:
+
+Chronological list, 5 most recent
+
+Each row: Title, Date, # Commitments, Confirmation %
+
+Click to expand full meeting detail
+
+Team Accountability:
+
+Per-member breakdown: Total Commitments, Confirmed, Completed, Overdue
+
+Simple table layout, sortable by any column
+
+Overdue Commitments:
+
+Dedicated red-highlighted section
+
+Sorted by days overdue (most overdue first)
+
+Owner avatar, commitment title, due date, days overdue badge
+
+Activity Feed:
+
+Chronological, real-time (Supabase Realtime)
+
+Events: Commitment created, confirmed, status changed, completed
+
+Each event: avatar + name + action + timestamp
+
+10.8 Activity Feed
+Displays in real-time:
+
+New commitments created
+
+Status changes
+
+Owner confirmations / rejections
+
+Completion activity
+
+Blocker reports
+
+Feed items include:
+
+User avatar
+
+Action description (e.g., "Alex accepted 'Update API docs'")
+
+Relative timestamp
+
+Link to relevant commitment
+
+11. User Stories (Enhanced with Acceptance Criteria)
+Meeting Processing
+
+As a user, I want to upload meeting notes so AI can analyze them and generate structured outputs.
+
+Acceptance Criteria:
+
+User can upload .txt, .docx, or .pdf files
+
+User can paste raw text directly into a text area
+
+Upload triggers AI processing within 30 seconds
+
+User sees loading state during processing
+
+User sees error message if upload fails or format is unsupported
+
+User is notified when processing is complete
+
+Summaries
+
+As a user, I want AI-generated summaries so I can quickly understand meeting outcomes.
+
+Acceptance Criteria:
+
+Summary appears in a visually distinct "AI Generated" card
+
+Summary is 3-5 bullet points max
+
+Summary includes key topics and conclusions
+
+User can edit the summary after generation
+
+Summary displays confidence indicator
+
+Commitment Extraction
+
+As a user, I want AI to identify action items and convert them into commitments.
+
+Acceptance Criteria:
+
+Action items are extracted and displayed as discrete commitment cards
+
+Each commitment includes suggested owner and deadline (if detected)
+
+Commitments without detected owners are flagged "Needs Owner"
+
+User can add, edit, or delete commitments before publishing
+
+AI confidence is displayed on each commitment
+
+Ownership
+
+As a user, I want responsibilities assigned so accountability is clear.
+
+Acceptance Criteria:
+
+AI suggests owners based on meeting context
+
+User can reassign owners via dropdown
+
+Owner receives in-app notification upon assignment
+
+Dashboard shows per-owner commitment breakdown
+
+Confirmation
+
+As an assignee, I want to confirm ownership so there is no ambiguity around responsibilities.
+
+Acceptance Criteria:
+
+Assignee sees "Pending Confirmation" items in their dashboard
+
+Assignee can Accept, Reject, or Request Changes
+
+Accept triggers green confirmation animation
+
+Reject requires a reason (free text, min 10 characters)
+
+Request Changes requires a note explaining what needs updating
+
+Confirmation status updates in real-time across workspace
+
+Tracking
+
+As a user, I want to monitor commitment progress from a central dashboard.
+
+Acceptance Criteria:
+
+Dashboard shows all commitment statuses
+
+Overdue items are visually distinct (red highlight)
+
+User can filter by status, owner, or meeting
+
+KPI cards update in real-time
+
+User can click into any commitment for full detail
+
+12. Success Metrics
+Product Metrics
+
+Meetings Uploaded (weekly)
+
+Commitments Generated per Meeting
+
+Commitments Confirmed (%)
+
+Commitment Completion Rate (%)
+
+Overdue Commitment Rate (%)
+
+AI Extraction Accuracy (user-corrected vs AI output)
+
+Average Time to Confirmation
+
+User Metrics
+
+Daily Active Users (DAU)
+
+Weekly Active Users (WAU)
+
+Workspace Retention Rate (Week-1, Week-4, Week-12)
+
+Feature Adoption: % of users who use confirmation flow
+
+Feature Adoption: % of users who provide AI feedback
+
+Business Metrics
+
+Team Signups (weekly)
+
+Customer Satisfaction Score (CSAT, measured via in-app survey)
+
+Product Adoption Rate
+
+Free-to-Paid Conversion Rate (Future)
+
+Waitlist Growth (pre-launch)
+
+13. North Star Metric
+Percentage of meetings that result in confirmed commitments.
+
+This measures whether MeetIQ successfully converts conversations into execution.
+
+Target: >70% of uploaded meetings produce at least one confirmed commitment within 48 hours.
+
+14. MVP Scope
+Included
+
+Authentication (Register with email or Google, Login, Password Reset, Email Verify)
+
+Team Workspaces (Create, Invite, Roles)
+
+Meeting Uploads (TXT, DOCX, PDF, Paste)
+
+AI Summaries (with confidence)
+
+Speaker-Aware Decision Extraction
+
+Commitment Extraction (with confidence, mapped to speakers)
+
+Owner Assignment (AI-suggested + manual)
+
+Commitment Confirmation (Accept/Reject/Request Changes)
+
+Confirmation Escalation (48h reminder, admin notification)
+
+Dashboard (KPI cards, status breakdown, activity feed)
+
+Activity Feed (real-time)
+
+AI Feedback Loop (thumbs up/down)
+
+3-Step Onboarding Wizard (optional, skippable)
+
+Loading, Empty, and Error States for all screens
+
+Excluded
+
+Live Meeting Recording
+
+Real-Time Transcription
+
+Zoom Integration
+
+Slack Integration
+
+Microsoft Teams Integration
+
+Mobile Applications
+
+Advanced Analytics
+
+Calendar Synchronization
+
+Email Notifications (beyond verification)
+
+Dark Mode (planned, not in MVP)
+
+15. Data Privacy, Retention & Security
+Data Handling:
+
+Uploaded meeting content is encrypted at rest (AES-256) and in transit (TLS 1.3)
+
+AI processing occurs via secure API (OpenAI) with data not used for model training
+
+Users can delete their data at any time (workspace deletion cascades)
+
+Meeting content is retained for the life of the workspace or until manual deletion
+
+Compliance (Out of Scope for MVP, on Roadmap):
+
+SOC 2 Type II (Phase 3)
+
+GDPR compliance baseline in MVP (data export, deletion on request)
+
+SAML/SSO for enterprise (Phase 3)
+
+MVP Security Commitments:
+
+Supabase Row Level Security on all tables
+
+Rate limiting on API routes
+
+Input sanitization on all user-provided content
+
+No meeting data used for AI model training
+
+16. User Onboarding Flow
+First-Time User Experience:
+
+User signs up with email + password (or Google OAuth).
+
+Email verification (required before first upload).
+
+After verification, a 3-step onboarding wizard is shown (can be skipped):
+
+Step 1: Welcome – set display name and timezone.
+
+Step 2: Create your workspace (or join an existing one via invite).
+
+Step 3: Upload your first meeting transcript or try a demo transcript to see MeetIQ in action.
+
+User lands on the dashboard with a guided tooltip walkthrough (key elements highlighted).
+
+Onboarding is considered complete when the user uploads their first meeting and confirms at least one commitment.
+
+Onboarding success measured by: % of new users who upload a meeting within 48 hours of signup.
+
+17. Technical Stack
+Next.js 15, React 19, TypeScript, Tailwind CSS, Shadcn UI, Supabase, PostgreSQL, Supabase Auth, Supabase Storage, Supabase Realtime, Supabase Edge Functions, OpenAI GPT Models, Vercel, React Hook Form, Zod, PDF.js, Mammoth.js, TanStack Query, GitHub.
+
+18. Future Roadmap
+Phase 2
+
+Slack Integration (commitment notifications, slash commands)
+
+Microsoft Teams Integration
+
+Zoom Integration (post-call summary trigger)
+
+Calendar Sync (auto-detect meetings)
+
+Automated Reminders (email + Slack)
+
+Email Notifications
+
+Phase 3
+
+Sentiment Analysis
+
+Risk Detection
+
+Commitment Health Scoring
+
+Follow-up Recommendations
+
+Team Performance Analytics
+
+Enterprise Security Features (SAML/SSO, SOC 2)
+
+Dark Mode
+
+19. Definition of Success
+MeetIQ is successful when:
+
+Teams consistently upload meeting discussions
+
+Commitments are acknowledged by owners
+
+AI-generated commitments are trusted (low correction rate)
+
+Overdue work decreases measurably
+
+Accountability improves across teams
+
+Meetings consistently produce measurable outcomes
+
+Users report time saved on manual follow-up
+
+Ultimately, MeetIQ succeeds when organizations rely on it as the primary system connecting conversations to execution.
+

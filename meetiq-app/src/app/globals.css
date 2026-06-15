@@ -1,0 +1,256 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── MeetIQ Design Tokens ── */
+@theme inline {
+  /* Shadcn base mappings */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: 'Geist', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  /* Shadcn component tokens */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Radius */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* MeetIQ semantic color tokens */
+  --color-meetiq-primary: hsl(222, 47%, 11%);
+  --color-meetiq-accent: hsl(217, 91%, 60%);
+  --color-meetiq-secondary: hsl(214, 32%, 91%);
+  --color-meetiq-neutral: hsl(215, 16%, 62%);
+  --color-meetiq-border: hsl(224, 10%, 79%);
+  --color-meetiq-success: hsl(142, 71%, 45%);
+  --color-meetiq-warning: hsl(40, 100%, 65%);
+  --color-meetiq-error: hsl(0, 84%, 60%);
+  --color-meetiq-info: hsl(217, 91%, 60%);
+
+  /* AI-specific tokens */
+  --color-ai-bg: hsl(214, 100%, 97%);
+  --color-ai-border: hsl(217, 91%, 80%);
+  --color-ai-label: hsl(222, 47%, 30%);
+
+  /* MeetIQ Shadows */
+  --shadow-meetiq-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-meetiq-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-meetiq-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-meetiq-lg: 0 16px 40px rgba(15, 23, 42, 0.12);
+}
+
+:root {
+  /* Shadcn theme variables */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: hsl(222, 47%, 11%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(214, 32%, 91%);
+  --secondary-foreground: hsl(222, 47%, 11%);
+  --muted: hsl(220, 14%, 96%);
+  --muted-foreground: hsl(215, 16%, 47%);
+  --accent: hsl(217, 91%, 60%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 84%, 60%);
+  --border: hsl(224, 10%, 79%);
+  --input: hsla(224, 10%, 79%, 0.4);
+  --ring: hsl(217, 91%, 60%);
+  --chart-1: hsl(142, 71%, 45%);
+  --chart-2: hsl(217, 91%, 60%);
+  --chart-3: hsl(40, 100%, 65%);
+  --chart-4: hsl(0, 84%, 60%);
+  --chart-5: hsl(215, 16%, 62%);
+  --radius: 0.75rem;
+  --sidebar: hsl(0, 0%, 100%);
+  --sidebar-foreground: hsl(222, 47%, 11%);
+  --sidebar-primary: hsl(217, 91%, 60%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(214, 100%, 97%);
+  --sidebar-accent-foreground: hsl(217, 91%, 60%);
+  --sidebar-border: hsl(224, 10%, 79%);
+  --sidebar-ring: hsl(217, 91%, 60%);
+
+  /* MeetIQ Spacing (8px grid) */
+  --space-unit: 8px;
+  --space-0: 0px;
+  --space-0-5: 4px;
+  --space-1: 8px;
+  --space-1-5: 12px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-10: 80px;
+  --space-12: 96px;
+  --space-16: 128px;
+
+  /* MeetIQ Status Colors */
+  --color-status-pending: hsl(215, 16%, 62%);
+  --color-status-in-progress: hsl(217, 91%, 60%);
+  --color-status-blocked: hsl(40, 100%, 65%);
+  --color-status-completed: hsl(142, 71%, 45%);
+  --color-status-overdue: hsl(0, 84%, 60%);
+
+  /* AI Confidence Colors */
+  --color-confidence-high: hsl(142, 71%, 45%);
+  --color-confidence-medium: hsl(40, 100%, 65%);
+  --color-confidence-low: hsl(0, 84%, 60%);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+  html {
+    @apply scroll-smooth;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+/* ── AI Content Styling ── */
+.ai-card {
+  background-color: var(--color-ai-bg);
+  border: 1px solid var(--color-ai-border);
+  border-radius: var(--radius-lg);
+}
+
+.ai-label {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--color-ai-label);
+  letter-spacing: 0.02em;
+}
+
+/* ── Status Chip Base ── */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+/* ── Commitment Card Micro-interactions ── */
+@keyframes confirmPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+@keyframes borderPulse {
+  0%, 100% { border-color: var(--color-meetiq-error); }
+  50% { border-color: transparent; }
+}
+
+.confirm-animation {
+  animation: confirmPulse 200ms ease-out;
+}
+
+.escalation-pulse {
+  animation: borderPulse 200ms ease-in-out 3;
+}
+
+/* ── Loading Skeleton ── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(214, 32%, 91%) 25%,
+    hsl(214, 32%, 96%) 50%,
+    hsl(214, 32%, 91%) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}

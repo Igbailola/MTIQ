@@ -1,0 +1,406 @@
+MeetIQ Market Intelligence Report
+
+Executive Summary
+
+MeetIQ is positioned within the rapidly growing AI productivity and work execution
+market.
+
+Unlike traditional meeting assistants, MeetIQ focuses on accountability and
+execution after meetings.
+
+Category:
+
+AI Execution Accountability Platform
+
+Tagline:
+
+From Conversation to Execution
+
+
+Market Opportunity
+
+Organizations conduct thousands of meetings every year.
+
+While meetings generate decisions, most teams struggle with:
+
+* Forgotten action items
+* Unclear ownership
+* Missed deadlines
+* Poor accountability
+* Lack of execution visibility
+
+This creates a large execution gap.
+
+MeetIQ exists to close that gap.
+
+
+Market Sizing
+
+Total Addressable Market (TAM):
+
+Global AI Productivity Software Market
+Estimated: $14.5 Billion (2026)
+Source: Composite of industry analyst reports (Gartner, IDC, CB Insights)
+Growth Rate: 28% CAGR
+
+Serviceable Addressable Market (SAM):
+
+AI-Powered Meeting & Workflow Tools for SMB/Mid-Market Teams
+Estimated: $4.2 Billion
+Includes: Product teams, startups, agencies, distributed organizations
+Excludes: Large enterprise (Fortune 500) requiring SOC 2, SSO, etc.
+
+Serviceable Obtainable Market (SOM):
+
+Early Adopter Segment (Product Teams + Startups, English-speaking, AI-friendly)
+Estimated: $42 Million
+Target: 100 active teams in Year 1, scaling to 500+ in Year 2
+Initial geographic focus: US, Canada, UK, Australia, Western Europe
+
+
+Industry Trends
+
+AI Workplace Adoption
+
+Companies increasingly use AI for:
+
+* Summarization
+* Automation
+* Workflow generation
+* Knowledge management
+
+Key Stat: 65% of knowledge workers are expected to use AI-powered productivity
+tools by 2027 (Gartner).
+
+Hybrid Work
+
+Remote and distributed teams require:
+
+* Transparency
+* Documentation
+* Ownership tracking
+
+Key Stat: 58% of US workers work remotely at least part-time (Flex Index, 2026).
+
+Outcome-Based Productivity
+
+Businesses increasingly prioritize:
+
+* Execution speed
+* Team accountability
+* Operational efficiency
+
+Over documentation alone.
+
+Shift from "what was discussed" to "what was delivered."
+
+AI Fatigue & Skepticism:
+
+A growing number of teams are wary of AI tools that overpromise and underdeliver.
+MeetIQ addresses this by:
+
+* Displaying confidence scores on all AI outputs
+* Requiring human confirmation before commitments are set
+* Using subtle, non-intrusive AI labeling
+* Prioritizing accuracy over flashiness
+* Building a feedback loop that visibly improves results over time
+
+
+Target Market
+
+Primary Market
+
+Product Teams
+
+Users:
+
+* Product Managers
+* Designers
+* Engineers
+* Engineering Managers
+
+Pain Points:
+
+* Lost decisions
+* Sprint delays
+* Ownership confusion
+* Multi-tool fatigue (Jira + Slack + Notion + Email)
+
+Secondary Market
+
+Startup Teams
+
+Pain Points:
+
+* Multiple responsibilities per person
+* Informal processes
+* Lack of accountability systems
+* Fast-paced, high-change environments
+
+Tertiary Market
+
+Agencies
+
+Pain Points:
+
+* Client follow-ups slipping
+* Team ownership across accounts
+* Project visibility for clients
+* Missed deadlines damaging client relationships
+
+
+Early Adopter Persona: "Alex the Overwhelmed PM"
+
+Alex is a Product Manager at a 40-person SaaS startup. She attends 15+ meetings
+weekly across engineering, design, and leadership. After each meeting, she
+manually creates Jira tickets, Slack follow-ups, and Notion checklists — but
+ownership remains fuzzy, and roughly 30% of action items slip through the cracks.
+
+Current workflow:
+
+Monday: Sprint planning → 12 action items → 8 make it to Jira → 5 get owners
+assigned → 3 are actually completed by Friday.
+
+Pain level: High. Alex has tried Fireflies (great transcripts, no execution),
+Notion (flexible but manual), and ClickUp (task management but no meeting-to-task
+conversion). She needs a tool that bridges the gap.
+
+Alex's decision criteria:
+
+* Saves 3+ hours/week on manual follow-up
+* Reduces missed deadlines by >50%
+* Integrates with existing tools (Slack, Calendar in Phase 2)
+* Feels trustworthy, not gimmicky
+* Team adopts within 1 week
+
+
+Competitive Landscape
+
+Direct Competitors (Meeting AI):
+
+| Tool      | Strengths                     | Weakness                          |
+|-----------|-------------------------------|-----------------------------------|
+| Fireflies | Transcription, AI summaries   | No execution tracking             |
+| Otter     | Note generation, transcription| Weak accountability layer         |
+| Fathom    | AI summaries, video recording | Focused on meetings, not outcomes |
+| Sembly    | Task extraction, CRM sync     | Enterprise-focused, complex UI    |
+
+Adjacent Competitors (Work Execution):
+
+| Tool      | Strengths                     | Weakness                          |
+|-----------|-------------------------------|-----------------------------------|
+| Notion AI | Flexible workspace, docs      | Requires manual workflow setup    |
+| ClickUp   | Task management, views        | No automatic meeting-to-task flow |
+| Asana     | Project management, timelines | No meeting intelligence           |
+| Monday    | Work OS, dashboards           | Heavy setup, no AI extraction     |
+
+Market Gap:
+
+Most tools solve:
+
+Meeting → Documentation
+
+or
+
+Task → Tracking
+
+Very few solve:
+
+Meeting → Commitment → Accountability → Execution
+
+This is MeetIQ's opportunity.
+
+
+Competitive Advantage
+
+MeetIQ's 5-Layer Moat:
+
+Layer 1: AI extracts decisions (not just transcripts)
+Layer 2: AI generates commitments with confidence scores
+Layer 3: Owners must explicitly acknowledge responsibility (Accept/Reject/Change)
+Layer 4: Execution is monitored until completion with escalation
+Layer 5: Managers gain visibility into blockers and overdue items
+
+This creates a system of accountability, not just a smarter notepad.
+
+
+Positioning
+
+MeetIQ is not:
+
+* An AI note-taking app
+* A transcription platform
+* A task manager
+
+MeetIQ is:
+
+An AI-powered execution accountability platform.
+
+Unique Value Proposition:
+
+MeetIQ transforms meeting conversations into Decisions, Commitments, Ownership,
+Accountability, and Execution — all inside a single workflow.
+
+
+SWOT Analysis
+
+Strengths:
+
+* Clear, painful problem
+* Strong, differentiated positioning
+* AI-native architecture (not bolted-on AI)
+* Accountability-first design philosophy
+* Modern, trusted tech stack (Linear/Vercel aesthetic)
+* Explicit confirmation system (unique in market)
+
+Weaknesses:
+
+* Highly competitive market
+* Dependence on AI extraction accuracy
+* Behavior-change adoption challenge (new habit required)
+* No integrations in MVP (Slack, Calendar, etc.)
+* Small team, limited resources
+
+Opportunities:
+
+* Remote and hybrid work is permanent
+* Startup ecosystem values speed and accountability
+* AI workplace adoption accelerating
+* Productivity software market growing at 28% CAGR
+* Competitors underinvested in execution layer
+* Potential for platform play (API, integrations, workflows)
+
+Threats:
+
+* Existing competitors adding execution features
+* AI infrastructure costs at scale
+* User resistance to new workflow tools
+* AI accuracy concerns eroding trust
+* Large players (Notion, ClickUp) bundling meeting-to-task features
+* "AI fatigue" slowing adoption
+
+
+Pricing & Monetization Hypothesis
+
+Model: Freemium with tiered paid plans
+
+Free Tier:
+
+* 1 Workspace
+* Up to 5 team members
+* 10 meeting uploads/month
+* Basic AI extraction
+* Standard dashboard
+
+Pro Tier ($12/user/month):
+
+* Unlimited meetings
+* Up to 20 team members
+* Advanced AI extraction
+* Commitment history
+* Priority processing
+
+Team Tier ($24/user/month):
+
+* Unlimited workspaces
+* Unlimited team members
+* Custom AI confidence thresholds
+* Analytics & reporting
+* API access (Phase 2)
+
+Enterprise Tier (Custom pricing, Phase 3):
+
+* SAML/SSO
+* SOC 2 compliance
+* Dedicated support
+* Custom integrations
+* Data residency options
+
+Activation Benchmark:
+
+Free-to-paid conversion target: 8-12% within 90 days of signup.
+
+
+Go-To-Market Strategy
+
+Launch Narrative:
+
+MeetIQ launches as the first "Accountability Platform" — not just another
+meeting tool. The story is about closing the gap between talking and doing.
+
+12-Month GTM Timeline:
+
+Month 1-2: Pre-Launch
+
+* Build waitlist via LinkedIn, X, Indie Hackers, Reddit (r/productmanagement,
+  r/startups)
+* Share founder's journey building MeetIQ
+* Publish problem-validation content (meeting stats, productivity data)
+* Target: 500+ waitlist signups
+
+Month 3: Product Hunt Launch
+
+* Launch on Product Hunt (target: top 3 of the day)
+* Simultaneous launch posts on LinkedIn, X, Reddit
+* Offer early-adopter discount (50% off Pro for first 100 teams)
+* Target: 100 active teams within 30 days post-launch
+
+Month 4-6: Community Growth
+
+* Active engagement in product management, engineering, and startup communities
+* Case studies from early adopters
+* Content: "How we reduced missed deadlines by 60% in 2 weeks"
+* Target: 250 active teams
+
+Month 7-12: Expansion
+
+* Launch Slack integration (Phase 2)
+* Begin targeting agencies and mid-market software companies
+* Publish industry benchmarks on meeting accountability
+* Target: 500+ active teams, first 50 paid teams
+
+Channels:
+
+* Product Hunt (primary launch)
+* LinkedIn (founder content, product management groups)
+* X (build-in-public thread, AI/productivity community)
+* Indie Hackers (product updates, revenue transparency)
+* Reddit (r/productmanagement, r/startups, r/SaaS)
+* Direct outreach to product leaders at 50-150 person startups
+
+
+North Star Metric
+
+Percentage of meetings that result in confirmed commitments.
+
+Target: >70% of uploaded meetings produce at least one confirmed commitment
+within 48 hours.
+
+
+Key Milestones & Success Benchmarks
+
+| Timeframe | Milestone                              | Target          |
+|-----------|----------------------------------------|-----------------|
+| Launch Day| Product Hunt launch                    | Top 3 of day    |
+| Month 1   | Active teams                           | 100             |
+| Month 3   | Active teams                           | 250             |
+| Month 3   | Weekly meeting uploads                 | 500+            |
+| Month 6   | Active teams                           | 500             |
+| Month 6   | Free-to-paid conversion                | 8%              |
+| Month 12  | Active teams                           | 1,000+          |
+| Month 12  | Paid teams                             | 100+            |
+| Month 12  | North Star Metric (% meetings → confirmed) | >70%         |
+
+
+Strategic Insight
+
+MeetIQ wins when it becomes the accountability layer between conversation and
+execution.
+
+The goal is not to help teams remember meetings.
+
+The goal is to ensure meetings produce measurable outcomes.
+
+This is a behavioral shift product, not just a technology product. Success
+requires equal investment in UX simplicity, AI trustworthiness, and habit
+formation.

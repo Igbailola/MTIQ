@@ -1,0 +1,384 @@
+'use client';
+
+import React, { use } from 'react';
+import { useMeeting, useProcessMeeting, usePublishMeeting } from '@/hooks/use-meetings';
+import { useCreateCommitment } from '@/hooks/use-commitments';
+import { useCurrentWorkspace, useWorkspaceMembers } from '@/hooks/use-workspace';
+import { useAuth } from '@/hooks/use-auth';
+import { Button } from '@/components/ui/button';
+import { AISummaryCard } from '@/features/meetings/components/ai-summary-card';
+import { DecisionCard } from '@/features/meetings/components/decision-card';
+import { CommitmentCard } from '@/features/commitments/components/commitment-card';
+import { ProcessingSkeleton } from '@/features/meetings/components/processing-skeleton';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Calendar,
+  User,
+  ArrowLeft,
+  Loader2,
+  AlertCircle,
+  Share2,
+  Sparkles,
+  CheckCircle,
+  Plus,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { format } from 'date-fns';
+import { toast } from 'sonner';
+import { useState } from 'react';
+
+interface MeetingDetailPageProps {
+  params: Promise<{
+    meetingId: string;
+  }>;
+}
+
+export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
+  const { meetingId } = use(params);
+  const router = useRouter();
+  const { user } = useAuth();
+  const { currentWorkspace } = useCurrentWorkspace();
+  const { data: members } = useWorkspaceMembers(currentWorkspace?.id);
+  const { data: meeting, isLoading, error } = useMeeting(meetingId);
+
+  const processMutation = useProcessMeeting(meetingId, currentWorkspace?.id || '');
+  const publishMutation = usePublishMeeting(meetingId, currentWorkspace?.id || '');
+  const createCommitmentMutation = useCreateCommitment(currentWorkspace?.id || '');
+
+  // Manual Creation States
+  const [createFormOpen, setCreateFormOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newOwnerId, setNewOwnerId] = useState<string>('');
+  const [newDueDate, setNewDueDate] = useState<string>('');
+  const [newPriority, setNewPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [creatingCommitment, setCreatingCommitment] = useState(false);
+
+  const isAdmin = members?.find((m) => m.user_id === user?.id)?.role === 'admin';
+  const hasUnpublished = meeting?.commitments?.some((c) => !c.published) ?? false;
+  const hasCommitments = (meeting?.commitments?.length ?? 0) > 0;
+
+  const handleCreateCommitment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim()) {
+      toast.error('Title is required');
+      return;
+    }
+    setCreatingCommitment(true);
+    try {
+      await createCommitmentMutation.mutateAsync({
+        meeting_id: meetingId,
+        title: newTitle.trim(),
+        description: newDescription.trim() || undefined,
+        owner_id: newOwnerId ? newOwnerId : null,
+        due_date: newDueDate ? new Date(newDueDate).toISOString() : null,
+        priority: newPriority,
+      });
+      // Reset form
+      setNewTitle('');
+      setNewDescription('');
+      setNewOwnerId('');
+      setNewDueDate('');
+      setNewPriority('medium');
+      setCreateFormOpen(false);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCreatingCommitment(false);
+    }
+  };
+
+  const handleRetryProcessing = async () => {
+    try {
+      await processMutation.mutateAsync();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handlePublish = async () => {
+    try {
+      await publishMutation.mutateAsync();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  if (isLoading || !meeting) {
+    return <ProcessingSkeleton />;
+  }
+
+  if (error || meeting.status === 'error') {
+    return (
+      <div className="space-y-6 max-w-3xl mx-auto font-body pt-8">
+        <Card className="border border-red-200 bg-red-50/10">
+          <CardContent className="p-8 flex flex-col items-center justify-center text-center space-y-4">
+            <AlertCircle className="h-12 w-12 text-destructive animate-bounce" />
+            <div>
+              <h2 className="text-xl font-heading font-semibold text-primary">AI Extraction Failed</h2>
+              <p className="text-sm text-muted-foreground mt-2 max-w-md font-body">
+                We encountered an error while analyzing this meeting notes transcript. Please check your OpenAI credentials or formatting, and try again.
+              </p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" onClick={() => router.push('/meetings')}>
+                Go to meetings
+              </Button>
+              <Button onClick={handleRetryProcessing} disabled={processMutation.isPending}>
+                {processMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  'Retry AI Analysis'
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (meeting.status === 'processing') {
+    return <ProcessingSkeleton />;
+  }
+
+  const formattedDate = format(new Date(meeting.meeting_date), 'PPP');
+
+  return (
+    <div className="space-y-8 font-body">
+      {/* Header section */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-meetiq-border/5 pb-6">
+        <div className="flex items-start gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push('/meetings')}
+            className="border border-meetiq-border/5 bg-white hover:bg-slate-50 shrink-0 focus-visible:outline-none"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div className="space-y-1">
+            <h1 className="text-xl font-bold tracking-tight text-primary font-heading leading-tight">
+              {meeting.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-body">
+              <span className="flex items-center gap-1">
+                <Calendar className="h-4 w-4 text-slate-400" />
+                {formattedDate}
+              </span>
+              <span>·</span>
+              <span className="flex items-center gap-1">
+                <User className="h-4 w-4 text-slate-400" />
+                Uploaded by {meeting.uploader?.display_name || 'Team member'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Header Action Button (Publish) */}
+        <div className="flex items-center gap-3">
+          {isAdmin && hasCommitments && (
+            hasUnpublished ? (
+              <Button onClick={handlePublish} disabled={publishMutation.isPending} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-1.5 h-auto">
+                {publishMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Publishing...
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="h-4 w-4" />
+                    Publish Commitments
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Badge variant="outline" className="gap-1.5 bg-emerald-50 text-emerald-700 border-emerald-200 px-3 text-sm font-semibold h-[30px]">
+                <CheckCircle className="h-4 w-4" />
+                Published to Team
+              </Badge>
+            )
+          )}
+        </div>
+      </div>
+
+      {/* Main Content Layout */}
+      <div className="space-y-8 max-w-5xl">
+        {/* AI Summary block */}
+        {meeting.summary && (
+          <div className="space-y-3">
+            <h2 className="text-base font-semibold text-primary font-heading">Structured Summary</h2>
+            <AISummaryCard summary={meeting.summary} meetingId={meeting.id} />
+          </div>
+        )}
+
+        <div className="grid gap-8 md:grid-cols-2">
+          {/* Decisions */}
+          <div className="space-y-4">
+            <h2 className="text-base font-semibold text-primary font-heading">Key Decisions</h2>
+            {meeting.decisions?.length === 0 ? (
+              <div className="p-6 text-center text-xs text-muted-foreground bg-white border border-dashed rounded-xl font-body">
+                No decisions were extracted from this meeting notes transcript.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {meeting.decisions?.map((decision) => (
+                  <DecisionCard key={decision.id} decision={decision} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Commitments */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-semibold text-primary font-heading">Action Commitments</h2>
+                {hasUnpublished && (
+                  <span className="text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-0.5 rounded-full shrink-0 animate-pulse">
+                    Drafts
+                  </span>
+                )}
+              </div>
+              {isAdmin && (
+                <Dialog open={createFormOpen} onOpenChange={setCreateFormOpen}>
+                  <Button
+                    onClick={() => setCreateFormOpen(true)}
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs border-dashed gap-1 px-2.5 hover:bg-slate-50 hover:text-accent focus-visible:outline-none"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Manually
+                  </Button>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle className="font-heading text-lg">Add Manual Commitment</DialogTitle>
+                      <DialogDescription className="font-body text-xs text-muted-foreground">
+                        Create a new action item based on the meeting details.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleCreateCommitment} className="space-y-4 pt-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="title" className="text-xs font-semibold">Title</Label>
+                        <Input
+                          id="title"
+                          placeholder="e.g. Set up deployment pipeline"
+                          value={newTitle}
+                          onChange={(e) => setNewTitle(e.target.value)}
+                          disabled={creatingCommitment}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="description" className="text-xs font-semibold">Description</Label>
+                        <Textarea
+                          id="description"
+                          placeholder="Provide additional details or context for the action item."
+                          value={newDescription}
+                          onChange={(e) => setNewDescription(e.target.value)}
+                          disabled={creatingCommitment}
+                          rows={3}
+                          className="text-xs"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="space-y-1">
+                          <Label htmlFor="newOwner" className="text-xs font-semibold">Owner Suggestion</Label>
+                          <select
+                            id="newOwner"
+                            value={newOwnerId}
+                            onChange={(e) => setNewOwnerId(e.target.value)}
+                            className="w-full rounded-md border border-input p-2 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            disabled={creatingCommitment}
+                          >
+                            <option value="">No owner suggested</option>
+                            {members?.map((m) => (
+                              <option key={m.user_id} value={m.user_id}>
+                                {m.profile?.display_name || 'Anonymous User'}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="dueDate" className="text-xs font-semibold">Due Date</Label>
+                          <input
+                            id="dueDate"
+                            type="date"
+                            value={newDueDate}
+                            onChange={(e) => setNewDueDate(e.target.value)}
+                            className="w-full rounded-md border border-input p-2 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            disabled={creatingCommitment}
+                          />
+                        </div>
+                        <div className="space-y-1 col-span-2">
+                          <Label htmlFor="priority" className="text-xs font-semibold">Priority</Label>
+                          <select
+                            id="priority"
+                            value={newPriority}
+                            onChange={(e) => setNewPriority(e.target.value as any)}
+                            className="w-full rounded-md border border-input p-2 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            disabled={creatingCommitment}
+                          >
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-3 pt-2 border-t">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setCreateFormOpen(false)}
+                          disabled={creatingCommitment}
+                          className="h-9 text-xs"
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit" disabled={creatingCommitment} className="h-9 text-xs bg-slate-800 text-white hover:bg-slate-700">
+                          {creatingCommitment ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Adding...
+                            </>
+                          ) : (
+                            'Add Commitment'
+                          )}
+                        </Button>
+                      </div>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
+            {meeting.commitments?.length === 0 ? (
+              <div className="p-6 text-center text-xs text-muted-foreground bg-white border border-dashed rounded-xl font-body">
+                No action commitments were extracted from this meeting notes transcript.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {meeting.commitments?.map((commitment) => (
+                  <CommitmentCard
+                    key={commitment.id}
+                    commitment={commitment}
+                    workspaceId={currentWorkspace?.id || ''}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

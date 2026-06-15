@@ -1,0 +1,598 @@
+MeetIQ Design Direction
+
+Version: 1.0
+Last Updated: June 2026
+
+
+Product Positioning
+
+MeetIQ is an AI-powered execution and accountability platform that transforms
+meeting conversations into confirmed commitments, ownership, and measurable
+outcomes.
+
+The visual language must communicate:
+
+* Trust
+* Intelligence
+* Accountability
+* Clarity
+* Professionalism
+* Speed
+
+The product should feel like a modern B2B SaaS platform similar to Linear, Stripe
+Dashboard, Vercel, Attio, and Notion.
+
+Avoid:
+
+* Excessive gradients
+* Glassmorphism
+* Overly colorful interfaces
+* Consumer-app aesthetics
+* Decorative UI patterns
+
+Design principle:
+
+"High signal, low noise."
+
+
+Visual Identity
+
+Brand Personality
+
+* Intelligent
+* Reliable
+* Efficient
+* Structured
+* Calm
+* Modern
+
+
+Color System
+
+Primary: #0F172A
+
+Usage: Navigation, headings, primary text, sidebar surfaces
+
+Accent: #3B82F6
+
+Usage: Primary actions, interactive elements, active states, links, focus states
+
+Secondary: #E2E8F0
+
+Usage: Secondary surfaces, cards, containers, subtle backgrounds
+
+Neutral: #94A3B8
+
+Usage: Secondary text, borders, disabled states
+
+Border: #CBCED5
+
+Usage: Dividers, inputs, card outlines
+
+Success: #22C55E
+
+Usage: Completed commitments, success states, confirmation badges
+
+Warning: #FFC64B
+
+Usage: Due soon, pending review, medium confidence
+
+Error: #EF4444
+
+Usage: Overdue commitments, errors, failed actions, low confidence
+
+Info: #3B82F6
+
+Usage: AI insights, informational messages
+
+AI-Specific Tokens:
+
+AI Background: #EFF6FF
+AI Border: #BFDBFE
+AI Label Text: #1E40AF
+AI High Confidence: #22C55E
+AI Medium Confidence: #FFC64B
+AI Low Confidence: #EF4444
+
+
+Accessibility Baseline (WCAG 2.1 AA)
+
+All color combinations meet minimum contrast ratios:
+
+* Primary text (#0F172A) on White (#FFFFFF): 15.2:1 ✓
+* Neutral text (#94A3B8) on White (#FFFFFF): 3.2:1 — Large text only (≥18px bold or ≥24px regular)
+* Accent (#3B82F6) on White (#FFFFFF): 4.62:1 ✓
+* Error (#EF4444) on White (#FFFFFF): 4.5:1 ✓
+* Success (#22C55E) on White (#FFFFFF): 3.4:1 — Large text only
+* AI Background (#EFF6FF) with AI Border (#BFDBFE): 1.2:1 — Decorative only, not for text
+
+Focus States:
+
+All interactive elements must have a visible focus ring: 2px solid #3B82F6, 2px
+offset from element edge.
+
+Screen Reader Labels:
+
+All AI-generated content must include aria-label attributes (e.g., "AI-generated
+summary, high confidence"). Status chips must convey semantic meaning via
+role="status".
+
+
+Typography
+
+Heading Font: Geist
+
+Weights: 500, 600, 700
+
+Usage:
+* H1: Geist 700, 32px — Page titles
+* H2: Geist 600, 24px — Section headers
+* H3: Geist 600, 20px — Card titles
+* H4: Geist 500, 16px — Subsection headers
+
+Body Font: Inter
+
+Weights: 400, 500, 600
+
+Usage:
+* Body L: Inter 400, 16px, line-height 1.6
+* Body M: Inter 400, 14px, line-height 1.5
+* Body S: Inter 500, 12px — Labels, captions, metadata
+* Button: Inter 500, 14px
+
+
+Grid System
+
+Mobile (Width: 375px)
+
+* Columns: 4
+* Margins: 20px
+* Gutter: 16px
+
+Tablet (Width: 768px)
+
+* Columns: 8
+* Margins: 32px
+* Gutter: 24px
+
+Desktop (Width: 1440px)
+
+* Columns: 12
+* Margins: 80px
+* Gutter: 24px
+* Max Content Width: 1280px
+
+
+Spacing System
+
+Use an 8-point grid.
+
+Scale (in px): 4, 8, 12, 16, 24, 32, 40, 48, 64, 80, 96, 128
+
+No arbitrary spacing values. All padding, margin, and gap values must come from
+this scale.
+
+
+Border Radius
+
+* Small: 8px — Inputs, buttons, chips, badges
+* Medium: 12px — Cards, modals, dropdowns
+* Large: 16px — Dashboard sections
+* Extra Large: 24px — Full-screen panels
+* Pill: 999px — Status chips, user avatars (small)
+
+
+Shadow System
+
+* XS: 0 1px 2px rgba(15,23,42,0.04) — Subtle elevation (cards on white bg)
+* SM: 0 2px 8px rgba(15,23,42,0.06) — Dropdowns, tooltips
+* MD: 0 8px 24px rgba(15,23,42,0.08) — Modals
+* LG: 0 16px 40px rgba(15,23,42,0.12) — Full-screen overlays
+
+Use shadows sparingly. Prefer border separation over shadow for cards.
+
+
+Layout Architecture
+
+Top Navigation
+
+* Height: 72px
+* Contents: Logo, Workspace Switcher, Global Search (⌘K), Notifications (bell
+  icon with badge), User Menu (avatar + chevron)
+* Behavior: Sticky, always visible, border bottom only, no heavy shadow
+* Background: White (#FFFFFF)
+* Border Bottom: 1px solid #CBCED5
+
+Search (⌘K):
+
+* Cmd+K or Ctrl+K opens global command palette
+* Search across meetings, commitments, team members
+* Results grouped by type (Meetings, Commitments, People)
+* Keyboard navigable (↑↓, Enter to select, Esc to close)
+
+Sidebar
+
+* Width: 280px (Desktop only)
+* Navigation items: Dashboard, Meetings, Commitments, Activity, Team, Settings
+* Active state: Accent background (#EFF6FF) with accent text (#3B82F6), left
+  border accent
+* Behavior: Fixed position, independently scrollable content area
+* Bottom section: Workspace name, member count, plan badge
+
+Mobile & Tablet Navigation:
+
+* Tablet (768px-1024px): Collapsible sidebar (hamburger toggle), overlay on
+  content
+* Mobile (<768px): Bottom tab bar with 4 primary actions: Dashboard, Meetings,
+  Commitments, Activity
+* "More" menu (…) for secondary items: Team, Settings
+
+
+Dashboard Layout
+
+Structure:
+
+┌──────────────────────────────────────────────┐
+│ Top Nav (72px, sticky, border-bottom)        │
+├────────┬─────────────────────────────────────┤
+│Sidebar │ Main Content Area                   │
+│280px   │ (scrollable)                        │
+│        │                                     │
+│ Nav    │ Section 1: KPI Overview (4 cards)   │
+│ items  │ Section 2: Commitment Status        │
+│        │ Section 3: Recent Meetings          │
+│        │ Section 4: Team Accountability      │
+│        │ Section 5: Overdue Commitments      │
+│        │ Section 6: Activity Feed            │
+├────────┴─────────────────────────────────────┤
+│ (Mobile: Bottom Tab Bar)                     │
+└──────────────────────────────────────────────┘
+
+Dashboard Sections Detailed:
+
+1. KPI Overview
+   * 4 cards in a row (desktop), 2x2 grid (tablet), 1 column (mobile)
+   * Total Meetings (icon: calendar), Total Commitments (icon: checklist),
+     Confirmation Rate (icon: check-circle), Completion Rate (icon: trophy)
+   * Each card: Large number (Geist 600, 24px), label (Inter 400, 12px, Neutral),
+     trend indicator (up/down arrow, green/red, 14px)
+
+2. Commitment Status Breakdown
+   * Horizontal status bar segmented by status (Pending/In Progress/Blocked/
+     Completed/Overdue)
+   * Each segment proportional to count, labeled with count
+   * Click segment to filter commitments below
+
+3. Recent Meetings
+   * Table or card list, 5 most recent
+   * Columns: Title, Date, # Commitments, Confirmation %, Expand arrow
+   * Click row to open meeting detail panel (slide-over from right)
+
+4. Team Accountability
+   * Sortable table: Name, Total Commitments, Confirmed, Completed, Overdue
+   * Overdue >0 highlighted red in row
+   * Click name to filter commitments by that person
+
+5. Overdue Commitments
+   * Red-tinted card section
+   * List of overdue items: Owner avatar, Commitment title, Due date, Days
+     overdue badge (red pill)
+   * Sorted most overdue first
+   * Empty state: "No overdue commitments. Great job! 🎉"
+
+6. Activity Feed
+   * Chronological, real-time
+   * Events: Created, Confirmed, Status Changed, Completed, Blocked Reported
+   * Format: [Avatar] [Name] [action] "[Commitment title]" · [relative time]
+   * Example: 👤 Alex accepted "Update API documentation" · 5m ago
+
+
+Card Design
+
+All cards:
+
+* White (#FFFFFF) background
+* 12px border radius
+* 1px solid #CBCED5 border
+* No shadow (default) or XS shadow (on colored backgrounds)
+* Padding: 24px
+* Title: Geist 600, 16px
+* Body: Inter 400, 14px
+
+
+AI Components
+
+AI-generated content must be visually differentiated from user-generated content.
+
+AI Card:
+
+* Background: #EFF6FF (AI Background token)
+* Border: 1px solid #BFDBFE (AI Border token)
+* "AI Generated" label: Inter 500, 11px, uppercase, #1E40AF, with 🤖 icon
+* Confidence badge: positioned top-right of card
+
+Confidence Badges:
+
+* High: Green (#22C55E) chip, "High confidence"
+* Medium: Yellow (#FFC64B) chip, "Review suggested"
+* Low: Red (#EF4444) chip, "Needs review"
+
+AI Tooltip (on hover over "AI Generated" label):
+"This [summary/commitment/decision] was generated by AI. Please review for
+accuracy before publishing."
+
+AI Disclaimer (persistent, subtle, below AI content block):
+"AI-generated content may require human review."
+
+AI Feedback:
+
+* 👍 👎 buttons on every AI output card
+* Clicking 👎 opens inline mini-form: "What needs improvement?" with checkboxes:
+  Owner, Deadline, Action item, Summary, Other
+* "Submit feedback" button stores response and shows "Thanks, this helps improve
+  MeetIQ" toast
+
+
+Commitment Card Examples (Real Content)
+
+Example 1 — High Confidence, Pending Confirmation:
+
+┌─────────────────────────────────────────────────────┐
+│ [AI Generated]                    [High confidence] │
+│                                                     │
+│ Update API documentation for v2 endpoints           │
+│                                                     │
+│ 👤 Sarah Chen (suggested)                           │
+│ 📅 Due: Friday, June 13                             │
+│ 📋 Status: Pending Confirmation                     │
+│ 📎 From: Sprint Planning — June 9                   │
+│                                                     │
+│ Context: "Sarah will update the API docs to reflect │
+│ the new v2 authentication endpoints before the      │
+│ Friday release."                                    │
+│                                                     │
+│ [Accept] [Reject] [Request Changes]    [👍] [👎]    │
+└─────────────────────────────────────────────────────┘
+
+Example 2 — Medium Confidence, Overdue:
+
+┌─────────────────────────────────────────────────────┐
+│ [AI Generated]               [Review suggested]     │
+│                                                     │
+│ 🔴 Migrate payment service to new provider          │
+│                                                     │
+│ 👤 James Wilson (suggested, medium confidence)      │
+│ 📅 Due: Monday, June 2  ·  7 days overdue           │
+│ 📋 Status: Overdue                                  │
+│ 📎 From: Tech Roadmap Review — May 28               │
+│                                                     │
+│ Context: "We need someone to handle the payment     │
+│ migration. James or David could take it depending   │
+│ on bandwidth."                                      │
+│                                                     │
+│ ⚠️ AI had medium confidence on this owner.          │
+│ Please confirm or reassign.                         │
+│                                                     │
+│ [Reassign Owner] [Update Status]       [👍] [👎]    │
+└─────────────────────────────────────────────────────┘
+
+
+Data Visualization
+
+Use:
+
+* KPI Cards (large numbers with trend indicators)
+* Progress Indicators (horizontal bars, segmented by status)
+* Status Chips (colored pills: green, yellow, red, blue, gray)
+* Timelines (vertical, for meeting → commitment flow)
+* Activity Feeds (chronological event list)
+* Simple tables (sortable, with status indicators)
+
+Avoid:
+
+* Pie charts
+* Donut charts
+* 3D visualizations
+* Decorative graphs
+* Radar/spider charts
+* Unlabeled data representations
+
+Chart Usage (if needed in Phase 2+):
+
+* Bar charts: For comparisons over time (weekly commitments created/completed)
+* Line charts: For trend data (completion rate over 12 weeks)
+* Keep axes labeled, use MeetIQ color tokens, no gridlines unless necessary
+
+
+Component States Catalog
+
+Every interactive component must support these states:
+
+Buttons:
+
+* Default: Accent (#3B82F6) background, white text
+* Hover: Darker shade (#2563EB), 150ms transition
+* Active/Pressed: Scale 0.98, 100ms
+* Focus: 2px solid #3B82F6 ring, 2px offset
+* Disabled: Neutral (#94A3B8) background, gray text, cursor: not-allowed
+* Loading: Spinner icon replaces text, button width preserved
+
+Inputs:
+
+* Default: White bg, 1px #CBCED5 border, 8px radius
+* Hover: Border darkens to #94A3B8
+* Focus: Border changes to #3B82F6, ring 2px #BFDBFE
+* Error: Border #EF4444, helper text below in #EF4444
+* Disabled: Gray bg (#F1F5F9), cursor: not-allowed
+
+Loading States:
+
+* Page Load: Skeleton cards (gray pulsing rectangles matching content layout)
+* AI Processing: Full-area skeleton with "Analyzing your meeting..." text, pulsing
+  dots animation
+* Data Fetching: TanStack Query loading states, skeleton rows in tables
+* Button Actions: Spinner inside button, other content invisible
+
+Empty States:
+
+* Dashboard (no meetings): Illustration (simple line art), "No meetings yet.
+  Upload your first meeting to see commitments and insights." CTA button:
+  "Upload Meeting"
+* Commitments list (all completed): Green check icon, "All caught up! No pending
+  commitments." Secondary text: "Completed commitments appear here."
+* Activity Feed (no activity): "No activity yet. Activity will appear when
+  commitments are created, confirmed, or completed."
+* Search (no results): "No results for '[query]'. Try searching for a meeting
+  title, commitment, or team member."
+
+Error States:
+
+* Network Error: Toast notification (red, auto-dismiss 5s), "Connection lost.
+  Retrying..." with manual retry button
+* AI Processing Failed: Error card in place of AI output, "We couldn't process
+  this meeting. Please try again or paste your notes in a different format."
+  Retry button.
+* File Upload Failed: Inline error with specific reason (format, size, corrupted)
+* Permission Denied: 403-style messaging if user attempts restricted action
+
+Tooltips:
+
+* Trigger: Hover or focus on icon/info badge
+* Appearance: White bg, 8px radius, SM shadow, Inter 400 12px, max-width 240px
+* Delay: 300ms before appearing, instant dismiss
+* Used for: AI confidence explanations, status definitions, icon labels
+
+
+Motion
+
+Duration tokens:
+
+* 150ms: Hover transitions, icon color changes
+* 200ms: Dropdowns, tooltips, small modals, micro-interactions
+* 300ms: Page transitions, slide-over panels, larger modals
+
+Easing:
+
+* Default: ease-out (most transitions)
+* Modals: ease-out with slight scale (0.95 → 1.0)
+* Notifications: ease-in-out, slide from right
+
+Use:
+
+* Hover states (color shift, subtle scale)
+* Dropdowns (fade + slide, 200ms)
+* Modals (fade + scale, 300ms)
+* Notifications (slide in from top-right, 300ms)
+* Page transitions (fade only, 200ms)
+
+Avoid:
+
+* Bouncy/spring animations
+* Excessive motion
+* Scroll-jacking
+* Auto-playing animations
+* Parallax effects
+
+Micro-interactions Defined:
+
+Commitment Acceptance:
+
+* Click "Accept" → Button shrinks to 0.95 scale (100ms) → Fills green (#22C55E)
+  (200ms) → Checkmark icon appears with slight bounce (300ms) → Card background
+  shifts to faint green tint → Status chip updates to "In Progress"
+
+Commitment Rejection:
+
+* Click "Reject" → Reason modal opens (fade+scale, 200ms) → User types reason →
+  Submit → Card gets red left border → Status chip changes to "Rejected" → Card
+  moves to bottom of list (300ms slide) → Uploader receives notification
+
+Commitment Escalation:
+
+* 48h threshold met → Card border pulses red (3 cycles, 200ms each) → "Escalated"
+  badge appears → Admin notification triggered → Item appears in Admin's
+  "Needs Attention" section
+
+
+Dark Mode Strategy
+
+Dark Mode is not included in MVP but the design system is built to accommodate it.
+
+Preparation:
+
+* All color tokens are defined as CSS custom properties (variables)
+* Semantic token naming (--color-primary, --color-surface, etc.) enables
+  theme swapping
+* No hardcoded colors in components
+* Tailwind CSS dark: variants reserved for future use
+
+Future Dark Mode Palette (Placeholder):
+
+* Primary: #F8FAFC (text on dark)
+* Surface: #0F172A (dark background)
+* Card: #1E293B
+* Border: #334155
+* Accent: #60A5FA (lighter blue for dark mode)
+* AI Background: #1E3A5F
+* AI Border: #3B82F6
+
+This ensures Phase 3 dark mode implementation requires token remapping only,
+not component refactoring.
+
+
+Responsive Behavior
+
+Desktop (≥1025px):
+
+* Full layout: Top Nav + Sidebar (280px) + Main Content
+* 12-column grid for dashboard
+* All navigation visible
+
+Tablet (768px — 1024px):
+
+* Top Nav remains (height unchanged)
+* Sidebar collapses to hamburger toggle, opens as overlay
+* 8-column grid for dashboard
+* KPI cards: 2x2 grid
+* Commitment cards: full width
+
+Mobile (<768px):
+
+* Top Nav simplifies: Logo + Search icon + User menu
+* Sidebar replaced by bottom tab bar (4 icons + "More")
+* 4-column grid
+* KPI cards: stacked, 1 per row
+* Commitment cards: full width, simplified (hide context snippet by default)
+* Tables become card lists
+* Activity feed: condensed, fewer details
+
+Mobile-Specific Behavior:
+
+* Bottom tab bar: 56px height, white bg, top border 1px #CBCED5
+* Icons: Dashboard (home), Meetings (calendar), Commitments (check-square),
+  Activity (bell)
+* "More" tab (…) opens drawer with Team, Settings, Invite
+* Active tab: Accent color icon + label
+* Upload meeting: Floating action button (FAB) above bottom tab bar, 56px
+  circle, Accent color
+
+
+Design Philosophy
+
+MeetIQ should feel like:
+
+"Linear meets Stripe Dashboard with AI-powered execution intelligence."
+
+Every screen should prioritize:
+
+1. Visibility: Can I see the state of all commitments at a glance?
+2. Accountability: Is it clear who owns what?
+3. Actionability: Can I take the next step immediately?
+4. Clarity: Is the information easy to parse, with no visual noise?
+
+Over aesthetics alone.
+
+The design should inspire confidence in the AI without overwhelming users with
+complexity. Every pixel should serve the mission of turning conversation into
+execution.
+
