@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, Settings, User, Trash2, ShieldAlert } from 'lucide-react';
+import { Camera, Loader2, Settings, User, Trash2, ShieldAlert } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 
 const TIMEZONES = [
@@ -43,6 +44,11 @@ export default function SettingsPage() {
   const [workspaceName, setWorkspaceName] = useState(currentWorkspace?.name || '');
   const [workspaceSaving, setWorkspaceSaving] = useState(false);
   const [workspaceDeleting, setWorkspaceDeleting] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+
+  const workspaceUrl = currentWorkspace?.name
+    ? `https://meetiq/${currentWorkspace.name.toLowerCase().replace(/\s+/g, '-')}`
+    : '';
 
   useEffect(() => {
     if (profile) {
@@ -84,6 +90,40 @@ export default function SettingsPage() {
       toast.error('Failed to update profile');
     } finally {
       setProfileSaving(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image must be less than 2MB');
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload/avatar', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      await refreshProfile();
+      toast.success('Profile photo updated');
+    } catch (err) {
+      console.error(err);
+      toast.error(err instanceof Error ? err.message : 'Failed to upload profile photo');
+    } finally {
+      setAvatarUploading(false);
     }
   };
 
@@ -132,18 +172,18 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold tracking-tight text-primary font-heading">
           Settings
         </h1>
-        <p className="text-base text-muted-foreground mt-1">
+        <p className="text-sm text-muted-foreground mt-1.5">
           Manage your personal profile and workspace configurations.
         </p>
       </div>
 
       <Tabs defaultValue="profile" onValueChange={setActiveTab} className="w-full space-y-6">
-        <TabsList className="grid w-full grid-cols-2 max-w-[400px] bg-slate-100 p-1 rounded-lg">
-          <TabsTrigger value="profile" className="rounded-md py-1.5 text-xs font-semibold gap-2">
+        <TabsList className="flex w-full sm:w-auto h-9 bg-slate-100 p-1.5 rounded-lg max-w-[400px] gap-1 items-stretch overflow-x-auto">
+          <TabsTrigger value="profile" className="rounded-md py-3 px-3 text-xs font-semibold gap-2">
             <User className="h-4 w-4 shrink-0" />
             <span>Profile Settings</span>
           </TabsTrigger>
-          <TabsTrigger value="workspace" className="rounded-md py-1.5 text-xs font-semibold gap-2">
+          <TabsTrigger value="workspace" className="rounded-md py-3 px-3 text-xs font-semibold gap-2">
             <Settings className="h-4 w-4 shrink-0" />
             <span>Workspace Settings</span>
           </TabsTrigger>
@@ -156,7 +196,39 @@ export default function SettingsPage() {
               <CardDescription>Update your public display name and default timezone.</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-              <form onSubmit={handleProfileSave} className="space-y-4 max-w-md">
+              <form onSubmit={handleProfileSave} className="space-y-4">
+                {/* Profile Image */}
+                <div className="flex items-center gap-4 pb-2">
+                  <Avatar size="lg">
+                    <AvatarImage src={profile?.avatar_url || ''} />
+                    <AvatarFallback className="text-base bg-slate-100">
+                      {profile?.display_name?.[0]?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="space-y-1">
+                    <label
+                      htmlFor="avatarUpload"
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:text-accent/80 cursor-pointer"
+                    >
+                      {avatarUploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Camera className="h-4 w-4" />
+                      )}
+                      {avatarUploading ? 'Uploading...' : 'Change Photo'}
+                    </label>
+                    <p className="text-xs text-muted-foreground">JPG, PNG or GIF. 2MB max.</p>
+                    <input
+                      id="avatarUpload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                      disabled={avatarUploading}
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="profName">Display Name</Label>
                   <Input
@@ -166,6 +238,7 @@ export default function SettingsPage() {
                     placeholder="Sarah Chen"
                     disabled={profileSaving}
                     required
+                    className="h-10 text-sm"
                   />
                 </div>
 
@@ -175,7 +248,7 @@ export default function SettingsPage() {
                     <SelectTrigger id="profTimezone" className="bg-white">
                       <SelectValue placeholder="Select timezone" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="w-full sm:min-w-[260px]">
                       {TIMEZONES.map((tz) => (
                         <SelectItem key={tz.value} value={tz.value}>
                           {tz.label}
@@ -186,14 +259,14 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="flex justify-end pt-2">
-                  <Button type="submit" disabled={profileSaving}>
+                  <Button type="submit" disabled={profileSaving} className="h-12 gap-2 px-6">
                     {profileSaving ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span className="text-base">Saving...</span>
                       </>
                     ) : (
-                      'Save Changes'
+                      <span className="text-base">Save Changes</span>
                     )}
                   </Button>
                 </div>
@@ -210,8 +283,8 @@ export default function SettingsPage() {
                   <CardTitle className="text-sm font-heading font-semibold text-primary">Workspace Profile</CardTitle>
                   <CardDescription>Change the branding name of the active workspace.</CardDescription>
                 </CardHeader>
-                <CardContent className="pt-6">
-                  <form onSubmit={handleWorkspaceSave} className="space-y-4 max-w-md">
+                <CardContent className="p-3">
+                  <form onSubmit={handleWorkspaceSave} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="wsNameEdit">Workspace Name</Label>
                       <Input
@@ -221,18 +294,29 @@ export default function SettingsPage() {
                         placeholder="e.g. Engineering Team"
                         disabled={workspaceSaving}
                         required
+                        className="h-10 py-1.5"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="wsUrlEdit">Workspace URL</Label>
+                      <Input
+                        id="wsUrlEdit"
+                        value={workspaceUrl}
+                        disabled
+                        className="h-10 py-1.5 bg-slate-50 text-muted-foreground"
                       />
                     </div>
 
                     <div className="flex justify-end pt-2">
-                      <Button type="submit" disabled={workspaceSaving}>
+                      <Button type="submit" disabled={workspaceSaving} className="h-12 gap-2 px-6">
                         {workspaceSaving ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Updating...
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <span className="text-base">Updating...</span>
                           </>
                         ) : (
-                          'Update Workspace'
+                          <span className="text-base">Update Workspace</span>
                         )}
                       </Button>
                     </div>
@@ -253,14 +337,14 @@ export default function SettingsPage() {
                 </CardHeader>
                 <CardContent className="pt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
-                    <h4 className="text-xs font-bold text-red-950">Delete Workspace</h4>
-                    <p className="text-xs text-red-700">
+                    <h4 className="text-sm font-bold text-red-950">Delete Workspace</h4>
+                    <p className="text-sm text-red-700">
                       Deletes all meetings transcripts, extracted decisions, and commitments for all members.
                     </p>
                   </div>
                   <Button
                     variant="destructive"
-                    className="shrink-0 text-xs py-1.5 h-auto bg-red-600 hover:bg-red-700"
+                    className="shrink-0 text-sm py-2.5 px-3.5 h-auto bg-red-600 hover:bg-red-700 text-white"
                     onClick={handleWorkspaceDelete}
                     disabled={workspaceDeleting}
                   >
@@ -271,7 +355,7 @@ export default function SettingsPage() {
                       </>
                     ) : (
                       <>
-                        <Trash2 className="h-4 w-4 mr-2" />
+                        <Trash2 className="h-4 w-4 mr-1" />
                         Delete Workspace
                       </>
                     )}

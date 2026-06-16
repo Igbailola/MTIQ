@@ -27,7 +27,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
               />
             </Link>
           </div>
-          <p className="mt-2 text-base text-muted-foreground font-body">
+          <p className="mt-1.5 text-sm text-muted-foreground font-body">
             AI-powered execution and accountability
           </p>
         </div>

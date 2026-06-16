@@ -157,8 +157,8 @@ export function MeetingUploadForm() {
 
           <Tabs defaultValue="upload" className="w-full">
             <TabsList className="grid w-full grid-cols-2 max-w-[400px] bg-slate-100 p-1 rounded-lg">
-              <TabsTrigger value="upload" className="rounded-md py-1.5 text-xs font-semibold">Upload Transcript</TabsTrigger>
-              <TabsTrigger value="paste" className="rounded-md py-1.5 text-xs font-semibold">Paste Notes / Text</TabsTrigger>
+              <TabsTrigger value="upload" className="rounded-md p-2.5 text-xs font-semibold">Upload Transcript</TabsTrigger>
+              <TabsTrigger value="paste" className="rounded-md p-2.5 text-xs font-semibold">Paste Notes / Text</TabsTrigger>
             </TabsList>
             
             <TabsContent value="upload" className="mt-4">

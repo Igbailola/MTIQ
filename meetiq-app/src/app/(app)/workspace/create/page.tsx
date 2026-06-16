@@ -86,7 +86,7 @@ export default function CreateWorkspacePage() {
           <h2 className="mt-[30px] text-2xl font-semibold text-primary font-heading">
             Create a Workspace
           </h2>
-          <p className="mt-1 text-base text-muted-foreground font-body max-w-sm">
+          <p className="mt-1.5 text-sm text-muted-foreground font-body max-w-sm">
             Workspaces group meetings, commitments, and team members together
           </p>
         </div>
@@ -99,7 +99,7 @@ export default function CreateWorkspacePage() {
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
               placeholder="Acme Corp, Product Team"
-              className="h-[44px]"
+              className="h-10 py-1.5"
               disabled={loading}
               required
             />

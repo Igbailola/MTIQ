@@ -59,7 +59,7 @@ export default function TeamPage() {
           <h1 className="text-2xl font-bold tracking-tight text-primary font-heading">
             Team Members
           </h1>
-          <p className="text-base text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1.5">
             Manage members, roles, and timezone availability in the active workspace.
           </p>
         </div>
@@ -82,8 +82,8 @@ export default function TeamPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="border border-meetiq-border/5 rounded-xl bg-white overflow-hidden shadow-meetiq-xs">
-          <Table className="border-separate border-spacing-y-2">
+        <div className="border border-meetiq-border/5 rounded-xl bg-white overflow-x-auto shadow-meetiq-xs">
+          <Table className="border-separate border-spacing-y-2 min-w-[600px]">
             <TableHeader className="bg-slate-50/75">
               <TableRow>
                 <TableHead className="font-semibold text-xs text-primary font-heading">Name</TableHead>
@@ -115,12 +115,12 @@ export default function TeamPage() {
 
                   <TableCell>
                     {member.role === 'admin' ? (
-                      <Badge variant="outline" className="gap-1 bg-blue-50 text-accent border-blue-200/30 px-2 text-sm font-semibold h-[30px]">
-                        <Shield className="h-4 w-4" />
+                      <Badge variant="outline" className="bg-blue-50 text-accent border-blue-200/30 h-9">
+                        <Shield className="h-3.5 w-3.5" />
                         Admin
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="bg-slate-50 text-slate-600 border-slate-200/30 px-2 text-sm font-semibold h-[30px]">
+                      <Badge variant="outline" className="bg-slate-50 text-slate-600 border-slate-200/30 h-[30px]">
                         Member
                       </Badge>
                     )}

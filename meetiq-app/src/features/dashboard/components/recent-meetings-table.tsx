@@ -33,8 +33,8 @@ export function RecentMeetingsTable({ meetings }: RecentMeetingsTableProps) {
   }
 
   return (
-    <div className="border border-meetiq-border/5 rounded-xl bg-white overflow-hidden shadow-meetiq-xs">
-      <Table className="border-separate border-spacing-y-2">
+    <div className="border border-meetiq-border/5 rounded-xl bg-white overflow-x-auto shadow-meetiq-xs">
+      <Table className="border-separate border-spacing-y-2 min-w-[400px]">
         <TableHeader className="bg-slate-50/75">
           <TableRow>
             <TableHead className="font-semibold text-xs text-primary font-heading">Meeting Title</TableHead>
@@ -58,15 +58,15 @@ export function RecentMeetingsTable({ meetings }: RecentMeetingsTableProps) {
               </TableCell>
               <TableCell>
                 {m.status === 'processing' ? (
-                  <Badge variant="outline" className="bg-blue-50 text-accent border-blue-100 animate-pulse text-sm h-[30px]">
+                  <Badge variant="outline" className="bg-blue-50 text-accent border-blue-100 animate-pulse h-[30px]">
                     Analyzing
                   </Badge>
                 ) : m.status === 'error' ? (
-                  <Badge variant="outline" className="bg-red-50 text-destructive border-red-100 text-sm h-[30px]">
+                  <Badge variant="outline" className="bg-red-50 text-destructive border-red-100 h-[30px]">
                     Failed
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100 text-sm h-[30px]">
+                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100 h-[30px]">
                     Ready
                   </Badge>
                 )}

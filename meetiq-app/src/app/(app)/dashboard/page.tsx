@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useCurrentWorkspace } from '@/hooks/use-workspace';
 import { useDashboardStats, useActivityFeed } from '@/hooks/use-dashboard';
 import { useMeetings } from '@/hooks/use-meetings';
@@ -14,6 +14,7 @@ import { ActivityFeed } from '@/features/dashboard/components/activity-feed';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 import { Calendar, CheckSquare, BarChart3, Users, Loader2, Sparkles, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -24,13 +25,14 @@ export default function DashboardPage() {
   const { data: meetings, isLoading: meetingsLoading } = useMeetings(currentWorkspace?.id);
   const { data: commitments, isLoading: commitmentsLoading } = useCommitments(currentWorkspace?.id);
   const { data: activities, isLoading: activitiesLoading, refetch: refetchActivities } = useActivityFeed(currentWorkspace?.id);
+  const [clearTrigger, setClearTrigger] = useState(0);
   const isPageLoading = statsLoading || meetingsLoading || commitmentsLoading || activitiesLoading;
 
   if (!currentWorkspace) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-accent" />
-        <span className="text-sm font-semibold text-muted-foreground mt-2 font-heading">
+        <span className="text-xs font-semibold text-muted-foreground mt-2 font-heading">
           Connecting workspace...
         </span>
       </div>
@@ -65,7 +67,7 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold tracking-tight text-primary font-heading">
             Workspace Dashboard
           </h1>
-          <p className="text-base text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1.5">
             Monitor AI-extracted commitments and team accountability execution metrics.
           </p>
         </div>
@@ -129,6 +131,9 @@ export default function DashboardPage() {
               <CardTitle className="text-sm font-heading font-semibold text-primary">
                 Recent Meetings
               </CardTitle>
+              <Link href="/meetings" className="text-xs text-muted-foreground hover:text-accent font-medium transition-colors">
+                View all
+              </Link>
             </CardHeader>
             <CardContent className="px-5 py-0">
               <RecentMeetingsTable meetings={meetings || []} />
@@ -137,10 +142,13 @@ export default function DashboardPage() {
 
           {/* Team Accountability */}
           <Card className="border border-meetiq-border/5 bg-white shadow-meetiq-xs">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
               <CardTitle className="text-sm font-heading font-semibold text-primary">
                 Team Accountability Matrix
               </CardTitle>
+              <Link href="/team" className="text-xs text-muted-foreground hover:text-accent font-medium transition-colors">
+                View all
+              </Link>
             </CardHeader>
             <CardContent className="px-5 py-0">
               <TeamAccountabilityTable stats={stats?.teamMemberStats || []} />
@@ -163,6 +171,7 @@ export default function DashboardPage() {
                 variant="ghost"
                 size="sm"
                 onClick={async () => {
+                  setClearTrigger((c) => c + 1);
                   try {
                     const res = await fetch(`/api/activity?workspaceId=${currentWorkspace.id}&deleteAll=true`, { method: 'DELETE' });
                     if (!res.ok) throw new Error();
@@ -182,6 +191,7 @@ export default function DashboardPage() {
               <ActivityFeed
                 initialActivities={activities || []}
                 workspaceId={currentWorkspace.id}
+                clearTrigger={clearTrigger}
               />
             </CardContent>
           </Card>

@@ -23,7 +23,7 @@ export function TopNav() {
             alt="MeetIQ"
             width={120}
             height={32}
-            className="h-8 w-auto object-contain"
+            className="h-6 sm:h-8 w-auto object-contain"
             priority
           />
         </Link>
@@ -31,15 +31,12 @@ export function TopNav() {
 
       {/* Right section: Search, Notifications, Workspace */}
       <div className="flex items-center gap-3">
-        <CommandPalette />
+        <div className="hidden sm:block"><CommandPalette /></div>
         <div className="h-[18px] w-[1px] bg-meetiq-border hidden sm:block" />
         <NotificationBell />
         <div className="h-[18px] w-[1px] bg-meetiq-border hidden sm:block" />
-        <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white select-none">
-            {initial}
-          </div>
-          <WorkspaceSwitcher />
+        <div className="flex items-center gap-2 shrink-0">
+          <WorkspaceSwitcher initial={initial} />
         </div>
       </div>
     </header>

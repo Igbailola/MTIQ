@@ -90,7 +90,7 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-accent" />
-        <span className="text-sm font-semibold text-muted-foreground mt-2 font-heading">
+        <span className="text-xs font-semibold text-muted-foreground mt-2 font-heading">
           Loading commitment details...
         </span>
       </div>
@@ -102,7 +102,7 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
       <div className="p-6 text-center max-w-md mx-auto space-y-4">
         <ShieldAlert className="h-10 w-10 text-destructive mx-auto" />
         <h2 className="text-lg font-heading font-semibold">This commitment is no longer available</h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           It may have been deleted, or you may lack permissions to view it.
         </p>
         <Button onClick={() => router.push('/commitments')}>Go to commitments</Button>
@@ -136,7 +136,7 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
 
         {isAdmin && (
           <Button variant="outline" className="text-destructive hover:bg-red-50 border-red-200 text-xs py-1.5 h-auto" onClick={handleDelete}>
-            <Trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="h-4 w-4 mr-1" />
             Delete Commitment
           </Button>
         )}
@@ -159,10 +159,10 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
                   <div className="space-y-2">
                     <Label htmlFor="commOwner">Assignee / Owner</Label>
                     <Select value={ownerId} onValueChange={(val) => setOwnerId(val || 'unassigned')} disabled={!canEdit || updating}>
-                      <SelectTrigger id="commOwner" className="bg-white">
+                      <SelectTrigger id="commOwner" className="bg-white h-10 text-sm mt-1">
                         <SelectValue placeholder="Unassigned" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="w-full sm:min-w-[260px]">
                         <SelectItem value="unassigned">Unassigned</SelectItem>
                         {members?.map((m) => (
                           <SelectItem key={m.user_id} value={m.user_id}>
@@ -182,6 +182,7 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
                       disabled={!canEdit || updating}
+                      className="h-10 mt-1"
                     />
                   </div>
 
@@ -193,10 +194,10 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
                       onValueChange={(val) => setPriority(val as any)}
                       disabled={!canEdit || updating}
                     >
-                      <SelectTrigger id="commPriority" className="bg-white">
+                      <SelectTrigger id="commPriority" className="bg-white h-10 text-sm mt-1">
                         <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="w-full sm:min-w-[260px]">
                         <SelectItem value="low">Low</SelectItem>
                         <SelectItem value="medium">Medium</SelectItem>
                         <SelectItem value="high">High</SelectItem>
@@ -208,10 +209,10 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
                   <div className="space-y-2">
                     <Label htmlFor="commStatus">Execution Status</Label>
                     <Select value={status} onValueChange={(val) => setStatus(val || 'pending_confirmation')} disabled={!canEdit || updating}>
-                      <SelectTrigger id="commStatus" className="bg-white">
+                      <SelectTrigger id="commStatus" className="bg-white h-10 text-sm mt-1">
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="w-full sm:min-w-[260px]">
                         <SelectItem value="pending_confirmation">Pending Confirmation</SelectItem>
                         <SelectItem value="in_progress">In Progress</SelectItem>
                         <SelectItem value="blocked">Blocked</SelectItem>
@@ -224,14 +225,14 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
 
                 {canEdit && (
                   <div className="flex justify-end pt-4 border-t border-slate-50">
-                    <Button type="submit" disabled={updating}>
+                    <Button type="submit" disabled={updating} className="h-12 gap-2 px-6">
                       {updating ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Saving changes...
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span className="text-base">Saving changes...</span>
                         </>
                       ) : (
-                        'Save Details'
+                        <span className="text-base">Save Details</span>
                       )}
                     </Button>
                   </div>

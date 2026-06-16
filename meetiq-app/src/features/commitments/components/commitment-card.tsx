@@ -173,7 +173,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
     return (
       <Card className="border border-meetiq-border/50 bg-white shadow-meetiq-xs">
         <form onSubmit={handleSaveEdit}>
-          <CardContent className="p-5 space-y-4">
+      <CardContent className="p-6 space-y-5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500 uppercase">
                 Edit Commitment
@@ -198,7 +198,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full text-sm rounded border border-slate-200/50 px-3 py-1.5 focus:outline-accent bg-white text-slate-800"
+                    className="w-full text-sm h-10 rounded border border-slate-200/50 px-3 focus:outline-accent bg-white text-slate-800"
                   required
                 />
               </div>
@@ -210,18 +210,18 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
                   rows={2}
-                  className="text-xs"
+                  className="text-sm"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div className="space-y-1">
                   <Label htmlFor="editOwner" className="text-xs">Owner</Label>
                   <select
                     id="editOwner"
                     value={editOwnerId || ''}
                     onChange={(e) => setEditOwnerId(e.target.value || null)}
-                    className="w-full rounded border border-slate-200/50 px-2 py-1.5 bg-white text-slate-800"
+                    className="w-full h-10 text-sm rounded border border-slate-200/50 px-2 bg-white text-slate-800"
                   >
                     <option value="">Needs Owner</option>
                     {members?.map((m) => (
@@ -239,7 +239,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                     type="date"
                     value={editDueDate}
                     onChange={(e) => setEditDueDate(e.target.value)}
-                    className="w-full rounded border border-slate-200/50 px-2 py-1 bg-white text-slate-800"
+                    className="w-full h-10 text-sm rounded border border-slate-200/50 px-2 bg-white text-slate-800"
                   />
                 </div>
 
@@ -249,7 +249,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                     id="editPriority"
                     value={editPriority}
                     onChange={(e) => setEditPriority(e.target.value)}
-                    className="w-full rounded border border-slate-200/50 px-2 py-1.5 bg-white text-slate-800"
+                    className="w-full h-10 text-sm rounded border border-slate-200/50 px-2 bg-white text-slate-800"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -263,7 +263,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                     id="editStatus"
                     value={editStatus}
                     onChange={(e) => setEditStatus(e.target.value)}
-                    className="w-full rounded border border-slate-200/50 px-2 py-1.5 bg-white text-slate-800"
+                    className="w-full h-10 text-sm rounded border border-slate-200/50 px-2 bg-white text-slate-800"
                   >
                     <option value="pending_confirmation">Pending Confirmation</option>
                     <option value="in_progress">In Progress</option>
@@ -288,12 +288,11 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
               </Button>
               <Button
                 type="submit"
-                size="sm"
-                className="h-8 text-xs bg-slate-800 text-white hover:bg-slate-700"
+                className="h-12 gap-2 px-6"
                 disabled={savingEdit}
               >
-                {savingEdit ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
-                Save Changes
+                {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                <span className="text-base">Save Changes</span>
               </Button>
             </div>
           </CardContent>
@@ -348,10 +347,10 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
         </div>
 
         {/* Metadata Details (Owner, Due Date, Status, Link) */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-1 text-xs font-body">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 pt-4 text-xs font-body">
           {/* Owner details */}
-          <div className="space-y-1">
-            <span className="text-muted-foreground block text-xs uppercase font-semibold">Owner</span>
+          <div className="space-y-1.5">
+            <span className="text-muted-foreground block text-xs uppercase font-semibold mb-2.5">Owner</span>
             {commitment.owner ? (
               <div className="flex items-center gap-1.5">
                 <Avatar className="h-5 w-5">
@@ -373,8 +372,8 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
           </div>
 
           {/* Due date details */}
-          <div className="space-y-1">
-            <span className="text-muted-foreground block text-xs uppercase font-semibold">Due Date</span>
+          <div className="space-y-1.5">
+            <span className="text-muted-foreground block text-xs uppercase font-semibold mb-2.5">Due Date</span>
             {commitment.due_date ? (
               <div className="flex items-center gap-1.5 text-slate-700 font-medium">
                 <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
@@ -389,14 +388,14 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
           </div>
 
           {/* Status details */}
-          <div className="space-y-1">
-            <span className="text-muted-foreground block text-xs uppercase font-semibold">Status</span>
+          <div className="space-y-1.5">
+            <span className="text-muted-foreground block text-xs uppercase font-semibold mb-2.5">Status</span>
             <CommitmentStatusChip status={commitment.status} />
           </div>
 
           {/* Source meeting */}
-          <div className="space-y-1">
-            <span className="text-muted-foreground block text-xs uppercase font-semibold">Source</span>
+          <div className="space-y-1.5">
+            <span className="text-muted-foreground block text-xs uppercase font-semibold mb-2.5">Source</span>
             {commitment.meeting_id ? (
               <Link
                 href={`/meetings/${commitment.meeting_id}`}
@@ -469,15 +468,14 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                 Request Changes
               </Button>
               <Button
-                size="sm"
-                className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="h-12 gap-2 px-6 bg-emerald-600 hover:bg-emerald-700 text-white"
                 onClick={handleAccept}
                 disabled={animatingAction !== null}
               >
                 {animatingAction === 'accept' ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  'Accept'
+                  <span className="text-base">Accept</span>
                 )}
               </Button>
             </div>
@@ -498,7 +496,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                 onChange={(e) => setReason(e.target.value)}
                 rows={3}
                 disabled={submitting}
-                className="text-xs"
+                className="text-sm"
                 required
               />
             </div>
@@ -540,7 +538,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                 onChange={(e) => setReason(e.target.value)}
                 rows={3}
                 disabled={submitting}
-                className="text-xs"
+                className="text-sm"
                 required
               />
             </div>
@@ -557,11 +555,17 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
               </Button>
               <Button
                 type="submit"
-                size="sm"
-                className="h-8 text-xs bg-slate-800 text-white hover:bg-slate-700"
+                className="h-12 gap-2 px-6"
                 disabled={submitting}
               >
-                {submitting ? 'Submitting...' : 'Submit Request'}
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-base">Submitting...</span>
+                  </>
+                ) : (
+                  <span className="text-base">Submit Request</span>
+                )}
               </Button>
             </div>
           </form>

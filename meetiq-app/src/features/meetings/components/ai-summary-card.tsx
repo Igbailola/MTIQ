@@ -86,9 +86,9 @@ export function AISummaryCard({ summary, meetingId }: AISummaryCardProps) {
 
   return (
     <Card className="ai-card shadow-meetiq-xs overflow-hidden">
-      <CardContent className="p-6 space-y-4">
+      <CardContent className="p-8 space-y-5">
         {/* Header */}
-        <div className="flex items-center justify-between gap-2 border-b border-blue-100 pb-3">
+        <div className="flex items-center justify-between gap-2 border-b border-blue-100 pb-4">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger render={<div className="flex items-center gap-1.5 cursor-help" />}>
@@ -103,7 +103,7 @@ export function AISummaryCard({ summary, meetingId }: AISummaryCardProps) {
 
           {/* Confidence Badge */}
           <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+            <span className="text-sm font-medium text-emerald-700 bg-emerald-50 px-4 rounded-full border border-emerald-100 h-[30px] inline-flex items-center">
               High Confidence
             </span>
           </div>
@@ -111,7 +111,7 @@ export function AISummaryCard({ summary, meetingId }: AISummaryCardProps) {
 
         {/* Content */}
         <div className="space-y-3 font-body text-sm leading-relaxed text-slate-800">
-          <ul className="list-disc pl-5 space-y-2">
+          <ul className="list-disc pl-5 space-y-3">
             {summary?.bullets.map((bullet, idx) => (
               <li key={idx}>{bullet}</li>
             ))}
@@ -119,7 +119,7 @@ export function AISummaryCard({ summary, meetingId }: AISummaryCardProps) {
         </div>
 
         {/* Footer actions */}
-        <div className="flex items-center justify-between pt-2 border-t border-blue-50">
+        <div className="flex items-center justify-between pt-4 border-t border-blue-50">
           <span className="text-xs text-muted-foreground italic">
             AI-generated content may require human review.
           </span>

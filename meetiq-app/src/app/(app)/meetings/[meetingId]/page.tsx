@@ -122,7 +122,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
             <AlertCircle className="h-12 w-12 text-destructive animate-bounce" />
             <div>
               <h2 className="text-xl font-heading font-semibold text-primary">AI Extraction Failed</h2>
-              <p className="text-sm text-muted-foreground mt-2 max-w-md font-body">
+              <p className="text-xs text-muted-foreground mt-2 max-w-md font-body">
                 We encountered an error while analyzing this meeting notes transcript. Please check your OpenAI credentials or formatting, and try again.
               </p>
             </div>
@@ -154,9 +154,9 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
   const formattedDate = format(new Date(meeting.meeting_date), 'PPP');
 
   return (
-    <div className="space-y-8 font-body">
+    <div className="space-y-10 font-body">
       {/* Header section */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-meetiq-border/5 pb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-meetiq-border/5 pb-8">
         <div className="flex items-start gap-3">
           <Button
             variant="ghost"
@@ -188,22 +188,22 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
         <div className="flex items-center gap-3">
           {isAdmin && hasCommitments && (
             hasUnpublished ? (
-              <Button onClick={handlePublish} disabled={publishMutation.isPending} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-1.5 h-auto">
+              <Button onClick={handlePublish} disabled={publishMutation.isPending} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-4 h-auto">
                 {publishMutation.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Publishing...
+                    <span className="text-base">Publishing...</span>
                   </>
                 ) : (
                   <>
                     <Share2 className="h-4 w-4" />
-                    Publish Commitments
+                    <span className="text-base">Publish Commitments</span>
                   </>
                 )}
               </Button>
             ) : (
-              <Badge variant="outline" className="gap-1.5 bg-emerald-50 text-emerald-700 border-emerald-200 px-3 text-sm font-semibold h-[30px]">
-                <CheckCircle className="h-4 w-4" />
+              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 h-9">
+                <CheckCircle className="h-3.5 w-3.5" />
                 Published to Team
               </Badge>
             )
@@ -212,25 +212,25 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
       </div>
 
       {/* Main Content Layout */}
-      <div className="space-y-8 max-w-5xl">
+      <div className="space-y-10 max-w-6xl">
         {/* AI Summary block */}
         {meeting.summary && (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <h2 className="text-base font-semibold text-primary font-heading">Structured Summary</h2>
             <AISummaryCard summary={meeting.summary} meetingId={meeting.id} />
           </div>
         )}
 
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-10 md:grid-cols-2">
           {/* Decisions */}
-          <div className="space-y-4">
+          <div className="space-y-5">
             <h2 className="text-base font-semibold text-primary font-heading">Key Decisions</h2>
             {meeting.decisions?.length === 0 ? (
               <div className="p-6 text-center text-xs text-muted-foreground bg-white border border-dashed rounded-xl font-body">
                 No decisions were extracted from this meeting notes transcript.
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {meeting.decisions?.map((decision) => (
                   <DecisionCard key={decision.id} decision={decision} />
                 ))}
@@ -239,7 +239,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
           </div>
 
           {/* Commitments */}
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-semibold text-primary font-heading">Action Commitments</h2>
@@ -255,7 +255,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
                     onClick={() => setCreateFormOpen(true)}
                     variant="outline"
                     size="sm"
-                    className="h-7 text-xs border-dashed gap-1 px-2.5 hover:bg-slate-50 hover:text-accent focus-visible:outline-none"
+                    className="h-8 text-sm border-dashed gap-1 px-2.5 hover:bg-slate-50 hover:text-accent focus-visible:outline-none"
                   >
                     <Plus className="h-4 w-4" />
                     Add Manually
@@ -366,7 +366,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
                 No action commitments were extracted from this meeting notes transcript.
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {meeting.commitments?.map((commitment) => (
                   <CommitmentCard
                     key={commitment.id}

@@ -108,7 +108,7 @@ export default function RegisterPage() {
     <div className="space-y-4">
       <div className="text-center sm:text-left mb-[26px]">
         <h2 className="text-2xl font-semibold text-primary font-heading">Create an Account</h2>
-        <p className="text-base text-muted-foreground mt-1">
+        <p className="text-sm text-muted-foreground mt-1.5">
           Sign up to begin turning meetings into commitments
         </p>
       </div>
@@ -193,7 +193,7 @@ export default function RegisterPage() {
 
       <div className="relative flex pt-0 pb-2 items-center mb-0">
         <div className="flex-grow border-t border-meetiq-border/30"></div>
-        <span className="flex-shrink mx-4 text-sm text-muted-foreground uppercase font-semibold">OR</span>
+        <span className="flex-shrink mx-4 text-xs text-muted-foreground uppercase font-semibold">OR</span>
         <div className="flex-grow border-t border-meetiq-border/30"></div>
       </div>
 
@@ -213,7 +213,7 @@ export default function RegisterPage() {
         Continue with Google
       </Button>
 
-      <div className="text-center text-sm text-muted-foreground mt-4">
+      <div className="text-center text-xs text-muted-foreground mt-4">
         Already have an account?{' '}
         <LinkComponent href="/login" className="text-accent hover:underline font-semibold">
           Sign in

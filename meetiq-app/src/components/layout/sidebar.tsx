@@ -107,7 +107,7 @@ export function Sidebar() {
               </div>
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[256px] mr-3" align="start" side="top">
+          <DropdownMenuContent className="w-[256px] mr-3 p-3" align="start" side="top">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none text-primary font-heading">
@@ -118,18 +118,15 @@ export function Sidebar() {
                 </p>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push('/settings')}>
+            <DropdownMenuItem onClick={() => router.push('/settings')} className="py-2">
               <User className="mr-2 h-4 w-4" />
               <span>Profile Settings</span>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push('/settings?tab=workspace')}>
+            <DropdownMenuItem onClick={() => router.push('/settings?tab=workspace')} className="py-2">
               <Settings className="mr-2 h-4 w-4" />
               <span>Workspace Settings</span>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+            <DropdownMenuItem onClick={handleSignOut} variant="destructive" className="py-2">
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>

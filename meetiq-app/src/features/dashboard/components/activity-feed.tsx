@@ -5,14 +5,16 @@ import type { ActivityFeedItem, Profile } from '@/types/database';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/lib/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
-import { Activity, Loader2 } from 'lucide-react';
+import { Activity, Loader2, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ActivityFeedProps {
   initialActivities: (ActivityFeedItem & { actor: Profile | null })[];
   workspaceId: string;
+  clearTrigger?: number;
 }
 
-export function ActivityFeed({ initialActivities, workspaceId }: ActivityFeedProps) {
+export function ActivityFeed({ initialActivities, workspaceId, clearTrigger }: ActivityFeedProps) {
   const supabase = createClient();
   const [activities, setActivities] = useState<(ActivityFeedItem & { actor: Profile | null })[]>(initialActivities);
   const [loading, setLoading] = useState(false);
@@ -20,6 +22,10 @@ export function ActivityFeed({ initialActivities, workspaceId }: ActivityFeedPro
   useEffect(() => {
     setActivities(initialActivities);
   }, [initialActivities]);
+
+  useEffect(() => {
+    if (clearTrigger) setActivities([]);
+  }, [clearTrigger]);
 
   // Subscribe to real-time updates on activity_feed for this workspace
   useEffect(() => {
@@ -55,6 +61,18 @@ export function ActivityFeed({ initialActivities, workspaceId }: ActivityFeedPro
           };
 
           setActivities((prev) => [completeActivity, ...prev.slice(0, 19)]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'activity_feed',
+          filter: `workspace_id=eq.${workspaceId}`,
+        },
+        (payload: any) => {
+          setActivities((prev) => prev.filter((a) => a.id !== payload.old.id));
         }
       )
       .subscribe();
@@ -105,7 +123,7 @@ export function ActivityFeed({ initialActivities, workspaceId }: ActivityFeedPro
     <div className="space-y-4 font-body">
       <div className="divide-y divide-slate-100 max-h-[360px] overflow-y-auto pr-2">
         {activities.map((item) => (
-          <div key={item.id} className="py-3 flex items-start gap-3 first:pt-0 last:pb-0">
+          <div key={item.id} className="py-3 flex items-start gap-3 first:pt-0 last:pb-0 group">
             <Avatar className="h-7 w-7 shrink-0 mt-0.5">
               <AvatarImage src={item.actor?.avatar_url || ''} />
               <AvatarFallback className="text-xs bg-slate-100 text-slate-700 font-bold">
@@ -128,6 +146,21 @@ export function ActivityFeed({ initialActivities, workspaceId }: ActivityFeedPro
                 {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
               </span>
             </div>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch(`/api/activity?id=${item.id}`, { method: 'DELETE' });
+                  if (!res.ok) throw new Error();
+                  setActivities((prev) => prev.filter((a) => a.id !== item.id));
+                  toast.success('Activity deleted');
+                } catch {
+                  toast.error('Failed to delete activity');
+                }
+              }}
+              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-muted-foreground hover:text-destructive shrink-0"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
           </div>
         ))}
       </div>

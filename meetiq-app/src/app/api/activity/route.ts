@@ -72,16 +72,30 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const workspaceId = searchParams.get('workspaceId');
     const deleteAll = searchParams.get('deleteAll');
-
-    if (!workspaceId || deleteAll !== 'true') {
-      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
-    }
+    const id = searchParams.get('id');
 
     const supabase = await createClient();
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (id) {
+      const { error } = await supabase
+        .from('activity_feed')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      return NextResponse.json({ success: true }, { status: 200 });
+    }
+
+    if (!workspaceId || deleteAll !== 'true') {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
     const { error } = await supabase

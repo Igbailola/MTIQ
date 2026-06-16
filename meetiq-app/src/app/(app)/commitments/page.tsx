@@ -40,7 +40,7 @@ export default function CommitmentsPage() {
         <h1 className="text-2xl font-bold tracking-tight text-primary font-heading">
           Action Commitments
         </h1>
-        <p className="text-base text-muted-foreground mt-1">
+        <p className="text-sm text-muted-foreground mt-1.5">
           Track individual execution action items, ownership accountability, and deadlines.
         </p>
       </div>
@@ -49,23 +49,23 @@ export default function CommitmentsPage() {
       <div className="space-y-4">
         {/* Status Tabs */}
         <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-full">
-          <TabsList className="flex flex-wrap h-auto bg-slate-100 p-1 rounded-lg max-w-fit gap-1">
-            <TabsTrigger value="all" className="rounded-md py-1.5 px-3 text-xs font-semibold">
+          <TabsList className="flex flex-wrap h-9 bg-slate-100 p-1.5 rounded-lg max-w-fit gap-1 items-stretch">
+            <TabsTrigger value="all" className="rounded-md py-3 px-3 text-xs font-semibold">
               All
             </TabsTrigger>
-            <TabsTrigger value="pending_confirmation" className="rounded-md py-1.5 px-3 text-xs font-semibold">
+            <TabsTrigger value="pending_confirmation" className="rounded-md py-3 px-3 text-xs font-semibold">
               Pending
             </TabsTrigger>
-            <TabsTrigger value="in_progress" className="rounded-md py-1.5 px-3 text-xs font-semibold">
+            <TabsTrigger value="in_progress" className="rounded-md py-3 px-3 text-xs font-semibold">
               In Progress
             </TabsTrigger>
-            <TabsTrigger value="blocked" className="rounded-md py-1.5 px-3 text-xs font-semibold">
+            <TabsTrigger value="blocked" className="rounded-md py-3 px-3 text-xs font-semibold">
               Blocked
             </TabsTrigger>
-            <TabsTrigger value="completed" className="rounded-md py-1.5 px-3 text-xs font-semibold">
+            <TabsTrigger value="completed" className="rounded-md py-3 px-3 text-xs font-semibold">
               Completed
             </TabsTrigger>
-            <TabsTrigger value="overdue" className="rounded-md py-1.5 px-3 text-xs font-semibold">
+            <TabsTrigger value="overdue" className="rounded-md py-3 px-3 text-xs font-semibold">
               Overdue
             </TabsTrigger>
           </TabsList>
@@ -80,18 +80,18 @@ export default function CommitmentsPage() {
               placeholder="Search commitments..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 text-xs"
+              className="h-9 pl-9 text-sm"
               disabled={isLoading}
             />
           </div>
 
           {/* Owner filter dropdown */}
           <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-end">
-            <Label htmlFor="owner-filter" className="text-xs font-semibold text-slate-500 whitespace-nowrap">
+            <Label htmlFor="owner-filter" className="text-sm font-semibold text-slate-500 whitespace-nowrap">
               Assignee:
             </Label>
             <Select value={selectedOwner} onValueChange={(val) => setSelectedOwner(val || 'all')} disabled={isLoading}>
-              <SelectTrigger id="owner-filter" className="w-[180px] text-xs h-9 bg-white">
+              <SelectTrigger id="owner-filter" className="w-[180px] text-sm h-9 bg-white">
                 <SelectValue placeholder="All Members" />
               </SelectTrigger>
               <SelectContent>
@@ -120,7 +120,7 @@ export default function CommitmentsPage() {
             <CheckSquare className="h-6 w-6" />
           </div>
           <h3 className="font-heading font-semibold text-base text-primary">All caught up!</h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-sm font-body mx-auto">
+          <p className="text-sm text-muted-foreground mt-1.5 max-w-sm font-body mx-auto">
             No commitments match these active status and assignee filter selections.
           </p>
         </div>

@@ -83,7 +83,7 @@ export function DecisionCard({ decision }: DecisionCardProps) {
 
   return (
     <Card className="border border-meetiq-border/5 hover:border-slate-300/50 transition-colors bg-white shadow-meetiq-xs">
-      <CardContent className="p-4 space-y-3">
+      <CardContent className="p-5 space-y-4">
         <div className="flex items-start justify-between gap-4">
           <p className="text-sm font-medium font-body text-slate-800 leading-relaxed">
             {decision.content}
@@ -105,7 +105,7 @@ export function DecisionCard({ decision }: DecisionCardProps) {
         </div>
 
         {/* Action / Feedback */}
-        <div className="flex items-center justify-between border-t border-slate-50 pt-2 text-xs">
+        <div className="flex items-center justify-between border-t border-slate-50 pt-3 text-xs">
           <div className="flex items-center gap-1 text-muted-foreground">
             <Sparkles className="h-4 w-4 text-blue-500" />
             <span>AI Extracted</span>

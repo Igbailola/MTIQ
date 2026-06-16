@@ -46,8 +46,8 @@ export function TeamAccountabilityTable({ stats }: TeamAccountabilityTableProps)
   }
 
   return (
-    <div className="border border-meetiq-border/5 rounded-xl bg-white overflow-hidden shadow-meetiq-xs">
-      <Table className="border-separate border-spacing-y-2">
+    <div className="border border-meetiq-border/5 rounded-xl bg-white overflow-x-auto shadow-meetiq-xs">
+      <Table className="border-separate border-spacing-y-2 min-w-[500px]">
         <TableHeader className="bg-slate-50/75">
           <TableRow>
             <TableHead className="font-semibold text-xs text-primary font-heading">Team Member</TableHead>

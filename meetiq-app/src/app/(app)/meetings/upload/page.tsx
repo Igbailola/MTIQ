@@ -25,7 +25,7 @@ export default function MeetingUploadPage() {
           <h1 className="text-2xl font-bold tracking-tight text-primary font-heading">
             Analyze New Meeting
           </h1>
-          <p className="text-base text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1.5">
             Provide a transcript or paste meeting summary notes for AI extraction.
           </p>
         </div>

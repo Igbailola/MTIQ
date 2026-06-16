@@ -29,7 +29,7 @@ export function CommitmentStatusChip({ status, className }: CommitmentStatusChip
   return (
     <span
       className={cn(
-        'status-chip border px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0',
+        'status-chip border px-4 py-2.5 rounded-full text-sm font-medium shrink-0 h-[30px]',
         styles[status],
         className
       )}

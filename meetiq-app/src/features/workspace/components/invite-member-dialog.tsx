@@ -42,9 +42,9 @@ export function InviteMemberDialog({ workspaceId }: InviteMemberDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" className="gap-2" />}>
+      <DialogTrigger render={<Button className="h-12 gap-2 px-6" />}>
         <Plus className="h-4 w-4" />
-        <span>Invite Member</span>
+        <span className="text-base">Invite Member</span>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

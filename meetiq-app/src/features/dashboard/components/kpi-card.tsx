@@ -49,7 +49,7 @@ export function KPICard({ title, value, label, icon: Icon, variant = 'blue', tre
       <CardContent className="pt-4 px-6 pb-6 flex flex-col h-full justify-between">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <span className="text-sm font-semibold text-muted-foreground uppercase font-body">
+            <span className="text-xs font-semibold text-muted-foreground uppercase font-body">
               {title}
             </span>
             <p className="text-xs text-muted-foreground font-body">{label}</p>

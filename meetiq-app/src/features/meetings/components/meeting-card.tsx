@@ -40,19 +40,19 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
 
           <div className="flex items-center gap-3 shrink-0">
             {meeting.status === 'processing' && (
-              <Badge variant="outline" className="gap-1 bg-blue-50 text-accent border-blue-200/50 animate-pulse text-sm h-[30px]">
-                <Loader2 className="h-4 w-4 animate-spin" />
+              <Badge variant="outline" className="bg-blue-50 text-accent border-blue-200/50 animate-pulse h-9">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 AI Analyzing
               </Badge>
             )}
             {meeting.status === 'error' && (
-              <Badge variant="outline" className="gap-1 bg-red-50 text-destructive border-red-200 text-sm h-[30px]">
-                <AlertCircle className="h-4 w-4" />
+              <Badge variant="outline" className="bg-red-50 text-destructive border-red-200 h-9">
+                <AlertCircle className="h-3.5 w-3.5" />
                 Failed
               </Badge>
             )}
             {meeting.status === 'ready' && (
-              <Badge variant="outline" className="gap-1 bg-emerald-50 text-emerald-700 border-emerald-200 text-sm h-[30px]">
+              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 h-[30px]">
                 Processed
               </Badge>
             )}

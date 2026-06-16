@@ -14,10 +14,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ChevronDown, Plus, Check, Loader2 } from 'lucide-react';
+import { Plus, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export function WorkspaceSwitcher() {
+interface WorkspaceSwitcherProps {
+  initial?: string;
+}
+
+export function WorkspaceSwitcher({ initial = 'M' }: WorkspaceSwitcherProps) {
   const { currentWorkspace, setCurrentWorkspace } = useCurrentWorkspace();
   const { data: workspaces, isLoading } = useWorkspaces();
   const createWorkspaceMutation = useCreateWorkspace();
@@ -49,34 +53,28 @@ export function WorkspaceSwitcher() {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DropdownMenu open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger
-          render={
-            <Button
-              variant="ghost"
-              className="flex items-center gap-2 px-3 py-1.5 h-auto text-primary font-heading font-semibold hover:bg-slate-50 focus-visible:outline-none"
-            />
-          }
-        >
-          <div className="flex flex-col items-start">
-            <span className="truncate max-w-[140px] text-sm font-semibold">
-              {isLoading ? 'Loading...' : currentWorkspace?.name || 'Select Workspace'}
-            </span>
-            {currentWorkspace && (
-              <span className="text-xs text-muted-foreground truncate max-w-[140px] -mt-0.5">
-                meetiq/{currentWorkspace.name.toLowerCase().replace(/\s+/g, '-')}
-              </span>
-            )}
+        <DropdownMenuTrigger className="focus-visible:outline-none">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white select-none cursor-pointer hover:bg-blue-700 transition-colors">
+            {initial}
           </div>
-          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="start">
+        <DropdownMenuContent className="w-64 p-3" align="start">
+          {currentWorkspace && (
+            <div className="px-1.5 pb-2 mb-2 border-b border-border">
+              <p className="text-sm font-semibold text-primary truncate">
+                {currentWorkspace.name}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                meetiq/{currentWorkspace.name.toLowerCase().replace(/\s+/g, '-')}
+              </p>
+            </div>
+          )}
           <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase">
             Workspaces
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
           
           {isLoading ? (
-            <DropdownMenuItem disabled>
+            <DropdownMenuItem disabled className="py-2">
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               <span>Loading workspaces...</span>
             </DropdownMenuItem>
@@ -85,7 +83,7 @@ export function WorkspaceSwitcher() {
               <DropdownMenuItem
                 key={ws.id}
                 onSelect={() => setCurrentWorkspace(ws)}
-                className="flex items-center justify-between"
+                className="py-2 flex items-center justify-between"
               >
                 <span className="truncate">{ws.name}</span>
                 {currentWorkspace?.id === ws.id && (
@@ -95,10 +93,10 @@ export function WorkspaceSwitcher() {
             ))
           )}
 
-          <DropdownMenuSeparator />
           <DialogTrigger
+            nativeButton={false}
             render={
-              <DropdownMenuItem onSelect={() => setOpen(false)} className="cursor-pointer text-accent" />
+              <DropdownMenuItem onSelect={() => setOpen(false)} className="py-2 cursor-pointer text-accent" />
             }
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -117,6 +115,7 @@ export function WorkspaceSwitcher() {
             <Input
               id="wsName"
               placeholder="e.g. Engineering Team, Marketing"
+              className="h-10 py-1.5"
               value={newWorkspaceName}
               onChange={(e) => setNewWorkspaceName(e.target.value)}
               disabled={creating}

@@ -26,14 +26,14 @@ export default function MeetingsPage() {
           <h1 className="text-2xl font-bold tracking-tight text-primary font-heading">
             Meeting Transcripts
           </h1>
-          <p className="text-base text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1.5">
             Upload and view archives of your team meetings.
           </p>
         </div>
         
-        <Button onClick={() => router.push('/meetings/upload')} className="gap-2">
+        <Button onClick={() => router.push('/meetings/upload')} className="h-12 gap-2 px-6">
           <Upload className="h-4 w-4" />
-          <span>Upload Meeting</span>
+          <span className="text-base">Upload Meeting</span>
         </Button>
       </div>
 
@@ -50,7 +50,7 @@ export default function MeetingsPage() {
             <Calendar className="h-6 w-6" />
           </div>
           <h3 className="font-heading font-semibold text-base text-primary">No meetings yet</h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-sm font-body mx-auto">
+          <p className="text-sm text-muted-foreground mt-1.5 max-w-sm font-body mx-auto">
             Upload your first meeting transcript or raw notes to extract summary, decisions, and track commitments.
           </p>
           <Button onClick={() => router.push('/meetings/upload')} className="mt-5 gap-2">

@@ -92,7 +92,7 @@ export function OverdueCommitmentsSection({ commitments }: OverdueCommitmentsSec
                   </div>
                 </div>
 
-                <Badge variant="destructive" className="bg-red-600 hover:bg-red-600 text-sm font-bold h-[30px] px-2 rounded-full shrink-0">
+                <Badge variant="destructive" className="bg-red-600 hover:bg-red-600 rounded-full shrink-0 h-[30px]">
                   {days} {days === 1 ? 'day' : 'days'} overdue
                 </Badge>
               </div>
