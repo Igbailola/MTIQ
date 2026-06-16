@@ -197,7 +197,7 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
                       <SelectTrigger id="commPriority" className="bg-white h-10 text-sm mt-1">
                         <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
-                      <SelectContent className="w-full sm:min-w-[260px]">
+                      <SelectContent className="w-full sm:min-w-[260px]" sideOffset={8}>
                         <SelectItem value="low">Low</SelectItem>
                         <SelectItem value="medium">Medium</SelectItem>
                         <SelectItem value="high">High</SelectItem>

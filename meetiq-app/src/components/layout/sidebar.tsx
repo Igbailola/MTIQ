@@ -107,7 +107,7 @@ export function Sidebar() {
               </div>
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[256px] mr-3 p-3" align="start" side="top">
+          <DropdownMenuContent className="w-[256px] mr-3 p-3" align="start" side="top" sideOffset={12}>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none text-primary font-heading">

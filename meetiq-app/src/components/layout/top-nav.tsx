@@ -36,7 +36,7 @@ export function TopNav() {
         <NotificationBell />
         <div className="h-[18px] w-[1px] bg-meetiq-border hidden sm:block" />
         <div className="flex items-center gap-2 shrink-0">
-          <WorkspaceSwitcher initial={initial} />
+          <WorkspaceSwitcher initial={initial} showDetails />
         </div>
       </div>
     </header>

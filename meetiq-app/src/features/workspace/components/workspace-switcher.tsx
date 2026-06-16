@@ -14,14 +14,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus, Check, Loader2 } from 'lucide-react';
+import { Plus, Check, Loader2, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface WorkspaceSwitcherProps {
   initial?: string;
+  showDetails?: boolean;
 }
 
-export function WorkspaceSwitcher({ initial = 'M' }: WorkspaceSwitcherProps) {
+export function WorkspaceSwitcher({ initial = 'M', showDetails = false }: WorkspaceSwitcherProps) {
   const { currentWorkspace, setCurrentWorkspace } = useCurrentWorkspace();
   const { data: workspaces, isLoading } = useWorkspaces();
   const createWorkspaceMutation = useCreateWorkspace();
@@ -54,11 +55,24 @@ export function WorkspaceSwitcher({ initial = 'M' }: WorkspaceSwitcherProps) {
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger className="focus-visible:outline-none">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white select-none cursor-pointer hover:bg-blue-700 transition-colors">
-            {initial}
+          <div className="flex items-center gap-2 cursor-pointer">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white select-none hover:bg-blue-700 transition-colors">
+              {initial}
+            </div>
+            {showDetails && currentWorkspace && (
+              <div className="hidden md:flex items-center gap-1.5">
+                <div className="leading-tight">
+                  <p className="text-sm font-medium text-primary leading-tight text-left">{currentWorkspace.name}</p>
+                  <p className="text-[11px] text-muted-foreground leading-tight text-left">
+                    meetiq/{currentWorkspace.name.toLowerCase().replace(/\s+/g, '-')}
+                  </p>
+                </div>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </div>
+            )}
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-64 p-3" align="start">
+        <DropdownMenuContent className="w-64 p-3 mt-2.5" align="end">
           {currentWorkspace && (
             <div className="px-1.5 pb-2 mb-2 border-b border-border">
               <p className="text-sm font-semibold text-primary truncate">
