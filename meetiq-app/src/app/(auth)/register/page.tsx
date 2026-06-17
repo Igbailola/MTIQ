@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/navigation'; // Wait, let's import Link from 'next/link' instead of next/navigation! Let's correct this.
 import { useRouter } from 'next/navigation';
 import LinkComponent from 'next/link';
 import { createClient } from '@/lib/supabase/client';
