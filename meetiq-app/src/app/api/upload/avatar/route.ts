@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 
     const { data: urlData } = admin.storage.from('avatars').getPublicUrl(filePath);
 
-    const { error: updateError } = await supabase
+    const { error: updateError } = await admin
       .from('profiles')
       .update({ avatar_url: urlData.publicUrl })
       .eq('id', user.id);

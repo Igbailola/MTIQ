@@ -46,7 +46,7 @@ export function InviteMemberDialog({ workspaceId }: InviteMemberDialogProps) {
         <Plus className="h-4 w-4" />
         <span className="text-base">Invite Member</span>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-heading text-lg">Invite Member to Workspace</DialogTitle>
         </DialogHeader>
@@ -61,6 +61,7 @@ export function InviteMemberDialog({ workspaceId }: InviteMemberDialogProps) {
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
               required
+              className="h-10"
             />
           </div>
 
@@ -75,8 +76,8 @@ export function InviteMemberDialog({ workspaceId }: InviteMemberDialogProps) {
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="member">Member (Read & confirm commitments)</SelectItem>
-                <SelectItem value="admin">Admin (Full access + meeting uploads)</SelectItem>
+                <SelectItem value="member">Member</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -87,10 +88,11 @@ export function InviteMemberDialog({ workspaceId }: InviteMemberDialogProps) {
               variant="outline"
               onClick={() => setOpen(false)}
               disabled={loading}
+              className="h-12"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="h-12">
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

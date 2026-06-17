@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CommitmentStatusChip } from './commitment-status-chip';
 import { ConfidenceBadge } from './confidence-badge';
@@ -210,26 +211,29 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
                   rows={2}
-                  className="text-sm"
+                  className="text-sm min-h-[40px]"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div className="space-y-1">
                   <Label htmlFor="editOwner" className="text-xs">Owner</Label>
-                  <select
-                    id="editOwner"
-                    value={editOwnerId || ''}
-                    onChange={(e) => setEditOwnerId(e.target.value || null)}
-                    className="w-full h-10 text-sm rounded border border-slate-200/50 px-2 bg-white text-slate-800"
-                  >
-                    <option value="">Needs Owner</option>
-                    {members?.map((m) => (
-                      <option key={m.user_id} value={m.user_id}>
-                        {m.profile?.display_name || 'Anonymous User'}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={editOwnerId || ''} onValueChange={(val) => setEditOwnerId(val || null)}>
+                    <SelectTrigger
+                      id="editOwner"
+                      className="w-full !h-10 text-sm border-slate-200/50 bg-white text-slate-800 px-4"
+                    >
+                      <SelectValue placeholder="Needs Owner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Needs Owner</SelectItem>
+                      {members?.map((m) => (
+                        <SelectItem key={m.user_id} value={m.user_id}>
+                          {m.profile?.display_name || 'Anonymous User'}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-1">
@@ -245,32 +249,38 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
 
                 <div className="space-y-1">
                   <Label htmlFor="editPriority" className="text-xs">Priority</Label>
-                  <select
-                    id="editPriority"
-                    value={editPriority}
-                    onChange={(e) => setEditPriority(e.target.value)}
-                    className="w-full h-10 text-sm rounded border border-slate-200/50 px-2 bg-white text-slate-800"
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </select>
+                  <Select value={editPriority} onValueChange={setEditPriority}>
+                    <SelectTrigger
+                      id="editPriority"
+                      className="w-full !h-10 text-sm border-slate-200/50 bg-white text-slate-800 px-4"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-1">
                   <Label htmlFor="editStatus" className="text-xs">Status</Label>
-                  <select
-                    id="editStatus"
-                    value={editStatus}
-                    onChange={(e) => setEditStatus(e.target.value)}
-                    className="w-full h-10 text-sm rounded border border-slate-200/50 px-2 bg-white text-slate-800"
-                  >
-                    <option value="pending_confirmation">Pending Confirmation</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="blocked">Blocked</option>
-                    <option value="completed">Completed</option>
-                    <option value="overdue">Overdue</option>
-                  </select>
+                  <Select value={editStatus} onValueChange={setEditStatus}>
+                    <SelectTrigger
+                      id="editStatus"
+                      className="w-full !h-10 text-sm border-slate-200/50 bg-white text-slate-800 px-4"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending_confirmation">Pending Confirmation</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="blocked">Blocked</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="overdue">Overdue</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -281,7 +291,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                 variant="ghost"
                 size="sm"
                 onClick={() => setEditMode(false)}
-                className="h-8 text-xs"
+                className="h-12 text-xs"
                 disabled={savingEdit}
               >
                 Cancel

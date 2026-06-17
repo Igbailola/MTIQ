@@ -119,7 +119,7 @@ export function WorkspaceSwitcher({ initial = 'M', showDetails = false }: Worksp
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-heading text-lg">Create a New Workspace</DialogTitle>
         </DialogHeader>
@@ -136,16 +136,31 @@ export function WorkspaceSwitcher({ initial = 'M', showDetails = false }: Worksp
               required
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="wsUrl">Workspace URL</Label>
+            <Input
+              id="wsUrl"
+              value={
+                newWorkspaceName
+                  ? `https://meetiq/${newWorkspaceName.toLowerCase().replace(/\s+/g, '-')}`
+                  : ''
+              }
+              readOnly
+              className="h-[44px] text-slate-500 bg-slate-50/50"
+              disabled
+            />
+          </div>
           <div className="flex justify-end gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => setDialogOpen(false)}
               disabled={creating}
+              className="h-12"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={creating}>
+            <Button type="submit" disabled={creating} className="h-12">
               {creating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
