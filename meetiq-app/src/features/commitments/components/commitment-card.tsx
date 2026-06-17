@@ -249,7 +249,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
 
                 <div className="space-y-1">
                   <Label htmlFor="editPriority" className="text-xs">Priority</Label>
-                  <Select value={editPriority} onValueChange={setEditPriority}>
+                  <Select value={editPriority} onValueChange={(val) => setEditPriority(val ?? 'medium')}>
                     <SelectTrigger
                       id="editPriority"
                       className="w-full !h-10 text-sm border-slate-200/50 bg-white text-slate-800 px-4"
@@ -266,7 +266,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
 
                 <div className="space-y-1">
                   <Label htmlFor="editStatus" className="text-xs">Status</Label>
-                  <Select value={editStatus} onValueChange={setEditStatus}>
+                  <Select value={editStatus} onValueChange={(val) => setEditStatus(val ?? 'pending_confirmation')}>
                     <SelectTrigger
                       id="editStatus"
                       className="w-full !h-10 text-sm border-slate-200/50 bg-white text-slate-800 px-4"

@@ -38,7 +38,7 @@ export async function GET(request: Request) {
           // Silently ignore — welcome email is not critical
         });
 
-        return NextResponse.redirect(`${origin}/workspace/create`);
+        return NextResponse.redirect(`${origin}/onboarding`);
       }
       
       return NextResponse.redirect(`${origin}${next}`);

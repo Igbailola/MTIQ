@@ -30,15 +30,15 @@ export default function AppLayout({ children }: AppLayoutProps) {
       return;
     }
 
-    // Guard 2: Redirect to workspace creation if they haven't completed onboarding
-    if (profile && !profile.onboarding_completed && pathname !== '/workspace/create') {
-      router.replace('/workspace/create');
+    // Guard 2: Redirect to onboarding if they haven't completed it
+    if (profile && !profile.onboarding_completed && pathname !== '/onboarding') {
+      router.replace('/onboarding');
       return;
     }
 
-    // Guard 3: Redirect to workspace creation if they have no workspaces but completed onboarding
-    if (profile && profile.onboarding_completed && !currentWorkspace && !workspaceLoading && pathname !== '/workspace/create') {
-      router.replace('/workspace/create');
+    // Guard 3: Redirect to onboarding if they have no workspaces but completed onboarding
+    if (profile && profile.onboarding_completed && !currentWorkspace && !workspaceLoading && pathname !== '/onboarding' && pathname !== '/workspace/create') {
+      router.replace('/onboarding');
       return;
     }
   }, [user, profile, authLoading, currentWorkspace, workspaceLoading, pathname, router]);
@@ -57,11 +57,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
     );
   }
 
-  // If unauthenticated or onboarding route, let Next handle pages/guards (skip structural layout)
+  // If unauthenticated or onboarding/auth routes, let Next handle pages/guards (skip structural layout)
   const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password';
-  const isWorkspaceCreate = pathname === '/workspace/create';
+  const isOnboardingOrCreate = pathname === '/onboarding' || pathname === '/workspace/create';
 
-  if (!user || isAuthPage || isWorkspaceCreate) {
+  if (!user || isAuthPage || isOnboardingOrCreate) {
     return <>{children}</>;
   }
 

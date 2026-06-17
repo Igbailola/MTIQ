@@ -157,7 +157,7 @@ export default function SettingsPage() {
     setWorkspaceDeleting(true);
     try {
       await deleteWorkspaceMutation.mutateAsync();
-      router.push('/workspace/create');
+      router.push('/onboarding');
     } catch (err) {
       console.error(err);
     } finally {
