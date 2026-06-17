@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { sendEmail } from '@/lib/email/send';
+import { EscalationAlertEmail } from '@/lib/email/templates/escalation-alert';
+import { CommitmentOverdueEmail } from '@/lib/email/templates/commitment-overdue';
 
 /**
  * POST /api/commitments/escalate - Scan and process overdue commitments and escalate 48h unconfirmed commitments
@@ -15,6 +18,7 @@ export async function POST(request: Request) {
     const adminSupabase = await createAdminClient();
     const now = new Date().toISOString();
     const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://meetiq-seven.vercel.app';
 
     let escalatedCount = 0;
     let overdueCount = 0;
@@ -32,6 +36,20 @@ export async function POST(request: Request) {
 
     for (const comm of unconfirmed || []) {
       const workspaceId = (comm.meeting as any).workspace_id;
+      const hoursSinceCreation = Math.round(
+        (Date.now() - new Date(comm.created_at).getTime()) / (1000 * 60 * 60)
+      );
+
+      // Get owner name for the email
+      let ownerName = 'Unassigned';
+      if (comm.owner_id) {
+        const { data: ownerProfile } = await adminSupabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', comm.owner_id)
+          .single();
+        ownerName = ownerProfile?.display_name || 'Unknown member';
+      }
       
       // Get workspace admins to notify
       const { data: admins } = await adminSupabase
@@ -50,6 +68,21 @@ export async function POST(request: Request) {
           entity_type: 'commitment',
           entity_id: comm.id,
         });
+
+        // Send escalation email to admin
+        const { data: adminAuth } = await adminSupabase.auth.admin.getUserById(admin.user_id);
+        if (adminAuth?.user?.email) {
+          sendEmail({
+            to: adminAuth.user.email,
+            subject: `🚨 Escalation: "${comm.title}" unconfirmed for ${hoursSinceCreation}h`,
+            react: EscalationAlertEmail({
+              commitmentTitle: comm.title,
+              ownerName,
+              hoursSinceCreation,
+              commitmentUrl: `${appUrl}/commitments/${comm.id}`,
+            }),
+          }).catch(() => {});
+        }
       }
 
       escalatedCount++;
@@ -96,6 +129,29 @@ export async function POST(request: Request) {
           entity_type: 'commitment',
           entity_id: comm.id,
         });
+
+        // Send overdue email to owner
+        const { data: ownerAuth } = await adminSupabase.auth.admin.getUserById(comm.owner_id);
+        if (ownerAuth?.user?.email) {
+          const dueDate = comm.due_date
+            ? new Date(comm.due_date).toLocaleDateString('en-US', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })
+            : 'Not set';
+
+          sendEmail({
+            to: ownerAuth.user.email,
+            subject: `⚠️ Overdue: "${comm.title}"`,
+            react: CommitmentOverdueEmail({
+              commitmentTitle: comm.title,
+              dueDate,
+              commitmentUrl: `${appUrl}/commitments/${comm.id}`,
+            }),
+          }).catch(() => {});
+        }
       }
 
       // Notify assigner
@@ -140,3 +196,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+

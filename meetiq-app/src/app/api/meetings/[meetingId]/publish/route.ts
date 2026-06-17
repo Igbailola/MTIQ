@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { sendEmail } from '@/lib/email/send';
+import { CommitmentAssignedEmail } from '@/lib/email/templates/commitment-assigned';
 
 /**
  * POST /api/meetings/[meetingId]/publish - Publish commitments, assign owners, and send notifications
@@ -49,6 +51,16 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     const adminSupabase = await createAdminClient();
 
+    // Get current user's profile for assigner name
+    const { data: assignerProfile } = await adminSupabase
+      .from('profiles')
+      .select('display_name')
+      .eq('id', user.id)
+      .single();
+
+    const assignerName = assignerProfile?.display_name || user.email || 'A team member';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://meetiq-seven.vercel.app';
+
     // Publish all commitments and map suggested owner to owner_id
     for (const commitment of commitments) {
       const targetOwner = commitment.ai_owner_suggestion || null;
@@ -80,6 +92,31 @@ export async function POST(request: Request, { params }: RouteParams) {
           entity_type: 'commitment',
           entity_id: commitment.id,
         });
+
+        // Send email to the assigned owner
+        const { data: ownerAuth } = await adminSupabase.auth.admin.getUserById(targetOwner);
+        if (ownerAuth?.user?.email) {
+          const dueDate = commitment.due_date
+            ? new Date(commitment.due_date).toLocaleDateString('en-US', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })
+            : null;
+
+          sendEmail({
+            to: ownerAuth.user.email,
+            subject: `New commitment assigned: "${commitment.title}"`,
+            react: CommitmentAssignedEmail({
+              commitmentTitle: commitment.title,
+              meetingTitle: meeting.title,
+              assignerName,
+              dueDate,
+              commitmentUrl: `${appUrl}/commitments/${commitment.id}`,
+            }),
+          }).catch(() => {});
+        }
       }
 
       // Log in activity feed
@@ -102,3 +139,4 @@ export async function POST(request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+

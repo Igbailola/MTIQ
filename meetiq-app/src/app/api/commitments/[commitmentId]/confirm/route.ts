@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { CommitmentConfirmWithValidation } from '@/lib/schemas';
+import { sendEmail } from '@/lib/email/send';
+import { CommitmentConfirmedEmail } from '@/lib/email/templates/commitment-confirmed';
 
 /**
  * POST /api/commitments/[commitmentId]/confirm - Accept, Reject, or Request Changes on a commitment
@@ -103,6 +105,32 @@ export async function POST(request: Request, { params }: RouteParams) {
         entity_type: 'commitment',
         entity_id: commitmentId,
       });
+
+      // Send email to the assigner
+      const { data: assignerAuth } = await adminSupabase.auth.admin.getUserById(commitment.assigner_id);
+      if (assignerAuth?.user?.email) {
+        // Get the owner's display name for the email
+        const { data: ownerProfile } = await adminSupabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', user.id)
+          .single();
+
+        const ownerName = ownerProfile?.display_name || user.email || 'A team member';
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://meetiq-seven.vercel.app';
+
+        sendEmail({
+          to: assignerAuth.user.email,
+          subject: `Commitment ${actionLabels[action]}: "${commitment.title}"`,
+          react: CommitmentConfirmedEmail({
+            commitmentTitle: commitment.title,
+            ownerName,
+            action: actionLabels[action] as 'accepted' | 'rejected' | 'requested changes on',
+            reason: reason || null,
+            commitmentUrl: `${appUrl}/commitments/${commitmentId}`,
+          }),
+        }).catch(() => {});
+      }
     }
 
     // Log in activity feed
@@ -124,3 +152,4 @@ export async function POST(request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+

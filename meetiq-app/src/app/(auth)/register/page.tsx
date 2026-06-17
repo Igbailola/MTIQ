@@ -53,6 +53,15 @@ export default function RegisterPage() {
       } else {
         setSuccess(true);
         toast.success('Registration successful! Please check your email.');
+
+        // Send welcome email (fire-and-forget, don't block the UI)
+        fetch('/api/email/welcome', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: data.email }),
+        }).catch(() => {
+          // Silently ignore — welcome email is not critical
+        });
       }
     } catch (err) {
       toast.error('An unexpected error occurred. Please try again.');
