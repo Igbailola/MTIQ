@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Image must be less than 2MB' }, { status: 400 });
     }
 
-    const admin = await createAdminClient();
+    const admin = createAdminClient();
 
     const { data: buckets } = await admin.storage.listBuckets();
     if (!buckets?.find((b) => b.name === 'avatars')) {

@@ -40,7 +40,9 @@ export type NotificationType =
   | 'commitment_changes_requested'
   | 'commitment_overdue'
   | 'escalation'
-  | 'meeting_processed';
+  | 'meeting_processed'
+  | 'member_invited'
+  | 'member_accepted';
 
 // ── Table Row Types ──
 
@@ -51,7 +53,7 @@ export interface Profile {
   timezone: string | null;
   onboarding_completed: boolean;
   created_at: string;
-  updated_at: string;
+  updated_at: string | null;
 }
 
 export interface Workspace {
@@ -65,6 +67,7 @@ export interface WorkspaceMember {
   workspace_id: string;
   user_id: string;
   role: WorkspaceRole;
+  status: 'pending' | 'active';
   joined_at: string;
   // Joined fields
   profile?: Profile;
@@ -120,8 +123,8 @@ export interface Commitment {
   created_at: string;
   updated_at: string | null;
   // Joined fields
-  owner?: Profile;
-  assigner?: Profile;
+  owner?: Profile | null;
+  assigner?: Profile | null;
   meeting?: Pick<Meeting, 'id' | 'title' | 'meeting_date'>;
 }
 

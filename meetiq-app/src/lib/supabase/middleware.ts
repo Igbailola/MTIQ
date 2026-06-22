@@ -42,10 +42,6 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Public routes that don't require authentication
-  const publicRoutes = ['/login', '/register', '/forgot-password', '/callback'];
-  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
-
   // Static/API routes — skip auth check
   if (
     pathname.startsWith('/_next') ||
@@ -56,6 +52,10 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
+  // Public routes that don't require authentication
+  const publicRoutes = ['/login', '/register', '/forgot-password', '/callback', '/auth'];
+  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
+
   // Redirect unauthenticated users to login
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
@@ -63,11 +63,37 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from auth pages
-  if (user && isPublicRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
-    return NextResponse.redirect(url);
+  // Handle redirects for authenticated users
+  if (user) {
+    // Fetch profile onboarding status
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id', user.id)
+      .single();
+
+    const onboardingCompleted = profile?.onboarding_completed ?? false;
+
+    // Authenticated users trying to access auth pages
+    if (isPublicRoute) {
+      const url = request.nextUrl.clone();
+      url.pathname = onboardingCompleted ? '/dashboard' : '/onboarding';
+      return NextResponse.redirect(url);
+    }
+
+    // Authenticated users who haven't completed onboarding should be forced to onboarding
+    if (!onboardingCompleted && pathname !== '/onboarding') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/onboarding';
+      return NextResponse.redirect(url);
+    }
+
+    // Authenticated users who completed onboarding trying to hit onboarding page
+    if (onboardingCompleted && pathname === '/onboarding') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

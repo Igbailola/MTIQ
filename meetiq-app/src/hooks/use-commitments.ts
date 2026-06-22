@@ -167,6 +167,7 @@ export function useDeleteCommitment(commitmentId: string, workspaceId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['commitments', workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ['meeting'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats', workspaceId] });
       toast.success('Commitment deleted');
     },

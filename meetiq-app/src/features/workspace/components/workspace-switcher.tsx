@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useCurrentWorkspace, useWorkspaces, useCreateWorkspace } from '@/hooks/use-workspace';
+import { useRouter } from 'next/navigation';
+import { useCurrentWorkspace, useCreateWorkspace } from '@/hooks/use-workspace';
+import { useAuth } from '@/hooks/use-auth';
+import { createClient } from '@/lib/supabase/client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,14 +26,17 @@ interface WorkspaceSwitcherProps {
 }
 
 export function WorkspaceSwitcher({ initial = 'M', showDetails = false }: WorkspaceSwitcherProps) {
-  const { currentWorkspace, setCurrentWorkspace } = useCurrentWorkspace();
-  const { data: workspaces, isLoading } = useWorkspaces();
+  const router = useRouter();
+  const { workspaces, currentWorkspace, setCurrentWorkspace, loading: isLoading } = useCurrentWorkspace();
+  const { user } = useAuth();
+  const supabase = createClient();
   const createWorkspaceMutation = useCreateWorkspace();
   
   const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newWorkspaceName, setNewWorkspaceName] = useState('');
   const [creating, setCreating] = useState(false);
+  const [search, setSearch] = useState('');
 
   const handleCreateWorkspace = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +50,9 @@ export function WorkspaceSwitcher({ initial = 'M', showDetails = false }: Worksp
       setNewWorkspaceName('');
       setDialogOpen(false);
       setCurrentWorkspace(ws);
+
+      router.push('/dashboard');
+      router.refresh();
     } catch (err) {
       console.error(err);
     } finally {
@@ -83,9 +92,18 @@ export function WorkspaceSwitcher({ initial = 'M', showDetails = false }: Worksp
               </p>
             </div>
           )}
-          <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase">
-            Workspaces
+          <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase flex items-center justify-between pb-1">
+            <span>Workspaces</span>
           </DropdownMenuLabel>
+          
+          <div className="px-1 py-1.5" onClick={(e) => e.stopPropagation()}>
+            <Input
+              placeholder="Search workspaces..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-8 text-xs px-2 border-slate-200 focus-visible:ring-accent w-full"
+            />
+          </div>
           
           {isLoading ? (
             <DropdownMenuItem disabled className="py-2">
@@ -93,24 +111,47 @@ export function WorkspaceSwitcher({ initial = 'M', showDetails = false }: Worksp
               <span>Loading workspaces...</span>
             </DropdownMenuItem>
           ) : (
-            workspaces?.map((ws) => (
-              <DropdownMenuItem
-                key={ws.id}
-                onSelect={() => setCurrentWorkspace(ws)}
-                className="py-2 flex items-center justify-between"
-              >
-                <span className="truncate">{ws.name}</span>
-                {currentWorkspace?.id === ws.id && (
-                  <Check className="h-4 w-4 text-accent shrink-0" />
-                )}
-              </DropdownMenuItem>
-            ))
+            (() => {
+              const filtered = workspaces?.filter((ws) =>
+                ws.name.toLowerCase().includes(search.toLowerCase())
+              ) || [];
+
+              if (filtered.length === 0) {
+                return (
+                  <div className="py-3 px-2 text-center text-xs text-muted-foreground">
+                    No workspaces found
+                  </div>
+                );
+              }
+
+              return filtered.map((ws) => (
+                <DropdownMenuItem
+                  key={ws.id}
+                  onClick={() => {
+                    setCurrentWorkspace(ws);
+                    setSearch('');
+                    router.push('/dashboard');
+                    router.refresh();
+                  }}
+                  className={`py-2 px-2.5 flex items-center justify-between cursor-pointer rounded-md transition-colors ${
+                    currentWorkspace?.id === ws.id
+                      ? 'bg-blue-50/50 text-accent font-semibold'
+                      : 'hover:bg-slate-50 text-slate-700'
+                  }`}
+                >
+                  <span className="truncate">{ws.name}</span>
+                  {currentWorkspace?.id === ws.id && (
+                    <Check className="h-4 w-4 text-accent shrink-0" />
+                  )}
+                </DropdownMenuItem>
+              ));
+            })()
           )}
 
           <DialogTrigger
             nativeButton={false}
             render={
-              <DropdownMenuItem onSelect={() => setOpen(false)} className="py-2 cursor-pointer text-accent" />
+              <DropdownMenuItem onClick={() => setOpen(false)} className="py-2 cursor-pointer text-accent" />
             }
           >
             <Plus className="mr-2 h-4 w-4" />

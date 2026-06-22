@@ -51,7 +51,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     }
 
     const { action, reason } = result.data;
-    const adminSupabase = await createAdminClient();
+    const adminSupabase = createAdminClient();
     const now = new Date().toISOString();
 
     let updatedStatus = commitment.status;

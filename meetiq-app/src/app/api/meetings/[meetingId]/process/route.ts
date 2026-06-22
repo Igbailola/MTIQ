@@ -52,7 +52,7 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     // FALLBACK: Execute OpenAI processing directly in Next.js API route
     console.log('Running fallback local processing...');
-    const adminSupabase = await createAdminClient();
+    const adminSupabase = createAdminClient();
 
     // 1. Fetch meeting
     const { data: meeting, error: meetingError } = await adminSupabase
@@ -90,6 +90,13 @@ export async function POST(request: Request, { params }: RouteParams) {
       .join('\n');
 
     // Prompt preparation
+    const MAX_TRANSCRIPT_CHARS = 400_000;
+    let transcriptText = meeting.raw_text || '';
+    if (transcriptText.length > MAX_TRANSCRIPT_CHARS) {
+      console.warn(`Transcript too long (${transcriptText.length} chars), truncating to ${MAX_TRANSCRIPT_CHARS} chars for AI processing`);
+      transcriptText = transcriptText.slice(0, MAX_TRANSCRIPT_CHARS) + '\n\n[Transcript truncated due to length. Some content may not have been processed.]';
+    }
+
     const systemPrompt = `You are an expert AI execution accountability assistant. Your task is to analyze meeting transcripts or notes and extract:
 1. A structured summary containing 3 to 5 key bullet points.
 2. Key decisions made during the meeting.
@@ -134,7 +141,7 @@ IMPORTANT:
     const userPrompt = `Meeting Title: ${meeting.title}
 Meeting Date: ${meeting.meeting_date}
 Meeting Content:
-${meeting.raw_text}`;
+${transcriptText}`;
 
     const isDeepSeek = !!process.env.DEEPSEEK_API_KEY;
     const apiKey = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY;
@@ -236,7 +243,7 @@ ${meeting.raw_text}`;
   } catch (err: any) {
     console.error('Error during AI processing, falling back to mock sandbox data:', err);
     try {
-      const adminSupabase = await createAdminClient();
+      const adminSupabase = createAdminClient();
       const mId = (await params).meetingId;
 
       // 1. Fetch meeting to get title/raw_text

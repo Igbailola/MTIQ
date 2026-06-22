@@ -89,7 +89,7 @@ export function Sidebar() {
           <DropdownMenuTrigger className="w-full border-t border-meetiq-border/50 px-3 py-4 bg-slate-50/50 hover:bg-slate-100/50 transition-colors focus-visible:outline-none">
             <div className="flex items-center gap-3 text-left">
               <Avatar className="h-9 w-9 shrink-0">
-                <AvatarImage src={profile?.avatar_url || ''} alt={profile?.display_name || 'User'} />
+                <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.display_name || 'User'} />
                 <AvatarFallback className="bg-slate-200 text-slate-700 font-semibold text-xs">
                   {profile?.display_name ? getInitials(profile.display_name) : 'U'}
                 </AvatarFallback>

@@ -24,7 +24,19 @@ export default function CommitmentsPage() {
     ownerId: selectedOwner,
   });
 
-  if (!currentWorkspace) return null;
+  if (!currentWorkspace) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-6">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
+          <ListTodo className="h-8 w-8 text-slate-500" />
+        </div>
+        <h2 className="text-xl font-semibold text-primary font-heading">No workspace active</h2>
+        <p className="text-sm text-muted-foreground mt-2 max-w-sm">
+          Create or select a workspace to start tracking commitments.
+        </p>
+      </div>
+    );
+  }
 
   // Client-side search filtering
   const filteredCommitments = (commitments || []).filter((c) => {
@@ -49,23 +61,23 @@ export default function CommitmentsPage() {
       <div className="space-y-4">
         {/* Status Tabs */}
         <Tabs defaultValue="all" onValueChange={setActiveTab} className="w-full">
-          <TabsList className="flex flex-wrap h-9 bg-slate-100 p-1.5 rounded-lg max-w-fit gap-1 items-stretch">
-            <TabsTrigger value="all" className="rounded-md py-3 px-3 text-xs font-semibold">
+          <TabsList className="flex overflow-x-auto flex-nowrap w-full md:w-auto bg-slate-100 p-1 rounded-lg gap-1 items-center scrollbar-none">
+            <TabsTrigger value="all" className="rounded-md px-3 text-xs font-semibold">
               All
             </TabsTrigger>
-            <TabsTrigger value="pending_confirmation" className="rounded-md py-3 px-3 text-xs font-semibold">
+            <TabsTrigger value="pending_confirmation" className="rounded-md px-3 text-xs font-semibold">
               Pending
             </TabsTrigger>
-            <TabsTrigger value="in_progress" className="rounded-md py-3 px-3 text-xs font-semibold">
+            <TabsTrigger value="in_progress" className="rounded-md px-3 text-xs font-semibold">
               In Progress
             </TabsTrigger>
-            <TabsTrigger value="blocked" className="rounded-md py-3 px-3 text-xs font-semibold">
+            <TabsTrigger value="blocked" className="rounded-md px-3 text-xs font-semibold">
               Blocked
             </TabsTrigger>
-            <TabsTrigger value="completed" className="rounded-md py-3 px-3 text-xs font-semibold">
+            <TabsTrigger value="completed" className="rounded-md px-3 text-xs font-semibold">
               Completed
             </TabsTrigger>
-            <TabsTrigger value="overdue" className="rounded-md py-3 px-3 text-xs font-semibold">
+            <TabsTrigger value="overdue" className="rounded-md px-3 text-xs font-semibold">
               Overdue
             </TabsTrigger>
           </TabsList>

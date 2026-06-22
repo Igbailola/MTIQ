@@ -14,10 +14,10 @@ export function TopNav() {
   const initial = currentWorkspace?.name?.charAt(0).toUpperCase() || 'M';
 
   return (
-    <header className="sticky top-0 z-40 flex h-[72px] w-full items-center justify-between border-b border-meetiq-border/50 bg-white px-4 md:px-6">
+    <header className="sticky top-0 z-40 flex h-[72px] w-full items-center justify-between border-b border-meetiq-border/50 bg-white px-4 sm:px-6 md:px-[45px]">
       {/* Left section: Logo & Spacer */}
       <div className="flex items-center gap-4">
-        <Link href="/" className="flex items-center focus-visible:outline-none">
+        <Link href="/dashboard" className="flex items-center focus-visible:outline-none">
           <Image
             src="/meetiq-logo.png"
             alt="MeetIQ"
@@ -31,7 +31,7 @@ export function TopNav() {
 
       {/* Right section: Search, Notifications, Workspace */}
       <div className="flex items-center gap-3">
-        <div className="hidden sm:block"><CommandPalette /></div>
+        <CommandPalette />
         <div className="h-[18px] w-[1px] bg-meetiq-border hidden sm:block" />
         <NotificationBell />
         <div className="h-[18px] w-[1px] bg-meetiq-border hidden sm:block" />

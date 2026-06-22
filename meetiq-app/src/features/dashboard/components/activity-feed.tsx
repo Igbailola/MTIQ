@@ -125,7 +125,7 @@ export function ActivityFeed({ initialActivities, workspaceId, clearTrigger }: A
         {activities.map((item) => (
           <div key={item.id} className="py-3 flex items-start gap-3 first:pt-0 last:pb-0 group">
             <Avatar className="h-7 w-7 shrink-0 mt-0.5">
-              <AvatarImage src={item.actor?.avatar_url || ''} />
+              <AvatarImage src={item.actor?.avatar_url || undefined} />
               <AvatarFallback className="text-xs bg-slate-100 text-slate-700 font-bold">
                 {item.actor?.display_name ? getInitials(item.actor.display_name) : 'A'}
               </AvatarFallback>

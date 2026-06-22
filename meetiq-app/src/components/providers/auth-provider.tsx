@@ -94,15 +94,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setSession(null);
     setProfile(null);
+    window.location.href = '/login';
   };
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
+    // Check if next redirect or accept_invite parameters are present in current URL
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get('next');
+    
+    // Construct the redirect URL with the next/invite parameters preserved
+    let redirectUrl = `${window.location.origin}/auth/callback`;
+    if (next) {
+      redirectUrl += `?next=${encodeURIComponent(next)}`;
+      
+      // Also extract accept_invite if it's inside next, and forward it directly
+      if (next.includes('accept_invite=')) {
+        const inviteMatch = next.match(/[?&]accept_invite=([^&]+)/);
+        if (inviteMatch) {
+          redirectUrl += `&accept_invite=${inviteMatch[1]}`;
+        }
+      }
+    } else {
+      const acceptInvite = params.get('accept_invite');
+      if (acceptInvite) {
+        redirectUrl += `?accept_invite=${acceptInvite}`;
+      }
+    }
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: redirectUrl,
+        queryParams: {
+          prompt: 'select_account',
+        },
       },
     });
+    if (error) throw error;
+    if (data?.url) {
+      window.location.href = data.url;
+    }
   };
 
   return (

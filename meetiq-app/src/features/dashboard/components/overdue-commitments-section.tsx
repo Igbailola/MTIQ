@@ -71,7 +71,7 @@ export function OverdueCommitmentsSection({ commitments }: OverdueCommitmentsSec
               <div key={c.id} className="py-3 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
                 <div className="flex items-start gap-2.5 truncate">
                   <Avatar className="h-6 w-6 mt-0.5 shrink-0">
-                    <AvatarImage src={c.owner?.avatar_url || ''} />
+                    <AvatarImage src={c.owner?.avatar_url || undefined} />
                     <AvatarFallback className="text-xs bg-red-100 text-red-800 font-bold">
                       {c.owner?.display_name ? getInitials(c.owner.display_name) : 'O'}
                     </AvatarFallback>

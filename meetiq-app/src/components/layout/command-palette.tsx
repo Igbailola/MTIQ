@@ -82,9 +82,10 @@ export function CommandPalette() {
 
   return (
     <>
+      {/* Desktop/Tablet search button */}
       <button
         onClick={() => setOpen(true)}
-        className="flex h-10 w-full max-w-[240px] items-center justify-between rounded-lg border border-meetiq-border/50 bg-white px-3 text-xs text-muted-foreground hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:max-w-[320px]"
+        className="hidden sm:flex h-10 w-full max-w-[240px] items-center justify-between rounded-lg border border-meetiq-border/50 bg-white px-3 text-xs text-muted-foreground hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:max-w-[320px]"
       >
         <div className="flex items-center gap-2">
           <Search className="h-4 w-4" />
@@ -93,6 +94,15 @@ export function CommandPalette() {
         <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-meetiq-border/50 bg-slate-50 px-1.5 font-mono text-[10px] font-medium opacity-100">
           <span className="text-xs">⌘</span>K
         </kbd>
+      </button>
+
+      {/* Mobile search button */}
+      <button
+        onClick={() => setOpen(true)}
+        className="flex sm:hidden h-10 w-10 items-center justify-center rounded-lg border border-meetiq-border/50 bg-white text-muted-foreground hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        aria-label="Search"
+      >
+        <Search className="h-4 w-4" />
       </button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>

@@ -70,7 +70,7 @@ export function TeamAccountabilityTable({ stats }: TeamAccountabilityTableProps)
               <TableCell className="font-semibold text-slate-800 text-sm">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-6 w-6">
-                    <AvatarImage src={member.avatar_url || ''} />
+                    <AvatarImage src={member.avatar_url || undefined} />
                     <AvatarFallback className="text-xs bg-slate-100 font-bold">
                       {getInitials(member.display_name)}
                     </AvatarFallback>

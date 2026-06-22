@@ -85,7 +85,28 @@ ${memberListStr}
 IMPORTANT:
 - Assign suggested owners ONLY by their exact UUID.
 - If no member name matches, leave the suggested owner as null, but specify who was mentioned in the description.
-- Ensure the output is valid JSON in the requested format.`;
+- Ensure the output is valid JSON in the requested format.
+- Output JSON format:
+{
+  "summary": {
+    "bullets": ["bullet 1", "bullet 2"],
+    "ai_confidence": "high" | "medium" | "low"
+  },
+  "decisions": [
+    { "content": "decision content", "ai_confidence": "high" | "medium" | "low" }
+  ],
+  "commitments": [
+    {
+      "title": "task title",
+      "description": "context details",
+      "suggested_owner_id": "UUID" or null,
+      "due_date": "ISO timestamp" or null,
+      "ai_confidence": "high" | "medium" | "low",
+      "context_snippet": "exact quote",
+      "priority": "low" | "medium" | "high"
+    }
+  ]
+}`;
 
     const userPrompt = `Meeting Title: ${meeting.title}
 Meeting Date: ${meeting.meeting_date}

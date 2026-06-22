@@ -15,7 +15,17 @@ export default function MeetingsPage() {
   const { data: meetings, isLoading } = useMeetings(currentWorkspace?.id);
 
   if (!currentWorkspace) {
-    return null;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-6">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
+          <Calendar className="h-8 w-8 text-slate-500" />
+        </div>
+        <h2 className="text-xl font-semibold text-primary font-heading">No workspace active</h2>
+        <p className="text-sm text-muted-foreground mt-2 max-w-sm">
+          Create or select a workspace to start uploading and analyzing meetings.
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -53,9 +63,9 @@ export default function MeetingsPage() {
           <p className="text-sm text-muted-foreground mt-1.5 max-w-sm font-body mx-auto">
             Upload your first meeting transcript or raw notes to extract summary, decisions, and track commitments.
           </p>
-          <Button onClick={() => router.push('/meetings/upload')} className="mt-5 gap-2">
-            <Plus className="h-4 w-4" />
-            <span>Upload First Meeting</span>
+          <Button onClick={() => router.push('/meetings/upload')} className="mt-5 h-12 gap-2 px-6">
+            <Upload className="h-4 w-4" />
+            <span className="text-base">Upload First Meeting</span>
           </Button>
         </div>
       ) : (

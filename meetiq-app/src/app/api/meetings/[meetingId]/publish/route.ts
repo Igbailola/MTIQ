@@ -49,7 +49,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'No unpublished commitments found' }, { status: 400 });
     }
 
-    const adminSupabase = await createAdminClient();
+    const adminSupabase = createAdminClient();
 
     // Get current user's profile for assigner name
     const { data: assignerProfile } = await adminSupabase

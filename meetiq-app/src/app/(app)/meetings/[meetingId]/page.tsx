@@ -94,6 +94,13 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
     }
   };
 
+  // Auto-trigger processing if page is loaded while in processing state
+  React.useEffect(() => {
+    if (meeting && meeting.status === 'processing' && !processMutation.isPending && !processMutation.isSuccess) {
+      processMutation.mutate();
+    }
+  }, [meeting?.status, processMutation]);
+
   const handleRetryProcessing = async () => {
     try {
       await processMutation.mutateAsync();
@@ -260,14 +267,14 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
                     <Plus className="h-4 w-4" />
                     Add Manually
                   </Button>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
+                  <DialogContent className="sm:max-w-md p-[26px]">
+                    <DialogHeader className="p-0">
                       <DialogTitle className="font-heading text-lg">Add Manual Commitment</DialogTitle>
                       <DialogDescription className="font-body text-xs text-muted-foreground">
                         Create a new action item based on the meeting details.
                       </DialogDescription>
                     </DialogHeader>
-                    <form onSubmit={handleCreateCommitment} className="space-y-4 pt-2">
+                    <form onSubmit={handleCreateCommitment} className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="title" className="text-xs font-semibold">Title</Label>
                         <Input
@@ -277,6 +284,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
                           onChange={(e) => setNewTitle(e.target.value)}
                           disabled={creatingCommitment}
                           required
+                          className="h-10"
                         />
                       </div>
                       <div className="space-y-2">
@@ -288,17 +296,17 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
                           onChange={(e) => setNewDescription(e.target.value)}
                           disabled={creatingCommitment}
                           rows={3}
-                          className="text-xs"
+                          className="text-sm min-h-[40px]"
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
                           <Label htmlFor="newOwner" className="text-xs font-semibold">Owner Suggestion</Label>
                           <select
                             id="newOwner"
                             value={newOwnerId}
                             onChange={(e) => setNewOwnerId(e.target.value)}
-                            className="w-full rounded-md border border-input p-2 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            className="w-full h-10 rounded-md border border-input px-3 bg-white text-slate-800 text-sm appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                             disabled={creatingCommitment}
                           >
                             <option value="">No owner suggested</option>
@@ -316,7 +324,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
                             type="date"
                             value={newDueDate}
                             onChange={(e) => setNewDueDate(e.target.value)}
-                            className="w-full rounded-md border border-input p-2 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            className="w-full h-10 rounded-md border border-input px-3 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                             disabled={creatingCommitment}
                           />
                         </div>
@@ -326,7 +334,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
                             id="priority"
                             value={newPriority}
                             onChange={(e) => setNewPriority(e.target.value as any)}
-                            className="w-full rounded-md border border-input p-2 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            className="w-full h-10 rounded-md border border-input px-3 bg-white text-slate-800 text-sm appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                             disabled={creatingCommitment}
                           >
                             <option value="low">Low</option>
@@ -341,11 +349,11 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
                           variant="outline"
                           onClick={() => setCreateFormOpen(false)}
                           disabled={creatingCommitment}
-                          className="h-9 text-xs"
+                          className="h-10 text-sm"
                         >
                           Cancel
                         </Button>
-                        <Button type="submit" disabled={creatingCommitment} className="h-9 text-xs bg-slate-800 text-white hover:bg-slate-700">
+                        <Button type="submit" disabled={creatingCommitment} className="h-10 text-sm bg-slate-800 text-white hover:bg-slate-700">
                           {creatingCommitment ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -59,7 +59,7 @@ export function CommitmentHistoryTimeline({ history }: CommitmentHistoryTimeline
           {/* Timeline Node dot/avatar */}
           <div className="absolute -left-[29px] top-0.5">
             <Avatar className="h-6 w-6 ring-2 ring-white">
-              <AvatarImage src={h.changer?.avatar_url || ''} />
+              <AvatarImage src={h.changer?.avatar_url || undefined} />
               <AvatarFallback className="text-xs bg-slate-100 text-slate-700 font-bold">
                 {h.changer?.display_name ? getInitials(h.changer.display_name) : 'U'}
               </AvatarFallback>

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { InviteMemberSchema } from '@/lib/schemas';
+import { sendEmail } from '@/lib/email/send';
+import { WorkspaceInviteEmail } from '@/lib/email/templates/workspace-invite';
 
 /**
  * GET /api/workspaces/[workspaceId]/members - List workspace members
@@ -69,7 +71,7 @@ export async function POST(request: Request, { params }: RouteParams) {
   try {
     const { workspaceId } = await params;
     const supabase = await createClient();
-    const adminSupabase = await createAdminClient();
+    const adminSupabase = createAdminClient();
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
@@ -88,6 +90,17 @@ export async function POST(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'Forbidden: Admin role required' }, { status: 403 });
     }
 
+    // Check if the workspace exists and get its name
+    const { data: workspace, error: workspaceError } = await supabase
+      .from('workspaces')
+      .select('name')
+      .eq('id', workspaceId)
+      .single();
+
+    if (workspaceError || !workspace) {
+      return NextResponse.json({ error: 'Workspace not found' }, { status: 404 });
+    }
+
     // Validate body
     const body = await request.json();
     const result = InviteMemberSchema.safeParse(body);
@@ -98,16 +111,47 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
-    const { email, role } = result.data;
+    const { email, role, sendEmail: shouldSendEmail } = result.data;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || `https://${process.env.VERCEL_URL || 'localhost:3000'}`;
+    
+    let invitedUser = null;
 
-    // Use admin client to invite/create user in Supabase auth
-    const { data: inviteData, error: inviteError } = await adminSupabase.auth.admin.inviteUserByEmail(email);
-
-    if (inviteError) {
-      return NextResponse.json({ error: inviteError.message }, { status: 500 });
+    // Check if user already exists first
+    const { data: usersData, error: usersError } = await adminSupabase.auth.admin.listUsers();
+    if (usersError) {
+      return NextResponse.json({ error: usersError.message }, { status: 500 });
     }
 
-    const invitedUser = inviteData.user;
+    const foundUser = usersData.users.find((u: any) => u.email?.toLowerCase() === email.toLowerCase());
+
+    if (foundUser) {
+      // User is already registered in the app — use their existing user object
+      invitedUser = foundUser;
+    } else {
+      // User does not exist, proceed with creation/invite
+      if (shouldSendEmail === false) {
+        const { data: createData, error: createError } = await adminSupabase.auth.admin.createUser({
+          email,
+          email_confirm: true,
+        });
+        if (createError) {
+          return NextResponse.json({ error: createError.message }, { status: 500 });
+        }
+        invitedUser = createData.user;
+      } else {
+        // Use admin client to invite/create user in Supabase auth
+        const { data: inviteData, error: inviteError } = await adminSupabase.auth.admin.inviteUserByEmail(email, {
+          redirectTo: `${appUrl}/auth/callback?accept_invite=${workspaceId}`,
+        });
+
+        if (inviteError) {
+          return NextResponse.json({ error: inviteError.message }, { status: 500 });
+        }
+
+        invitedUser = inviteData.user;
+      }
+    }
+
     if (!invitedUser) {
       return NextResponse.json({ error: 'Failed to invite user' }, { status: 500 });
     }
@@ -124,16 +168,38 @@ export async function POST(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'User is already a member of this workspace' }, { status: 400 });
     }
 
-    // Add to workspace members
-    const { data: member, error: memberError } = await adminSupabase
+    // Add to workspace members (pending until user accepts invite via callback)
+    let member = null;
+    let memberError = null;
+
+    const firstTry = await adminSupabase
       .from('workspace_members')
       .insert({
         workspace_id: workspaceId,
         user_id: invitedUser.id,
         role,
+        status: 'pending',
       })
       .select()
-      .single();
+      .maybeSingle();
+
+    if (firstTry.error && (firstTry.error.message?.includes('status') || firstTry.error.code === 'PGRST100')) {
+      // Fallback: insert without status column
+      const fallbackTry = await adminSupabase
+        .from('workspace_members')
+        .insert({
+          workspace_id: workspaceId,
+          user_id: invitedUser.id,
+          role,
+        })
+        .select()
+        .maybeSingle();
+      member = fallbackTry.data;
+      memberError = fallbackTry.error;
+    } else {
+      member = firstTry.data;
+      memberError = firstTry.error;
+    }
 
     if (memberError) {
       return NextResponse.json({ error: memberError.message }, { status: 500 });
@@ -156,6 +222,22 @@ export async function POST(request: Request, { params }: RouteParams) {
       entity_type: 'workspace',
       entity_id: workspaceId,
       details: { email, role },
+    });
+
+    // Send invitation email (fire-and-forget, don't block the API response)
+    const inviterName = user.user_metadata?.full_name || user.email || 'A team member';
+    const inviteLink = `${appUrl}/auth/callback?accept_invite=${workspaceId}`;
+
+    sendEmail({
+      to: email,
+      subject: `You've been invited to join the "${workspace.name}" workspace on MeetIQ`,
+      react: WorkspaceInviteEmail({
+        workspaceName: workspace.name,
+        inviterName,
+        inviteUrl: inviteLink,
+      }),
+    }).catch((err) => {
+      console.error('Failed to send workspace invitation email:', err);
     });
 
     return NextResponse.json(member, { status: 201 });

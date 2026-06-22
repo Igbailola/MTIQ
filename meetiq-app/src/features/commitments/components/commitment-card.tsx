@@ -314,7 +314,9 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
   return (
     <Card
       className={cn(
-        'border border-meetiq-border/50 bg-white shadow-meetiq-xs transition-all duration-200 overflow-hidden',
+        isPending
+          ? 'ai-card shadow-meetiq-xs transition-all duration-200 overflow-hidden'
+          : 'border border-meetiq-border/50 bg-white shadow-meetiq-xs transition-all duration-200 overflow-hidden',
         commitment.status === 'overdue' ? 'border-red-200 ring-1 ring-red-100' : '',
         animatingAction ? 'confirm-animation' : ''
       )}
@@ -324,7 +326,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-1.5">
             <Sparkles className="h-4 w-4 text-blue-500" />
-            <span className="text-xs font-semibold text-blue-700 tracking-wider uppercase">
+            <span className="ai-label">
               AI Suggested Commitment
             </span>
           </div>
@@ -364,7 +366,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
             {commitment.owner ? (
               <div className="flex items-center gap-1.5">
                 <Avatar className="h-5 w-5">
-                  <AvatarImage src={commitment.owner.avatar_url || ''} />
+                  <AvatarImage src={commitment.owner.avatar_url || undefined} />
                   <AvatarFallback className="text-xs bg-slate-100 font-bold">
                     {getInitials(commitment.owner.display_name || 'User')}
                   </AvatarFallback>
@@ -448,15 +450,14 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
 
         {/* Accountability confirmation actions */}
         {isPending && isOwner && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100/50">
-            <span className="text-xs text-amber-700 font-medium bg-amber-50 px-2 py-1 rounded border border-amber-100">
+          <div className="space-y-3 pt-2 border-t border-slate-100/50">
+            <span className="block text-xs text-amber-700 font-medium bg-amber-50 px-2 py-1 rounded border border-amber-100">
               Please confirm if you accept this accountability
             </span>
             <div className="flex items-center gap-2">
               <Button
-                size="sm"
                 variant="outline"
-                className="text-xs text-red-600 border-red-200 hover:bg-red-50"
+                className="py-4 text-xs text-red-600 border-red-200 hover:bg-red-50"
                 onClick={() => {
                   setRejectFormOpen(true);
                   setChangesFormOpen(false);
@@ -466,9 +467,8 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                 Reject
               </Button>
               <Button
-                size="sm"
                 variant="outline"
-                className="text-xs text-slate-600 border-slate-300/50 hover:bg-slate-50"
+                className="py-4 text-xs text-slate-600 border-slate-300/50 hover:bg-slate-50"
                 onClick={() => {
                   setChangesFormOpen(true);
                   setRejectFormOpen(false);
@@ -478,7 +478,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                 Request Changes
               </Button>
               <Button
-                className="h-12 gap-2 px-6 bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="py-4 gap-2 px-6 bg-emerald-600 hover:bg-emerald-700 text-white"
                 onClick={handleAccept}
                 disabled={animatingAction !== null}
               >

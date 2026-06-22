@@ -53,6 +53,7 @@ export type WorkspaceUpdateInput = z.infer<typeof WorkspaceUpdateSchema>;
 export const InviteMemberSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   role: z.enum(['admin', 'member']).default('member'),
+  sendEmail: z.boolean().optional(),
 });
 export type InviteMemberInput = z.infer<typeof InviteMemberSchema>;
 

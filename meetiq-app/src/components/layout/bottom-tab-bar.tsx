@@ -22,17 +22,40 @@ export function BottomTabBar() {
   const router = useRouter();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const tabs = [
+  const leftTabs = [
     { name: 'Home', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Meetings', href: '/meetings', icon: Calendar },
+  ];
+
+  const rightTabs = [
     { name: 'Commitments', href: '/commitments', icon: CheckSquare },
-    { name: 'Activity', href: '/activity', icon: Activity },
   ];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-meetiq-border/50 bg-white md:hidden">
       <div className="flex items-center justify-around h-14 pb-safe">
-        {tabs.map((tab) => {
+        {leftTabs.map((tab) => {
+          const isActive = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
+          const Icon = tab.icon;
+          return (
+            <Link
+              key={tab.name}
+              href={tab.href}
+              className={cn(
+                'flex flex-col items-center justify-center flex-1 h-full text-slate-500 transition-colors',
+                isActive ? 'text-accent' : 'text-slate-500 hover:text-slate-900'
+              )}
+            >
+              <Icon className="h-5 w-5 shrink-0" />
+              <span className="text-[10px] font-medium mt-0.5">{tab.name}</span>
+            </Link>
+          );
+        })}
+
+        {/* Centered FAB Spacer */}
+        <div className="flex-1 h-full pointer-events-none" />
+
+        {rightTabs.map((tab) => {
           const isActive = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
           const Icon = tab.icon;
           return (
@@ -70,6 +93,17 @@ export function BottomTabBar() {
                 className="justify-start text-slate-700 h-12 text-sm font-medium gap-3"
                 onClick={() => {
                   setDrawerOpen(false);
+                  router.push('/activity');
+                }}
+              >
+                <Activity className="h-5 w-5 text-slate-400 shrink-0" />
+                <span>Activity Feed</span>
+              </Button>
+              <Button
+                variant="ghost"
+                className="justify-start text-slate-700 h-12 text-sm font-medium gap-3"
+                onClick={() => {
+                  setDrawerOpen(false);
                   router.push('/team');
                 }}
               >
@@ -92,14 +126,14 @@ export function BottomTabBar() {
         </Sheet>
       </div>
 
-      {/* FAB - Upload Meeting */}
-      <div className="absolute left-1/2 -translate-x-1/2 -top-5 z-50">
+      {/* FAB - Upload Meeting (56dp = h-14 w-14) */}
+      <div className="absolute left-1/2 -translate-x-1/2 -top-6 z-50">
         <Button
           onClick={() => router.push('/meetings/upload')}
           size="icon"
-          className="h-12 w-12 rounded-full bg-accent text-white shadow-meetiq-md shadow-blue-500/20 hover:bg-blue-600 focus-visible:outline-none"
+          className="h-14 w-14 rounded-full bg-accent text-white shadow-meetiq-md shadow-blue-500/20 hover:bg-blue-600 focus-visible:outline-none"
         >
-          <Plus className="h-6 w-6" />
+          <Plus className="h-7 w-7" />
         </Button>
       </div>
     </div>

@@ -19,7 +19,7 @@ export function CommitmentStatusChip({ status, className }: CommitmentStatusChip
   };
 
   const labels = {
-    pending_confirmation: 'Pending Confirmation',
+    pending_confirmation: 'Pending',
     in_progress: 'In Progress',
     blocked: 'Blocked',
     completed: 'Completed',
@@ -29,7 +29,7 @@ export function CommitmentStatusChip({ status, className }: CommitmentStatusChip
   return (
     <span
       className={cn(
-        'status-chip border px-4 py-2.5 rounded-full text-sm font-medium shrink-0 h-[30px]',
+        'status-chip border shrink-0',
         styles[status],
         className
       )}

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { useCreateWorkspace } from '@/hooks/use-workspace';
+import { useCreateWorkspace, useCurrentWorkspace } from '@/hooks/use-workspace';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +22,7 @@ const WORKSPACE_ROLES = [
 export default function CreateWorkspacePage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { setCurrentWorkspace } = useCurrentWorkspace();
   const createWorkspaceMutation = useCreateWorkspace();
   const supabase = createClient();
 
@@ -41,20 +42,10 @@ export default function CreateWorkspacePage() {
     }
     setLoading(true);
     try {
-      await createWorkspaceMutation.mutateAsync({ name: workspaceName });
+      const ws = await createWorkspaceMutation.mutateAsync({ name: workspaceName });
+      setCurrentWorkspace(ws);
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({ onboarding_completed: true })
-        .eq('id', user?.id);
-
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-
-      toast.success('Welcome to MeetIQ!');
-      router.refresh();
+      toast.success('Workspace created successfully!');
       router.push('/dashboard');
     } catch (err) {
       console.error(err);

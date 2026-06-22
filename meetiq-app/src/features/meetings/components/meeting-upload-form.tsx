@@ -14,7 +14,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { FileText, Loader2, UploadCloud } from 'lucide-react';
+import { FileText, Loader2, UploadCloud, AlertTriangle } from 'lucide-react';
+
+const MAX_SAFE_CHARS = 400_000;
+const HARD_LIMIT_CHARS = 500_000;
 
 export function MeetingUploadForm() {
   const router = useRouter();
@@ -85,9 +88,18 @@ export function MeetingUploadForm() {
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
+      if (text.length > HARD_LIMIT_CHARS) {
+        toast.error(`File exceeds 500,000 character limit (${(text.length / 1000).toFixed(0)}K chars). Please split into smaller files.`);
+        setFileName('');
+        return;
+      }
       setFileContent(text);
       setValue('raw_text', text);
-      toast.success(`Successfully loaded ${file.name}`);
+      if (text.length > MAX_SAFE_CHARS) {
+        toast.warning('Large transcript — the AI model may not process the full content. Consider splitting into shorter segments.');
+      } else {
+        toast.success(`Successfully loaded ${file.name}`);
+      }
     };
     reader.onerror = () => {
       toast.error('Failed to read file content');
@@ -106,11 +118,23 @@ export function MeetingUploadForm() {
       return;
     }
 
+    if (data.raw_text.length > MAX_SAFE_CHARS) {
+      toast.warning('Transcript is too long for the AI model to process in full. Please split into shorter segments (max ~400K characters).');
+      return;
+    }
+
     setLoading(true);
     try {
       const meeting = await uploadMeetingMutation.mutateAsync({
         ...data,
         workspace_id: currentWorkspace.id,
+      });
+
+      // Kick off processing explicitly from browser client to bypass Next.js background fetch limitations
+      fetch(`/api/meetings/${meeting.id}/process`, {
+        method: 'POST',
+      }).catch((err) => {
+        console.error('Error triggering client-side process:', err);
       });
 
       router.push(`/meetings/${meeting.id}`);
@@ -133,7 +157,7 @@ export function MeetingUploadForm() {
                 placeholder="e.g. Weekly Sync, Project Alignment"
                 disabled={loading}
                 {...register('title')}
-                className={errors.title ? 'border-destructive focus-visible:ring-destructive' : ''}
+                className={`h-10 ${errors.title ? 'border-destructive focus-visible:ring-destructive' : ''}`}
               />
               {errors.title && (
                 <p className="text-xs text-destructive mt-1">{errors.title.message}</p>
@@ -147,7 +171,7 @@ export function MeetingUploadForm() {
                 type="date"
                 disabled={loading}
                 {...register('meeting_date')}
-                className={errors.meeting_date ? 'border-destructive focus-visible:ring-destructive' : ''}
+                className={`h-10 ${errors.meeting_date ? 'border-destructive focus-visible:ring-destructive' : ''}`}
               />
               {errors.meeting_date && (
                 <p className="text-xs text-destructive mt-1">{errors.meeting_date.message}</p>
@@ -156,9 +180,9 @@ export function MeetingUploadForm() {
           </div>
 
           <Tabs defaultValue="upload" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 max-w-[400px] bg-slate-100 p-1 rounded-lg">
-              <TabsTrigger value="upload" className="rounded-md p-2.5 text-xs font-semibold">Upload Transcript</TabsTrigger>
-              <TabsTrigger value="paste" className="rounded-md p-2.5 text-xs font-semibold">Paste Notes / Text</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 max-w-[400px] bg-slate-100 p-0.5 rounded-lg h-10">
+              <TabsTrigger value="upload" className="rounded-md text-sm font-semibold">Upload Transcript</TabsTrigger>
+              <TabsTrigger value="paste" className="rounded-md text-sm font-semibold">Paste Notes / Text</TabsTrigger>
             </TabsList>
             
             <TabsContent value="upload" className="mt-4">
@@ -179,13 +203,21 @@ export function MeetingUploadForm() {
                 />
                 
                 {fileName ? (
-                  <div className="space-y-3">
+                  <div className="space-y-3 w-full">
                     <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-accent">
                       <FileText className="h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-primary">{fileName}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{(fileContent.length / 1024).toFixed(1)} KB</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {(fileContent.length / 1024).toFixed(1)} KB &middot; {fileContent.length.toLocaleString()} characters
+                      </p>
+                      {fileContent.length > MAX_SAFE_CHARS && (
+                        <p className="text-xs text-amber-600 mt-2 flex items-center justify-center gap-1">
+                          <AlertTriangle className="h-3 w-3 shrink-0" />
+                          Large transcript — the AI may not process the full content. Consider splitting into shorter segments.
+                        </p>
+                      )}
                     </div>
                     <Button
                       type="button"
@@ -228,21 +260,32 @@ James: I will update the documentation before the Friday release..."
                   {...register('raw_text')}
                   className={`font-mono text-xs ${errors.raw_text ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Paste raw transcript dialogs or summary bullet notes. Best speaker alignment comes from dialogues.
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">
+                    Paste raw transcript dialogs or summary bullet notes. Best speaker alignment comes from dialogues.
+                  </p>
+                  <span className={`text-xs tabular-nums ${(rawTextValue?.length || 0) > MAX_SAFE_CHARS ? 'text-amber-600 font-semibold' : 'text-muted-foreground'}`}>
+                    {((rawTextValue?.length || 0) / 1000).toFixed(0)}K / {HARD_LIMIT_CHARS.toLocaleString()} chars
+                  </span>
+                </div>
+                {(rawTextValue?.length || 0) > MAX_SAFE_CHARS && (
+                  <p className="text-xs text-amber-600 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3 shrink-0" />
+                    Large transcript — the AI may not process the full content. Consider splitting into shorter segments.
+                  </p>
+                )}
               </div>
             </TabsContent>
           </Tabs>
 
-          <Button type="submit" className="w-full sm:w-auto" disabled={loading}>
+          <Button type="submit" className="h-12 gap-2 px-6" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Processing Transcript...
               </>
             ) : (
-              'Analyze Meeting'
+              <span className="text-base">Analyze Meeting</span>
             )}
           </Button>
         </form>

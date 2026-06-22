@@ -16,8 +16,8 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, profile, loading: authLoading } = useAuth();
-  const { currentWorkspace, loading: workspaceLoading } = useCurrentWorkspace();
+  const { user, loading: authLoading } = useAuth();
+  const { loading: workspaceLoading, workspaces } = useCurrentWorkspace();
 
   const isRoutingLoading = authLoading || workspaceLoading;
 
@@ -29,19 +29,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       router.replace('/login');
       return;
     }
-
-    // Guard 2: Redirect to onboarding if they haven't completed it
-    if (profile && !profile.onboarding_completed && pathname !== '/onboarding') {
-      router.replace('/onboarding');
-      return;
-    }
-
-    // Guard 3: Redirect to onboarding if they have no workspaces but completed onboarding
-    if (profile && profile.onboarding_completed && !currentWorkspace && !workspaceLoading && pathname !== '/onboarding' && pathname !== '/workspace/create') {
-      router.replace('/onboarding');
-      return;
-    }
-  }, [user, profile, authLoading, currentWorkspace, workspaceLoading, pathname, router]);
+  }, [user, authLoading, router]);
 
   // Render a full-page loading state if authentication or workspace contexts are preparing
   if (isRoutingLoading) {
@@ -57,11 +45,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
     );
   }
 
-  // If unauthenticated or onboarding/auth routes, let Next handle pages/guards (skip structural layout)
+  // If unauthenticated or auth routes, let Next handle pages/guards (skip structural layout)
   const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password';
-  const isOnboardingOrCreate = pathname === '/onboarding' || pathname === '/workspace/create';
 
-  if (!user || isAuthPage || isOnboardingOrCreate) {
+  if (!user || isAuthPage) {
     return <>{children}</>;
   }
 

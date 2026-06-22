@@ -9,9 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
-import { Camera, Loader2, Settings, User, Trash2, ShieldAlert } from 'lucide-react';
+import { Camera, Loader2, Settings, User, Trash2, ShieldAlert, AlertTriangle } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 
@@ -28,7 +29,7 @@ const TIMEZONES = [
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, signOut } = useAuth();
   const { currentWorkspace, refreshWorkspaces } = useCurrentWorkspace();
   const supabase = createClient();
 
@@ -45,6 +46,20 @@ export default function SettingsPage() {
   const [workspaceSaving, setWorkspaceSaving] = useState(false);
   const [workspaceDeleting, setWorkspaceDeleting] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  
+  // Account deletion states
+  const [accountDeleteDialogOpen, setAccountDeleteDialogOpen] = useState(false);
+  const [deleteAccountConfirmText, setDeleteAccountConfirmText] = useState('');
+  const [accountDeleting, setAccountDeleting] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tab') === 'workspace') {
+      setActiveTab('workspace');
+    }
+  }, []);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   const workspaceUrl = currentWorkspace?.name
     ? `https://meetiq/${currentWorkspace.name.toLowerCase().replace(/\s+/g, '-')}`
@@ -143,25 +158,74 @@ export default function SettingsPage() {
     }
   };
 
-  const handleWorkspaceDelete = async () => {
-    const confirmString = `delete ${currentWorkspace?.name}`;
-    const userConfirm = prompt(
-      `WARNING: Deleting this workspace is permanent and will delete all meetings, commitments, decisions, and activity logs.\n\nType "${confirmString}" to confirm:`
-    );
+  const handleWorkspaceDelete = () => {
+    setDeleteConfirmText('');
+    setDeleteDialogOpen(true);
+  };
 
-    if (userConfirm !== confirmString) {
-      toast.error('Deletion cancelled. Confirmation text did not match.');
+  const confirmWorkspaceDelete = async () => {
+    const confirmString = `delete ${currentWorkspace?.name}`;
+    if (deleteConfirmText !== confirmString) {
+      toast.error('Confirmation text did not match. Please type the exact phrase.');
       return;
     }
 
+    setDeleteDialogOpen(false);
     setWorkspaceDeleting(true);
     try {
       await deleteWorkspaceMutation.mutateAsync();
-      router.push('/onboarding');
+      
+      // Fetch fresh list of workspaces to check if any are left
+      const res = await fetch('/api/workspaces');
+      const workspaces = await res.json();
+      
+      await refreshWorkspaces();
+      
+      if (workspaces && workspaces.length > 0) {
+        // Set the first remaining workspace as the active one
+        localStorage.setItem('meetiq_current_workspace', workspaces[0].id);
+        toast.success(`Switched to workspace "${workspaces[0].name}"`);
+        router.push('/dashboard');
+        router.refresh();
+      } else {
+        router.push('/onboarding');
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setWorkspaceDeleting(false);
+    }
+  };
+
+  const handleAccountDelete = () => {
+    setDeleteAccountConfirmText('');
+    setAccountDeleteDialogOpen(true);
+  };
+
+  const confirmAccountDelete = async () => {
+    if (deleteAccountConfirmText !== 'delete my account') {
+      toast.error('Confirmation text did not match. Please type "delete my account".');
+      return;
+    }
+
+    setAccountDeleteDialogOpen(false);
+    setAccountDeleting(true);
+    try {
+      const res = await fetch('/api/profile/delete', { method: 'DELETE' });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to delete account');
+      }
+
+      toast.success('Your account has been deleted successfully.');
+      await signOut();
+      router.push('/register');
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || 'Failed to delete account');
+    } finally {
+      setAccountDeleting(false);
     }
   };
 
@@ -177,13 +241,13 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="profile" onValueChange={setActiveTab} className="w-full space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
         <TabsList className="flex w-full sm:w-auto h-9 bg-slate-100 p-1.5 rounded-lg max-w-[400px] gap-1 items-stretch overflow-x-auto">
-          <TabsTrigger value="profile" className="rounded-md py-3 px-3 text-xs font-semibold gap-2">
+          <TabsTrigger value="profile" className="rounded-md px-3 text-xs font-semibold gap-2">
             <User className="h-4 w-4 shrink-0" />
             <span>Profile Settings</span>
           </TabsTrigger>
-          <TabsTrigger value="workspace" className="rounded-md py-3 px-3 text-xs font-semibold gap-2">
+          <TabsTrigger value="workspace" className="rounded-md px-3 text-xs font-semibold gap-2">
             <Settings className="h-4 w-4 shrink-0" />
             <span>Workspace Settings</span>
           </TabsTrigger>
@@ -200,7 +264,7 @@ export default function SettingsPage() {
                 {/* Profile Image */}
                 <div className="flex items-center gap-4 pb-2">
                   <Avatar size="lg">
-                    <AvatarImage src={profile?.avatar_url || ''} />
+                    <AvatarImage src={profile?.avatar_url || undefined} />
                     <AvatarFallback className="text-base bg-slate-100">
                       {profile?.display_name?.[0]?.toUpperCase() || 'U'}
                     </AvatarFallback>
@@ -273,6 +337,90 @@ export default function SettingsPage() {
               </form>
             </CardContent>
           </Card>
+
+          {/* Danger Zone */}
+          <Card className="border border-red-200 bg-red-50/5 shadow-meetiq-xs">
+            <CardHeader className="pb-3 border-b border-red-100">
+              <CardTitle className="text-sm font-heading font-semibold text-red-800 flex items-center gap-2">
+                <ShieldAlert className="h-4 w-4 text-red-600 shrink-0" />
+                Danger Zone
+              </CardTitle>
+              <CardDescription className="text-red-700/80">
+                Irreversible settings that permanently destroy your account.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-red-950">Delete Account</h4>
+                <p className="text-sm text-red-700">
+                  Permanently delete your profile, owned workspaces, and all associated meeting data.
+                </p>
+              </div>
+              <Button
+                variant="destructive"
+                className="shrink-0 text-sm py-2.5 px-3.5 h-auto bg-red-600 hover:bg-red-700 text-white"
+                onClick={handleAccountDelete}
+                disabled={accountDeleting}
+              >
+                {accountDeleting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Deleting Account...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete Account
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Dialog open={accountDeleteDialogOpen} onOpenChange={setAccountDeleteDialogOpen}>
+            <DialogContent showCloseButton={false} className="sm:max-w-lg gap-0 p-0">
+              <DialogHeader className="px-10 pt-10 pb-0">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 mb-5">
+                  <AlertTriangle className="h-8 w-8 text-red-600" />
+                </div>
+                <DialogTitle className="text-center text-lg font-heading font-semibold">
+                  Delete Account
+                </DialogTitle>
+                <DialogDescription className="text-center text-muted-foreground px-4 pt-2 leading-relaxed">
+                  This action is <strong>permanent</strong> and cannot be undone. It will delete your profile, workspaces you own, and all related records.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="px-10 pt-8 pb-6">
+                <Label htmlFor="deleteAccountConfirm" className="text-sm text-muted-foreground block mb-3">
+                  Type <span className="font-mono font-semibold text-foreground">delete my account</span> to confirm:
+                </Label>
+                <Input
+                  id="deleteAccountConfirm"
+                  value={deleteAccountConfirmText}
+                  onChange={(e) => setDeleteAccountConfirmText(e.target.value)}
+                  placeholder="delete my account"
+                  className="h-12 text-base px-4"
+                />
+              </div>
+              <DialogFooter className="px-10 pb-10 pt-0 border-t-0 gap-3 bg-transparent">
+                <Button
+                  variant="outline"
+                  onClick={() => { setAccountDeleteDialogOpen(false); setDeleteAccountConfirmText(''); }}
+                  className="flex-1 h-12 text-sm"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={confirmAccountDelete}
+                  disabled={deleteAccountConfirmText !== 'delete my account' || accountDeleting}
+                  className="flex-1 h-12 text-sm bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Delete Account
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         <TabsContent value="workspace" className="space-y-6">
@@ -362,6 +510,51 @@ export default function SettingsPage() {
                   </Button>
                 </CardContent>
               </Card>
+
+              <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <DialogContent showCloseButton={false} className="sm:max-w-lg gap-0 p-0">
+                  <DialogHeader className="px-10 pt-10 pb-0">
+                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 mb-5">
+                      <AlertTriangle className="h-8 w-8 text-red-600" />
+                    </div>
+                    <DialogTitle className="text-center text-lg font-heading font-semibold">
+                      Delete Workspace
+                    </DialogTitle>
+                    <DialogDescription className="text-center text-muted-foreground px-4 pt-2 leading-relaxed">
+                      This action is <strong>permanent</strong> and will delete all meetings, commitments, decisions, and activity logs for <strong>{currentWorkspace?.name}</strong>.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="px-10 pt-8 pb-6">
+                    <Label htmlFor="deleteConfirm" className="text-sm text-muted-foreground block mb-3">
+                      Type <span className="font-mono font-semibold text-foreground">delete {currentWorkspace?.name}</span> to confirm:
+                    </Label>
+                    <Input
+                      id="deleteConfirm"
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder={`delete ${currentWorkspace?.name}`}
+                      className="h-12 text-base px-4"
+                    />
+                  </div>
+                  <DialogFooter className="px-10 pb-10 pt-0 border-t-0 gap-3 bg-transparent">
+                    <Button
+                      variant="outline"
+                      onClick={() => { setDeleteDialogOpen(false); setDeleteConfirmText(''); }}
+                      className="flex-1 h-12 text-sm"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={confirmWorkspaceDelete}
+                      disabled={deleteConfirmText !== `delete ${currentWorkspace?.name}` || workspaceDeleting}
+                      className="flex-1 h-12 text-sm bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Delete Workspace
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </>
           ) : (
             <div className="p-6 text-center text-xs text-muted-foreground border border-dashed rounded-lg bg-slate-50">

@@ -33,26 +33,55 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [currentWorkspace, setCurrentWorkspaceState] = useState<Workspace | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [fetchedForUserId, setFetchedForUserId] = useState<string | null>(null);
   const supabase = createClient();
 
   const fetchWorkspaces = useCallback(async () => {
     if (!user) {
       setWorkspaces([]);
       setCurrentWorkspaceState(null);
-      setLoading(false);
+      setFetchedForUserId(null);
       return;
     }
 
-    const { data: memberRows } = await supabase
+    setFetchedForUserId(null);
+
+    let memberRows: any[] | null = null;
+    
+    // Attempt to fetch only active memberships
+    const activeResult = await supabase
       .from('workspace_members')
       .select('workspace_id')
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .eq('status', 'active');
+
+    if (activeResult.error && (activeResult.error.message?.includes('status') || activeResult.error.code === 'PGRST100')) {
+      // Fallback: the status column doesn't exist
+      const fallbackResult = await supabase
+        .from('workspace_members')
+        .select('workspace_id')
+        .eq('user_id', user.id);
+      
+      const allRows = fallbackResult.data || [];
+
+      // Fetch unread invitations from notifications to exclude them
+      const { data: unreadInvites } = await supabase
+        .from('notifications')
+        .select('workspace_id')
+        .eq('user_id', user.id)
+        .eq('type', 'member_invited')
+        .eq('read', false);
+
+      const invitedWorkspaceIds = new Set((unreadInvites || []).map((n: any) => n.workspace_id));
+      memberRows = allRows.filter((row: any) => !invitedWorkspaceIds.has(row.workspace_id));
+    } else {
+      memberRows = activeResult.data;
+    }
 
     if (!memberRows || memberRows.length === 0) {
       setWorkspaces([]);
       setCurrentWorkspaceState(null);
-      setLoading(false);
+      setFetchedForUserId(user.id);
       return;
     }
 
@@ -70,13 +99,54 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     const savedId = localStorage.getItem('meetiq_current_workspace');
     const saved = ws.find((w: any) => w.id === savedId);
     setCurrentWorkspaceState(saved ?? ws[0] ?? null);
-    setLoading(false);
+    setFetchedForUserId(user.id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
     fetchWorkspaces();
   }, [fetchWorkspaces]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const acceptedId = params.get('accepted');
+    if (acceptedId) {
+      localStorage.setItem('meetiq_current_workspace', acceptedId);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('accepted');
+      window.history.replaceState({}, '', url.pathname + url.search);
+      fetchWorkspaces();
+    }
+  }, [fetchWorkspaces]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    // Listen to realtime Postgres changes to workspace memberships for the current user
+    const channel = supabase
+      .channel(`workspace-members-realtime-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'workspace_members',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          // Whenever my workspace memberships are updated (invited, accepted, removed), refresh list
+          fetchWorkspaces();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, fetchWorkspaces, supabase]);
+
+  const loading = !user ? false : fetchedForUserId === null;
 
   const setCurrentWorkspace = (workspace: Workspace) => {
     setCurrentWorkspaceState(workspace);

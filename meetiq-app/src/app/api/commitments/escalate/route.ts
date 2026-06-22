@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     // Basic protection check: only allow cron or authorized trigger
     // For MVP, we can check if it matches service role or a specific secret, or allow manual trigger for testing
     
-    const adminSupabase = await createAdminClient();
+    const adminSupabase = createAdminClient();
     const now = new Date().toISOString();
     const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://meetiq-seven.vercel.app';
