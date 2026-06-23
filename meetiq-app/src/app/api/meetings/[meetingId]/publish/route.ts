@@ -138,7 +138,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     return NextResponse.json({ success: true, count: commitments.length }, { status: 200 });
   } catch (err: unknown) {
     logger.error('Error publishing commitments:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'An error occurred' }, { status: 500 });
   }
 }
 

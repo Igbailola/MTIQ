@@ -152,7 +152,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     return NextResponse.json(updated, { status: 200 });
   } catch (err: unknown) {
     logger.error('Error confirming commitment:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'An error occurred' }, { status: 500 });
   }
 }
 

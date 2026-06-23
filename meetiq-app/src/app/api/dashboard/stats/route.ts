@@ -123,6 +123,6 @@ export async function GET(request: Request) {
     }, { status: 200 });
   } catch (err: unknown) {
     logger.error('Error fetching dashboard stats:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'An error occurred' }, { status: 500 });
   }
 }

@@ -49,6 +49,6 @@ export async function POST(request: Request) {
     return NextResponse.json(data, { status: 201 });
   } catch (err: unknown) {
     logger.error('Error saving AI feedback:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'An error occurred' }, { status: 500 });
   }
 }

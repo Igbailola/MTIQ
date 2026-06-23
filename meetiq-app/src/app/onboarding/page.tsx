@@ -381,7 +381,7 @@ export default function OnboardingPage() {
       updateStep(1);
       toast.success('Profile saved successfully!');
     } catch (err: unknown) {
-      toast.error(err.message || 'Failed to update profile');
+      toast.error(err instanceof Error ? err.message : 'Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -431,7 +431,7 @@ export default function OnboardingPage() {
       updateStep(2);
       toast.success(`Workspace "${workspaceName}" created!`);
     } catch (err: unknown) {
-      toast.error(err.message || 'Failed to create workspace');
+      toast.error(err instanceof Error ? err.message : 'Failed to create workspace');
     } finally {
       setLoading(false);
     }
@@ -457,7 +457,7 @@ export default function OnboardingPage() {
       setCurrentWorkspace(ws);
       updateStep(2);
     } catch (err: unknown) {
-      toast.error(err.message || 'Failed to skip workspace creation');
+      toast.error(err instanceof Error ? err.message : 'Failed to skip workspace creation');
     } finally {
       setLoading(false);
     }
@@ -587,7 +587,7 @@ export default function OnboardingPage() {
         logger.error('Error triggering client-side process:', err);
       });
     } catch (err: unknown) {
-      toast.error(err.message || 'Failed to analyze meeting');
+      toast.error(err instanceof Error ? err.message : 'Failed to analyze meeting');
       setUploadLoading(false);
     }
   };
@@ -615,7 +615,7 @@ export default function OnboardingPage() {
       router.push(next);
       toast.success('Welcome to MeetIQ! Onboarding completed.');
     } catch (err: unknown) {
-      toast.error(err.message || 'Failed to complete onboarding');
+      toast.error(err instanceof Error ? err.message : 'Failed to complete onboarding');
     } finally {
       setLoading(false);
     }
@@ -643,7 +643,7 @@ export default function OnboardingPage() {
       const next = params.get('next') ?? '/dashboard';
       router.push(next);
     } catch (err: unknown) {
-      toast.error(err.message || 'Failed to skip onboarding');
+      toast.error(err instanceof Error ? err.message : 'Failed to skip onboarding');
     } finally {
       setLoading(false);
     }

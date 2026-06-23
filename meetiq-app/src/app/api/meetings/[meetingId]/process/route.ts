@@ -85,6 +85,6 @@ export async function POST(request: Request, { params }: RouteParams) {
     return NextResponse.json({ success: true, commitmentsCount: result.commitments.length }, { status: 200 });
   } catch (err: unknown) {
     logger.error('Error during AI processing:', err);
-    return NextResponse.json({ error: err.message || 'AI processing failed' }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'AI processing failed' }, { status: 500 });
   }
 }
