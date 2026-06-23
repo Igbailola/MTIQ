@@ -63,7 +63,7 @@ export async function GET(request: Request) {
         .from('profiles')
         .select('id, display_name, avatar_url')
         .in('id', actorIds);
-      profiles = profilesData || [];
+      profiles = (profilesData || []) as Profile[];
     }
 
     // Merge actor profiles
