@@ -21,6 +21,8 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 
+import { logger } from '@/lib/logger';
+
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -33,7 +35,7 @@ export default function DashboardPage() {
   const { data: activities, isLoading: activitiesLoading, refetch: refetchActivities } = useActivityFeed(currentWorkspace?.id);
   
   const [clearTrigger, setClearTrigger] = useState(0);
-  const [pendingInvites, setPendingInvites] = useState<any[]>([]);
+  const [pendingInvites, setPendingInvites] = useState<{ workspace_id: string; role: string; status: string; workspaces: { name: string } | null }[]>([]);
   const [invitesLoading, setInvitesLoading] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
@@ -61,7 +63,7 @@ export default function DashboardPage() {
             .eq('read', false);
 
           if (!notifError && notifs) {
-            data = notifs.map((n: any) => ({
+            data = notifs.map((n: { workspace_id: string; workspaces: { name: string } | null }) => ({
               workspace_id: n.workspace_id,
               role: 'member',
               status: 'pending',
@@ -72,13 +74,13 @@ export default function DashboardPage() {
             setPendingInvites([]);
           }
         } else {
-          console.error('Error fetching invites:', error);
+          logger.error('Error fetching invites:', error);
         }
       } else if (data) {
         setPendingInvites(data);
       }
     } catch (e) {
-      console.error('Error fetching invites:', e);
+      logger.error('Error fetching invites:', e);
     } finally {
       setInvitesLoading(false);
     }
@@ -141,7 +143,7 @@ export default function DashboardPage() {
       toast.success('Joined workspace successfully!');
       await refreshWorkspaces();
       await fetchPendingInvites();
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error(e.message || 'Failed to join workspace');
     } finally {
       setActionLoadingId(null);
@@ -172,7 +174,7 @@ export default function DashboardPage() {
       toast.success('Invitation declined.');
       await refreshWorkspaces();
       await fetchPendingInvites();
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error(e.message || 'Failed to decline invitation');
     } finally {
       setActionLoadingId(null);
@@ -474,7 +476,8 @@ export default function DashboardPage() {
                         if (!res.ok) throw new Error();
                         refetchActivities();
                         toast.success('All activity cleared');
-                      } catch {
+                      } catch (e) {
+                        logger.error("Error occurred", e, e);
                         toast.error('Failed to clear activity');
                       }
                     }}

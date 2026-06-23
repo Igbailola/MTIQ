@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { logger } from '@/lib/logger';
+
 interface InviteMemberDialogProps {
   workspaceId: string;
 }
@@ -34,7 +36,7 @@ export function InviteMemberDialog({ workspaceId }: InviteMemberDialogProps) {
       setRole('member');
       setOpen(false);
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setLoading(false);
     }

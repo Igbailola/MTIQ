@@ -14,6 +14,8 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
+import { logger } from '@/lib/logger';
+
 export default function RegisterPage() {
   const router = useRouter();
   const { signInWithGoogle } = useAuth();
@@ -74,13 +76,15 @@ export default function RegisterPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: data.email }),
+        }).then(res => {
+          if (!res.ok) logger.error('Welcome email failed:', res.status);
         }).catch(() => {
           // Silently ignore — welcome email is not critical
         });
       }
     } catch (err) {
       toast.error('An unexpected error occurred. Please try again.');
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setLoading(false);
     }
@@ -92,7 +96,7 @@ export default function RegisterPage() {
       await signInWithGoogle();
     } catch (err) {
       toast.error('Failed to initiate Google sign-in.');
-      console.error(err);
+      logger.error("Error occurred", err, err);
       setGoogleLoading(false);
     }
   };

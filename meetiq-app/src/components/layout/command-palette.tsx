@@ -16,6 +16,8 @@ import { createClient } from '@/lib/supabase/client';
 import type { Meeting, Commitment } from '@/types/database';
 import { Calendar, CheckSquare, Search, User } from 'lucide-react';
 
+import { logger } from '@/lib/logger';
+
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -63,13 +65,13 @@ export function CommandPalette() {
 
       // Filter commitments by workspace
       const wsCommitments = (matchedCommitments || []).filter(
-        (c: any) => c.meeting?.workspace_id === currentWorkspace.id
+        (c: Commitment) => c.meeting?.workspace_id === currentWorkspace.id
       ) as Commitment[];
 
       setMeetings(matchedMeetings || []);
       setCommitments(wsCommitments);
     } catch (err) {
-      console.error('Failed to search command palette:', err);
+      logger.error('Failed to search command palette:', err);
     } finally {
       setLoading(false);
     }

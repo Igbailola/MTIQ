@@ -33,6 +33,8 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { useState } from 'react';
 
+import { logger } from '@/lib/logger';
+
 interface MeetingDetailPageProps {
   params: Promise<{
     meetingId: string;
@@ -88,7 +90,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
       setNewPriority('medium');
       setCreateFormOpen(false);
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setCreatingCommitment(false);
     }
@@ -105,7 +107,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
     try {
       await processMutation.mutateAsync();
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     }
   };
 
@@ -113,7 +115,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
     try {
       await publishMutation.mutateAsync();
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     }
   };
 
@@ -333,7 +335,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
                           <select
                             id="priority"
                             value={newPriority}
-                            onChange={(e) => setNewPriority(e.target.value as any)}
+                            onChange={(e) => setNewPriority(e.target.value as 'low' | 'medium' | 'high')}
                             className="w-full h-10 rounded-md border border-input px-3 bg-white text-slate-800 text-sm appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                             disabled={creatingCommitment}
                           >

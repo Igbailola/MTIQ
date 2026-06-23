@@ -11,15 +11,6 @@ interface CommitmentHistoryTimelineProps {
 }
 
 export function CommitmentHistoryTimeline({ history }: CommitmentHistoryTimelineProps) {
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  };
-
   const getFriendlyChangeText = (h: CommitmentHistory) => {
     const field = h.field_changed;
     const oldVal = h.old_value || 'None';

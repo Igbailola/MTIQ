@@ -13,7 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 import { Users, AlertTriangle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, getInitials } from '@/lib/utils';
 
 interface TeamAccountabilityTableProps {
   stats: TeamMemberStats[];
@@ -21,15 +21,6 @@ interface TeamAccountabilityTableProps {
 
 export function TeamAccountabilityTable({ stats }: TeamAccountabilityTableProps) {
   const router = useRouter();
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  };
 
   const handleRowClick = (userId: string) => {
     // Navigate to commitments page with owner filter

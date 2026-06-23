@@ -1,5 +1,8 @@
+import { AVATAR_MAX_BYTES } from '@/lib/constants';
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+
+import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   try {
@@ -19,7 +22,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
     }
 
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > AVATAR_MAX_BYTES) {
       return NextResponse.json({ error: 'Image must be less than 2MB' }, { status: 400 });
     }
 
@@ -29,7 +32,7 @@ export async function POST(request: Request) {
     if (!buckets?.find((b) => b.name === 'avatars')) {
       const { error: createError } = await admin.storage.createBucket('avatars', {
         public: true,
-        fileSizeLimit: 2 * 1024 * 1024,
+        fileSizeLimit: AVATAR_MAX_BYTES,
       });
       if (createError) {
         return NextResponse.json({ error: createError.message }, { status: 500 });
@@ -64,7 +67,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ avatarUrl: urlData.publicUrl }, { status: 200 });
   } catch (err) {
-    console.error('Error uploading avatar:', err);
+    logger.error('Error uploading avatar:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

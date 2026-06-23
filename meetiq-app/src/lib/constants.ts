@@ -1,0 +1,12 @@
+export const MAX_TRANSCRIPT_CHARS = 400_000;
+export const HARD_LIMIT_CHARS = 500_000;
+export const POLL_INTERVAL_MS = 2000;
+export const WORKSPACE_NAME_MAX = 100;
+export const TITLE_MAX = 500;
+export const DESCRIPTION_MAX = 5000;
+export const REASON_MAX = 2000;
+export const RAW_TEXT_MAX = 500000;
+export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
+export const ACTIVITY_PAGE_SIZE = 10;
+export const FILE_SIZE_LIMIT_BYTES = 10 * 1024 * 1024;
+export const MEETING_TITLE_MAX = 200;

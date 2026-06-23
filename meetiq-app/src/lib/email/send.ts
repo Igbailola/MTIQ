@@ -1,6 +1,8 @@
 import { type ReactElement } from 'react';
 import { getResendClient } from './client';
 
+import { logger } from '@/lib/logger';
+
 /**
  * Send an email using Resend.
  *
@@ -31,15 +33,14 @@ export async function sendEmail({ to, subject, react }: SendEmailOptions): Promi
     });
 
     if (error) {
-      console.error('[Email] Failed to send:', { to, subject, error });
+      logger.error('[Email] Failed to send:', { to, subject, error });
       return false;
     }
 
-    console.log('[Email] Sent successfully:', { to, subject });
     return true;
   } catch (err) {
     // Never throw — email is not critical enough to break the flow
-    console.error('[Email] Error sending email:', { to, subject, err });
+    logger.error('[Email] Error sending email:', { to, subject, err });
     return false;
   }
 }

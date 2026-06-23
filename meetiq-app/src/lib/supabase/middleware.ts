@@ -70,7 +70,7 @@ export async function updateSession(request: NextRequest) {
       .from('profiles')
       .select('onboarding_completed')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     const onboardingCompleted = profile?.onboarding_completed ?? false;
 

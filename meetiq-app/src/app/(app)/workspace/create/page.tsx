@@ -14,6 +14,8 @@ import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { logger } from '@/lib/logger';
+
 const WORKSPACE_ROLES = [
   { value: 'admin', label: 'Admin' },
   { value: 'member', label: 'Member' },
@@ -48,7 +50,7 @@ export default function CreateWorkspacePage() {
       toast.success('Workspace created successfully!');
       router.push('/dashboard');
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setLoading(false);
     }

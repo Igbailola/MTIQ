@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { subDays } from 'date-fns';
 
+import { logger } from '@/lib/logger';
+
 /**
  * GET /api/dashboard/stats?workspaceId=[id] - Retrieve workspace dashboard summary KPI stats
  */
@@ -28,7 +30,7 @@ export async function GET(request: Request) {
       .select('role')
       .eq('workspace_id', workspaceId)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (!memberCheck) {
       return NextResponse.json({ error: 'Forbidden: Access denied' }, { status: 403 });
@@ -119,8 +121,8 @@ export async function GET(request: Request) {
       statusBreakdown,
       teamMemberStats,
     }, { status: 200 });
-  } catch (err: any) {
-    console.error('Error fetching dashboard stats:', err);
+  } catch (err: unknown) {
+    logger.error('Error fetching dashboard stats:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

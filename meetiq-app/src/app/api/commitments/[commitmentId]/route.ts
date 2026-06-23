@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { CommitmentUpdateSchema } from '@/lib/schemas';
+import { Profile } from '@/types/database';
+
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/commitments/[commitmentId] - Fetch single commitment details with history
@@ -29,10 +32,24 @@ export async function GET(request: Request, { params }: RouteParams) {
       .from('commitments')
       .select('*, meeting:meetings(id, title, meeting_date, workspace_id)')
       .eq('id', commitmentId)
-      .single();
+      .maybeSingle();
 
     if (fetchError || !commitment) {
       return NextResponse.json({ error: 'Commitment not found' }, { status: 404 });
+    }
+
+    // Verify workspace membership
+    const getMeetingData = commitment.meeting as { workspace_id: string } | null;
+    if (getMeetingData) {
+      const { data: getMember } = await supabase
+        .from('workspace_members')
+        .select('role')
+        .eq('workspace_id', getMeetingData.workspace_id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (!getMember) {
+        return NextResponse.json({ error: 'Forbidden: Not a workspace member' }, { status: 403 });
+      }
     }
 
     // Fetch history
@@ -52,7 +69,7 @@ export async function GET(request: Request, { params }: RouteParams) {
 
     // Fetch profiles
     const uniqueIds = Array.from(profileIds);
-    let profiles: any[] = [];
+    let profiles: Profile[] = [];
     if (uniqueIds.length > 0) {
       const { data: profilesData } = await supabase
         .from('profiles')
@@ -83,7 +100,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       { status: 200 }
     );
   } catch (err) {
-    console.error('Error fetching commitment details:', err);
+    logger.error('Error fetching commitment details:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -96,6 +113,27 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Fetch commitment to verify membership
+    const { data: patchCmt } = await supabase
+      .from('commitments')
+      .select('meeting:meetings(workspace_id)')
+      .eq('id', commitmentId)
+      .maybeSingle();
+    if (patchCmt) {
+      const patchWs = patchCmt.meeting as { workspace_id: string } | null;
+      if (patchWs) {
+        const { data: patchMember } = await supabase
+          .from('workspace_members')
+          .select('role')
+          .eq('workspace_id', patchWs.workspace_id)
+          .eq('user_id', user.id)
+          .maybeSingle();
+        if (!patchMember) {
+          return NextResponse.json({ error: 'Forbidden: Not a workspace member' }, { status: 403 });
+        }
+      }
     }
 
     // Validate body
@@ -122,7 +160,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     return NextResponse.json(updated, { status: 200 });
   } catch (err) {
-    console.error('Error updating commitment:', err);
+    logger.error('Error updating commitment:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -142,20 +180,20 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       .from('commitments')
       .select('title, meeting:meetings(workspace_id)')
       .eq('id', commitmentId)
-      .single();
+      .maybeSingle();
 
     if (fetchError || !commitment) {
       return NextResponse.json({ error: 'Commitment not found' }, { status: 404 });
     }
 
     // Check if the current user is an admin in the workspace
-    const workspaceId = (commitment.meeting as any).workspace_id;
+    const workspaceId = (commitment.meeting as { workspace_id: string }).workspace_id;
     const { data: member, error: memberError } = await supabase
       .from('workspace_members')
       .select('role')
       .eq('workspace_id', workspaceId)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (memberError || member?.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden: Admin role required' }, { status: 403 });
@@ -183,7 +221,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
-    console.error('Error deleting commitment:', err);
+    logger.error('Error deleting commitment:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

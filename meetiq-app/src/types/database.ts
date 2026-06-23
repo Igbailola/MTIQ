@@ -166,36 +166,6 @@ export interface Notification {
   created_at: string;
 }
 
-export interface AIFeedback {
-  id: string;
-  entity_type: string;
-  entity_id: string;
-  user_id: string;
-  feedback: 'thumbs_up' | 'thumbs_down';
-  categories: string[] | null;
-  created_at: string;
-}
-
-// ── AI Processing Types ──
-
-export interface AIProcessingResult {
-  summary: MeetingSummary;
-  decisions: Array<{
-    content: string;
-    ai_confidence: AIConfidence;
-  }>;
-  commitments: Array<{
-    title: string;
-    description: string | null;
-    suggested_owner_name: string | null;
-    suggested_owner_id: string | null;
-    due_date: string | null;
-    ai_confidence: AIConfidence;
-    context_snippet: string | null;
-    priority: CommitmentPriority;
-  }>;
-}
-
 // ── Dashboard Types ──
 
 export interface DashboardStats {

@@ -20,6 +20,8 @@ import { Label } from '@/components/ui/label';
 import { Plus, Check, Loader2, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { logger } from '@/lib/logger';
+
 interface WorkspaceSwitcherProps {
   initial?: string;
   showDetails?: boolean;
@@ -54,7 +56,7 @@ export function WorkspaceSwitcher({ initial = 'M', showDetails = false }: Worksp
       router.push('/dashboard');
       router.refresh();
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setCreating(false);
     }

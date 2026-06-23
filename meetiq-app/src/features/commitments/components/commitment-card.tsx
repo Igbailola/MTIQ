@@ -9,8 +9,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CommitmentStatusChip } from './commitment-status-chip';
+import { CommitmentEditForm } from './commitment-edit-form';
 import { ConfidenceBadge } from './confidence-badge';
-import { cn } from '@/lib/utils';
+import { cn, getInitials } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useAuth } from '@/hooks/use-auth';
 import { useConfirmCommitment, useUpdateCommitment, useDeleteCommitment } from '@/hooks/use-commitments';
@@ -29,9 +30,10 @@ import {
   AlertCircle,
   Loader2,
   Edit2,
-  Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
+
+import { logger } from '@/lib/logger';
 
 interface CommitmentCardProps {
   commitment: Commitment & {
@@ -84,12 +86,12 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
         description: editDescription,
         owner_id: editOwnerId || null,
         due_date: editDueDate ? new Date(editDueDate).toISOString() : null,
-        priority: editPriority as any,
-        status: editStatus as any,
+        priority: editPriority as CommitmentPriority,
+        status: editStatus as CommitmentStatus,
       });
       setEditMode(false);
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setSavingEdit(false);
     }
@@ -100,7 +102,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
       try {
         await deleteMutation.mutateAsync();
       } catch (err) {
-        console.error(err);
+        logger.error("Error occurred", err, err);
       }
     }
   };
@@ -108,21 +110,12 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
   const isPending = commitment.status === 'pending_confirmation';
   const isOwner = commitment.owner_id === user?.id;
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  };
-
   const handleAccept = async () => {
     setAnimatingAction('accept');
     try {
       await confirmMutation.mutateAsync({ action: 'accept' });
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setAnimatingAction(null);
     }
@@ -142,7 +135,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
       setRejectFormOpen(false);
       setReason('');
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setSubmitting(false);
       setAnimatingAction(null);
@@ -163,7 +156,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
       setChangesFormOpen(false);
       setReason('');
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setSubmitting(false);
       setAnimatingAction(null);
@@ -172,142 +165,25 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
 
   if (editMode) {
     return (
-      <Card className="border border-meetiq-border/50 bg-white shadow-meetiq-xs">
-        <form onSubmit={handleSaveEdit}>
-      <CardContent className="p-6 space-y-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 uppercase">
-                Edit Commitment
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleDelete}
-                className="h-7 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Delete
-              </Button>
-            </div>
-
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <Label htmlFor="editTitle" className="text-xs">Title</Label>
-                <input
-                  id="editTitle"
-                  type="text"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                    className="w-full text-sm h-10 rounded border border-slate-200/50 px-3 focus:outline-accent bg-white text-slate-800"
-                  required
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="editDescription" className="text-xs">Description</Label>
-                <Textarea
-                  id="editDescription"
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  rows={2}
-                  className="text-sm min-h-[40px]"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="space-y-1">
-                  <Label htmlFor="editOwner" className="text-xs">Owner</Label>
-                  <Select value={editOwnerId || ''} onValueChange={(val) => setEditOwnerId(val || null)}>
-                    <SelectTrigger
-                      id="editOwner"
-                      className="w-full !h-10 text-sm border-slate-200/50 bg-white text-slate-800 px-4"
-                    >
-                      <SelectValue placeholder="Needs Owner" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Needs Owner</SelectItem>
-                      {members?.map((m) => (
-                        <SelectItem key={m.user_id} value={m.user_id}>
-                          {m.profile?.display_name || 'Anonymous User'}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-1">
-                  <Label htmlFor="editDueDate" className="text-xs">Due Date</Label>
-                  <input
-                    id="editDueDate"
-                    type="date"
-                    value={editDueDate}
-                    onChange={(e) => setEditDueDate(e.target.value)}
-                    className="w-full h-10 text-sm rounded border border-slate-200/50 px-2 bg-white text-slate-800"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <Label htmlFor="editPriority" className="text-xs">Priority</Label>
-                  <Select value={editPriority} onValueChange={(val) => setEditPriority(val ?? 'medium')}>
-                    <SelectTrigger
-                      id="editPriority"
-                      className="w-full !h-10 text-sm border-slate-200/50 bg-white text-slate-800 px-4"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-1">
-                  <Label htmlFor="editStatus" className="text-xs">Status</Label>
-                  <Select value={editStatus} onValueChange={(val) => setEditStatus(val ?? 'pending_confirmation')}>
-                    <SelectTrigger
-                      id="editStatus"
-                      className="w-full !h-10 text-sm border-slate-200/50 bg-white text-slate-800 px-4"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending_confirmation">Pending Confirmation</SelectItem>
-                      <SelectItem value="in_progress">In Progress</SelectItem>
-                      <SelectItem value="blocked">Blocked</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="overdue">Overdue</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2 border-t">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setEditMode(false)}
-                className="h-12 text-xs"
-                disabled={savingEdit}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="h-12 gap-2 px-6"
-                disabled={savingEdit}
-              >
-                {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                <span className="text-base">Save Changes</span>
-              </Button>
-            </div>
-          </CardContent>
-        </form>
-      </Card>
+      <CommitmentEditForm
+        editTitle={editTitle}
+        editDescription={editDescription}
+        editOwnerId={editOwnerId}
+        editDueDate={editDueDate}
+        editPriority={editPriority}
+        editStatus={editStatus}
+        savingEdit={savingEdit}
+        members={members}
+        onTitleChange={setEditTitle}
+        onDescriptionChange={setEditDescription}
+        onOwnerChange={setEditOwnerId}
+        onDueDateChange={setEditDueDate}
+        onPriorityChange={setEditPriority}
+        onStatusChange={setEditStatus}
+        onSave={handleSaveEdit}
+        onDelete={handleDelete}
+        onCancel={() => setEditMode(false)}
+      />
     );
   }
 

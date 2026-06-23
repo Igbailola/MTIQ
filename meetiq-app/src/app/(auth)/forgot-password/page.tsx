@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
+import { logger } from '@/lib/logger';
+
 export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -43,7 +45,7 @@ export default function ForgotPasswordPage() {
       }
     } catch (err) {
       toast.error('An unexpected error occurred. Please try again.');
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,9 @@
+import { ACTIVITY_PAGE_SIZE } from '@/lib/constants';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { Profile } from '@/types/database';
+
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/activity?workspaceId=[id]&limit=[limit]&offset=[offset] - Get chronological activity feed for workspace
@@ -10,7 +14,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const workspaceId = searchParams.get('workspaceId');
-    const limit = parseInt(searchParams.get('limit') || '10', 10);
+    const limit = parseInt(searchParams.get('limit') || String(ACTIVITY_PAGE_SIZE), 10);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
 
     if (!workspaceId) {
@@ -22,6 +26,17 @@ export async function GET(request: Request) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Verify workspace membership
+    const { data: actMember } = await supabase
+      .from('workspace_members')
+      .select('role')
+      .eq('workspace_id', workspaceId)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (!actMember) {
+      return NextResponse.json({ error: 'Forbidden: Not a workspace member' }, { status: 403 });
     }
 
     // Fetch activity rows
@@ -42,7 +57,7 @@ export async function GET(request: Request) {
 
     // Collect actor profiles
     const actorIds = Array.from(new Set(activities.map((a) => a.actor_id).filter(Boolean))) as string[];
-    let profiles: any[] = [];
+    let profiles: Profile[] = [];
     if (actorIds.length > 0) {
       const { data: profilesData } = await supabase
         .from('profiles')
@@ -62,7 +77,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(mergedActivities, { status: 200 });
   } catch (err) {
-    console.error('Error fetching activity feed:', err);
+    logger.error('Error fetching activity feed:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -109,7 +124,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
-    console.error('Error deleting activity feed:', err);
+    logger.error('Error deleting activity feed:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

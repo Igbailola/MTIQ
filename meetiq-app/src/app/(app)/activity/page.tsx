@@ -10,6 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Activity, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { logger } from '@/lib/logger';
+
 export default function ActivityPage() {
   const { currentWorkspace } = useCurrentWorkspace();
   const { data: activities, isLoading, refetch: refetchActivities } = useActivityFeed(currentWorkspace?.id);
@@ -74,7 +76,8 @@ export default function ActivityPage() {
                       if (!res.ok) throw new Error();
                       refetchActivities();
                       toast.success('All activity cleared');
-                    } catch {
+                    } catch (e) {
+                      logger.error("Error occurred", e, e);
                       toast.error('Failed to clear activity');
                     }
                   }}

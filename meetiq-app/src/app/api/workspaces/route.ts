@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { WorkspaceCreateSchema } from '@/lib/schemas';
 
+import { logger } from '@/lib/logger';
+
 /**
  * GET /api/workspaces - List user's workspaces
  * POST /api/workspaces - Create a new workspace
@@ -46,7 +48,7 @@ export async function GET() {
 
     return NextResponse.json(workspaces, { status: 200 });
   } catch (err) {
-    console.error('Error fetching workspaces:', err);
+    logger.error('Error fetching workspaces:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -102,7 +104,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(workspace, { status: 201 });
   } catch (err) {
-    console.error('Error creating workspace:', err);
+    logger.error('Error creating workspace:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

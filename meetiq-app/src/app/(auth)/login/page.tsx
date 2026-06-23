@@ -14,6 +14,8 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
+import { logger } from '@/lib/logger';
+
 export default function LoginPage() {
   const router = useRouter();
   const { signInWithGoogle } = useAuth();
@@ -68,7 +70,7 @@ export default function LoginPage() {
             .from('profiles')
             .select('onboarding_completed')
             .eq('id', user.id)
-            .single();
+            .maybeSingle();
           
           if (profile && !profile.onboarding_completed) {
             router.push(`/onboarding?next=${encodeURIComponent(next)}`);
@@ -80,7 +82,7 @@ export default function LoginPage() {
       }
     } catch (err) {
       toast.error('An unexpected error occurred. Please try again.');
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setLoading(false);
     }
@@ -92,7 +94,7 @@ export default function LoginPage() {
       await signInWithGoogle();
     } catch (err) {
       toast.error('Failed to initiate Google sign-in.');
-      console.error(err);
+      logger.error("Error occurred", err, err);
       setGoogleLoading(false);
     }
   };

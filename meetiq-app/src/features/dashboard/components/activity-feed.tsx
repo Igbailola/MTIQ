@@ -8,6 +8,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { Activity, Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { logger } from '@/lib/logger';
+
 interface ActivityFeedProps {
   initialActivities: (ActivityFeedItem & { actor: Profile | null })[];
   workspaceId: string;
@@ -41,8 +43,8 @@ export function ActivityFeed({ initialActivities, workspaceId, clearTrigger }: A
           table: 'activity_feed',
           filter: `workspace_id=eq.${workspaceId}`,
         },
-        async (payload: any) => {
-          const newActivity = payload.new as ActivityFeedItem;
+        async (payload: { new: ActivityFeedItem }) => {
+          const newActivity = payload.new;
           
           // Fetch the profile for the actor
           let actorProfile = null;
@@ -51,7 +53,7 @@ export function ActivityFeed({ initialActivities, workspaceId, clearTrigger }: A
               .from('profiles')
               .select('*')
               .eq('id', newActivity.actor_id)
-              .single();
+              .maybeSingle();
             actorProfile = data;
           }
 
@@ -71,7 +73,7 @@ export function ActivityFeed({ initialActivities, workspaceId, clearTrigger }: A
           table: 'activity_feed',
           filter: `workspace_id=eq.${workspaceId}`,
         },
-        (payload: any) => {
+        (payload: { old: ActivityFeedItem }) => {
           setActivities((prev) => prev.filter((a) => a.id !== payload.old.id));
         }
       )
@@ -80,17 +82,7 @@ export function ActivityFeed({ initialActivities, workspaceId, clearTrigger }: A
     return () => {
       supabase.removeChannel(channel);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workspaceId]);
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  };
+  }, [workspaceId, supabase]);
 
   const getActionText = (action: string) => {
     const map: Record<string, string> = {
@@ -136,9 +128,9 @@ export function ActivityFeed({ initialActivities, workspaceId, clearTrigger }: A
                   {item.actor?.display_name || 'System'}
                 </span>{' '}
                 {getActionText(item.action)}{' '}
-                {(item.details as any)?.title && (
+                {item.details?.title && (
                   <span className="font-semibold text-slate-800">
-                    &ldquo;{String((item.details as any).title)}&rdquo;
+                    &ldquo;{String(item.details?.title)}&rdquo;
                   </span>
                 )}
               </p>
@@ -153,7 +145,8 @@ export function ActivityFeed({ initialActivities, workspaceId, clearTrigger }: A
                   if (!res.ok) throw new Error();
                   setActivities((prev) => prev.filter((a) => a.id !== item.id));
                   toast.success('Activity deleted');
-                } catch {
+                } catch (e) {
+                  logger.error("Error occurred", e, e);
                   toast.error('Failed to delete activity');
                 }
               }}

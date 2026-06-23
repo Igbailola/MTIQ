@@ -81,7 +81,7 @@ export async function GET(request: Request) {
       .from('profiles')
       .select('onboarding_completed, display_name')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (!profile || !profile.onboarding_completed) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://meetiq-seven.vercel.app';

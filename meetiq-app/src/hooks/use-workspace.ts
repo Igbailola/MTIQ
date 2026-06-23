@@ -12,39 +12,6 @@ export function useCurrentWorkspace() {
 }
 
 /**
- * Query user's workspaces.
- */
-export function useWorkspaces() {
-  return useQuery<Workspace[]>({
-    queryKey: ['workspaces'],
-    queryFn: async () => {
-      const res = await fetch('/api/workspaces');
-      if (!res.ok) {
-        throw new Error('Failed to fetch workspaces');
-      }
-      return res.json();
-    },
-  });
-}
-
-/**
- * Query single workspace details.
- */
-export function useWorkspace(workspaceId?: string) {
-  return useQuery<Workspace>({
-    queryKey: ['workspace', workspaceId],
-    queryFn: async () => {
-      const res = await fetch(`/api/workspaces/${workspaceId}`);
-      if (!res.ok) {
-        throw new Error('Failed to fetch workspace');
-      }
-      return res.json();
-    },
-    enabled: !!workspaceId,
-  });
-}
-
-/**
  * Mutation to create a workspace.
  */
 export function useCreateWorkspace() {

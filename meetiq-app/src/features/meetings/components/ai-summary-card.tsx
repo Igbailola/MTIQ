@@ -10,6 +10,8 @@ import { toast } from 'sonner';
 import { ThumbsUp, ThumbsDown, Sparkles, Check } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+import { logger } from '@/lib/logger';
+
 interface AISummaryCardProps {
   summary: MeetingSummary;
   meetingId: string;
@@ -40,7 +42,7 @@ export function AISummaryCard({ summary, meetingId }: AISummaryCardProps) {
         toast.success('Thanks for your feedback! 👍');
       }
     } catch (err) {
-      console.error('Failed to submit thumbs up:', err);
+      logger.error('Failed to submit thumbs up:', err);
     }
   };
 
@@ -77,7 +79,7 @@ export function AISummaryCard({ summary, meetingId }: AISummaryCardProps) {
         toast.error('Failed to save feedback');
       }
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
       toast.error('Error saving feedback');
     } finally {
       setSubmitting(false);

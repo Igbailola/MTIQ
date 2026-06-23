@@ -11,9 +11,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Loader2, Calendar, ShieldAlert, Trash2 } from 'lucide-react';
+import type { CommitmentStatus, CommitmentPriority } from '@/types/database';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
+
+import { logger } from '@/lib/logger';
 
 interface CommitmentDetailPageProps {
   params: Promise<{
@@ -65,10 +68,10 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
         owner_id: ownerId === 'unassigned' ? null : ownerId,
         due_date: dueDate ? new Date(dueDate).toISOString() : null,
         priority,
-        status: status as any,
+        status: status as CommitmentStatus,
       });
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setUpdating(false);
     }
@@ -82,7 +85,7 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
       await deleteMutation.mutateAsync();
       router.push('/commitments');
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     }
   };
 
@@ -191,7 +194,7 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
                     <Label htmlFor="commPriority">Priority</Label>
                     <Select
                       value={priority}
-                      onValueChange={(val) => setPriority(val as any)}
+                      onValueChange={(val) => setPriority(val as CommitmentPriority)}
                       disabled={!canEdit || updating}
                     >
                       <SelectTrigger id="commPriority" className="bg-white h-10 text-sm mt-1">

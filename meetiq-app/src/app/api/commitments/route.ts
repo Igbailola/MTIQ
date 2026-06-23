@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { CommitmentCreateSchema } from '@/lib/schemas';
+import { Profile } from '@/types/database';
+
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/commitments?workspaceId=[id]&status=[status]&ownerId=[id] - List commitments
@@ -58,7 +61,7 @@ export async function GET(request: Request) {
 
     // Fetch profiles
     const uniqueIds = Array.from(profileIds);
-    let profiles: any[] = [];
+    let profiles: Profile[] = [];
     if (uniqueIds.length > 0) {
       const { data: profilesData } = await supabase
         .from('profiles')
@@ -80,7 +83,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(mergedCommitments, { status: 200 });
   } catch (err) {
-    console.error('Error fetching commitments:', err);
+    logger.error('Error fetching commitments:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -113,7 +116,7 @@ export async function POST(request: Request) {
       .from('meetings')
       .select('workspace_id, title')
       .eq('id', meeting_id)
-      .single();
+      .maybeSingle();
 
     if (meetingError || !meeting) {
       return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
@@ -125,7 +128,7 @@ export async function POST(request: Request) {
       .select('role')
       .eq('workspace_id', meeting.workspace_id)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (memberError || !member) {
       return NextResponse.json({ error: 'Forbidden: you must be a member of this workspace' }, { status: 403 });
@@ -165,7 +168,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(commitment, { status: 201 });
   } catch (err) {
-    console.error('Error creating commitment:', err);
+    logger.error('Error creating commitment:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

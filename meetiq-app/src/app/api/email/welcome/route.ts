@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { sendEmail } from '@/lib/email/send';
 import { WelcomeEmail } from '@/lib/email/templates/welcome';
 
+import { logger } from '@/lib/logger';
+
 /**
  * POST /api/email/welcome - Send a welcome email to a newly registered user.
  * Called from the registration flow (both email/password and Google OAuth).
@@ -30,8 +32,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ success: true }, { status: 200 });
-  } catch (err: any) {
-    console.error('Error sending welcome email:', err);
+  } catch (err: unknown) {
+    logger.error('Error sending welcome email:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

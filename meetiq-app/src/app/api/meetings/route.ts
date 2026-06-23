@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { MeetingUploadSchema } from '@/lib/schemas';
 
+import { logger } from '@/lib/logger';
+
 /**
  * GET /api/meetings?workspaceId=[id] - List meetings in workspace
  * POST /api/meetings - Create a meeting
@@ -36,7 +38,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(meetings || [], { status: 200 });
   } catch (err) {
-    console.error('Error fetching meetings:', err);
+    logger.error('Error fetching meetings:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -68,7 +70,7 @@ export async function POST(request: Request) {
       .select('role')
       .eq('workspace_id', workspace_id)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (memberError || !member) {
       return NextResponse.json({ error: 'Forbidden: Must be workspace member to upload meetings' }, { status: 403 });
@@ -112,12 +114,12 @@ export async function POST(request: Request) {
         Cookie: request.headers.get('cookie') || '',
       },
     }).catch((err) => {
-      console.error('Error invoking process background api:', err);
+      logger.error('Error invoking process background api:', err);
     });
 
     return NextResponse.json(meeting, { status: 201 });
   } catch (err) {
-    console.error('Error creating meeting:', err);
+    logger.error('Error creating meeting:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

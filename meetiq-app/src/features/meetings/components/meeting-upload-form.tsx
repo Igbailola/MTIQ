@@ -15,9 +15,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { FileText, Loader2, UploadCloud, AlertTriangle } from 'lucide-react';
+import { MAX_TRANSCRIPT_CHARS as MAX_SAFE_CHARS, HARD_LIMIT_CHARS, FILE_SIZE_LIMIT_BYTES } from '@/lib/constants';
 
-const MAX_SAFE_CHARS = 400_000;
-const HARD_LIMIT_CHARS = 500_000;
+import { logger } from '@/lib/logger';
 
 export function MeetingUploadForm() {
   const router = useRouter();
@@ -28,7 +28,6 @@ export function MeetingUploadForm() {
   const [dragActive, setDragActive] = useState(false);
   const [fileName, setFileName] = useState('');
   const [fileContent, setFileContent] = useState('');
-
   const {
     register,
     handleSubmit,
@@ -43,9 +42,7 @@ export function MeetingUploadForm() {
       raw_text: '',
     },
   });
-
   const rawTextValue = watch('raw_text');
-
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -55,35 +52,29 @@ export function MeetingUploadForm() {
       setDragActive(false);
     }
   };
-
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
   };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       handleFile(e.target.files[0]);
     }
   };
-
   const handleFile = (file: File) => {
     // Standard limit checks
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > FILE_SIZE_LIMIT_BYTES) {
       toast.error('File size exceeds 10MB limit');
       return;
     }
-
     if (file.type !== 'text/plain' && !file.name.endsWith('.txt')) {
       toast.error('Only plain text (.txt) files are supported natively. Please copy and paste Word or PDF content.');
       return;
     }
-
     setFileName(file.name);
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -106,45 +97,40 @@ export function MeetingUploadForm() {
     };
     reader.readAsText(file);
   };
-
   const onSubmit = async (data: Omit<MeetingUploadInput, 'workspace_id'>) => {
     if (!currentWorkspace) {
       toast.error('Please select or create a workspace first.');
       return;
     }
-
     if (!data.raw_text?.trim()) {
       toast.error('Please upload a file or paste meeting text.');
       return;
     }
-
     if (data.raw_text.length > MAX_SAFE_CHARS) {
       toast.warning('Transcript is too long for the AI model to process in full. Please split into shorter segments (max ~400K characters).');
       return;
     }
-
     setLoading(true);
     try {
       const meeting = await uploadMeetingMutation.mutateAsync({
         ...data,
         workspace_id: currentWorkspace.id,
       });
-
       // Kick off processing explicitly from browser client to bypass Next.js background fetch limitations
       fetch(`/api/meetings/${meeting.id}/process`, {
         method: 'POST',
+      }).then(res => {
+        if (!res.ok) logger.error('Process trigger returned:', res.status);
       }).catch((err) => {
-        console.error('Error triggering client-side process:', err);
+        logger.error('Error triggering client-side process:', err);
       });
-
       router.push(`/meetings/${meeting.id}`);
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <Card className="border border-meetiq-border/50 shadow-meetiq-xs">
       <CardContent className="p-6">
@@ -163,7 +149,6 @@ export function MeetingUploadForm() {
                 <p className="text-xs text-destructive mt-1">{errors.title.message}</p>
               )}
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="meeting_date">Meeting Date</Label>
               <Input
@@ -178,7 +163,6 @@ export function MeetingUploadForm() {
               )}
             </div>
           </div>
-
           <Tabs defaultValue="upload" className="w-full">
             <TabsList className="grid w-full grid-cols-2 max-w-[400px] bg-slate-100 p-0.5 rounded-lg h-10">
               <TabsTrigger value="upload" className="rounded-md text-sm font-semibold">Upload Transcript</TabsTrigger>
@@ -247,7 +231,6 @@ export function MeetingUploadForm() {
                 )}
               </div>
             </TabsContent>
-
             <TabsContent value="paste" className="mt-4">
               <div className="space-y-2">
                 <Label htmlFor="raw_text">Transcript / Notes Content</Label>
@@ -277,7 +260,6 @@ James: I will update the documentation before the Friday release..."
               </div>
             </TabsContent>
           </Tabs>
-
           <Button type="submit" className="h-12 gap-2 px-6" disabled={loading}>
             {loading ? (
               <>

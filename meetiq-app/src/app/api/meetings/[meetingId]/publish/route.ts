@@ -3,6 +3,8 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { sendEmail } from '@/lib/email/send';
 import { CommitmentAssignedEmail } from '@/lib/email/templates/commitment-assigned';
 
+import { logger } from '@/lib/logger';
+
 /**
  * POST /api/meetings/[meetingId]/publish - Publish commitments, assign owners, and send notifications
  */
@@ -28,7 +30,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       .from('meetings')
       .select('workspace_id, title')
       .eq('id', meetingId)
-      .single();
+      .maybeSingle();
 
     if (meetingError || !meeting) {
       return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
@@ -56,7 +58,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       .from('profiles')
       .select('display_name')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     const assignerName = assignerProfile?.display_name || user.email || 'A team member';
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://meetiq-seven.vercel.app';
@@ -77,7 +79,7 @@ export async function POST(request: Request, { params }: RouteParams) {
         .eq('id', commitment.id);
 
       if (updateError) {
-        console.error('Error updating commitment:', updateError);
+        logger.error('Error updating commitment:', updateError);
         continue;
       }
 
@@ -134,8 +136,8 @@ export async function POST(request: Request, { params }: RouteParams) {
     }
 
     return NextResponse.json({ success: true, count: commitments.length }, { status: 200 });
-  } catch (err: any) {
-    console.error('Error publishing commitments:', err);
+  } catch (err: unknown) {
+    logger.error('Error publishing commitments:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

@@ -1,3 +1,4 @@
+import { WORKSPACE_NAME_MAX, TITLE_MAX, DESCRIPTION_MAX, REASON_MAX, RAW_TEXT_MAX, MEETING_TITLE_MAX } from '@/lib/constants';
 import { z } from 'zod';
 
 /**
@@ -30,23 +31,15 @@ export const ForgotPasswordSchema = z.object({
 });
 export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>;
 
-// ── Profile Schemas ──
-
-export const UpdateProfileSchema = z.object({
-  display_name: z.string().min(1, 'Display name is required').max(100).trim(),
-  timezone: z.string().optional(),
-});
-export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;
-
 // ── Workspace Schemas ──
 
 export const WorkspaceCreateSchema = z.object({
-  name: z.string().min(1, 'Workspace name is required').max(100).trim(),
+  name: z.string().min(1, 'Workspace name is required').max(WORKSPACE_NAME_MAX).trim(),
 });
 export type WorkspaceCreateInput = z.infer<typeof WorkspaceCreateSchema>;
 
 export const WorkspaceUpdateSchema = z.object({
-  name: z.string().min(1, 'Workspace name is required').max(100).trim(),
+  name: z.string().min(1, 'Workspace name is required').max(WORKSPACE_NAME_MAX).trim(),
 });
 export type WorkspaceUpdateInput = z.infer<typeof WorkspaceUpdateSchema>;
 
@@ -60,9 +53,9 @@ export type InviteMemberInput = z.infer<typeof InviteMemberSchema>;
 // ── Meeting Schemas ──
 
 export const MeetingUploadSchema = z.object({
-  title: z.string().min(1, 'Meeting title is required').max(200).trim(),
+  title: z.string().min(1, 'Meeting title is required').max(MEETING_TITLE_MAX).trim(),
   meeting_date: z.string().min(1, 'Meeting date is required'),
-  raw_text: z.string().max(500000, 'Text content is too large').optional(),
+  raw_text: z.string().max(RAW_TEXT_MAX, 'Text content is too large').optional(),
   workspace_id: z.string().uuid('Invalid workspace ID'),
 });
 export type MeetingUploadInput = z.infer<typeof MeetingUploadSchema>;
@@ -71,8 +64,8 @@ export type MeetingUploadInput = z.infer<typeof MeetingUploadSchema>;
 
 export const CommitmentCreateSchema = z.object({
   meeting_id: z.string().uuid('Invalid meeting ID'),
-  title: z.string().min(1, 'Title is required').max(500).trim(),
-  description: z.string().max(5000).trim().optional(),
+  title: z.string().min(1, 'Title is required').max(TITLE_MAX).trim(),
+  description: z.string().max(DESCRIPTION_MAX).trim().optional(),
   owner_id: z.string().uuid().nullable().optional(),
   due_date: z.string().nullable().optional(),
   priority: z.enum(['low', 'medium', 'high']).default('medium'),
@@ -80,8 +73,8 @@ export const CommitmentCreateSchema = z.object({
 export type CommitmentCreateInput = z.infer<typeof CommitmentCreateSchema>;
 
 export const CommitmentUpdateSchema = z.object({
-  title: z.string().min(1).max(500).trim().optional(),
-  description: z.string().max(5000).trim().optional(),
+  title: z.string().min(1).max(TITLE_MAX).trim().optional(),
+  description: z.string().max(DESCRIPTION_MAX).trim().optional(),
   owner_id: z.string().uuid().nullable().optional(),
   status: z
     .enum(['pending_confirmation', 'in_progress', 'blocked', 'completed', 'overdue'])
@@ -93,7 +86,7 @@ export type CommitmentUpdateInput = z.infer<typeof CommitmentUpdateSchema>;
 
 export const CommitmentConfirmSchema = z.object({
   action: z.enum(['accept', 'reject', 'request_changes']),
-  reason: z.string().max(2000).trim().optional(),
+  reason: z.string().max(REASON_MAX).trim().optional(),
 });
 export type CommitmentConfirmInput = z.infer<typeof CommitmentConfirmSchema>;
 

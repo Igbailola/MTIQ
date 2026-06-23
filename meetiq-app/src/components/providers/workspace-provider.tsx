@@ -46,7 +46,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
     setFetchedForUserId(null);
 
-    let memberRows: any[] | null = null;
+    let memberRows: { workspace_id: string }[] | null = null;
     
     // Attempt to fetch only active memberships
     const activeResult = await supabase
@@ -72,8 +72,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         .eq('type', 'member_invited')
         .eq('read', false);
 
-      const invitedWorkspaceIds = new Set((unreadInvites || []).map((n: any) => n.workspace_id));
-      memberRows = allRows.filter((row: any) => !invitedWorkspaceIds.has(row.workspace_id));
+      const invitedWorkspaceIds = new Set((unreadInvites || []).map((n: { workspace_id: string }) => n.workspace_id));
+      memberRows = allRows.filter((row: { workspace_id: string }) => !invitedWorkspaceIds.has(row.workspace_id));
     } else {
       memberRows = activeResult.data;
     }
@@ -85,7 +85,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const workspaceIds = memberRows.map((r: any) => r.workspace_id);
+    const workspaceIds = memberRows.map((r: { workspace_id: string }) => r.workspace_id);
     const { data } = await supabase
       .from('workspaces')
       .select('*')
@@ -97,11 +97,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
     // Restore last selected workspace from localStorage
     const savedId = localStorage.getItem('meetiq_current_workspace');
-    const saved = ws.find((w: any) => w.id === savedId);
+    const saved = ws.find((w: Workspace) => w.id === savedId);
     setCurrentWorkspaceState(saved ?? ws[0] ?? null);
     setFetchedForUserId(user.id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, supabase]);
 
   useEffect(() => {
     fetchWorkspaces();

@@ -23,15 +23,6 @@ export function OverdueCommitmentsSection({ commitments }: OverdueCommitmentsSec
       return dateA.getTime() - dateB.getTime(); // Older due date = more overdue = first
     });
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  };
-
   const getDaysOverdue = (dueDateStr: string) => {
     const dueDate = new Date(dueDateStr);
     const today = new Date();

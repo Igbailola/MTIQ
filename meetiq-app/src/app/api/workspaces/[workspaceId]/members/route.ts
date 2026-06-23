@@ -4,6 +4,8 @@ import { InviteMemberSchema } from '@/lib/schemas';
 import { sendEmail } from '@/lib/email/send';
 import { WorkspaceInviteEmail } from '@/lib/email/templates/workspace-invite';
 
+import { logger } from '@/lib/logger';
+
 /**
  * GET /api/workspaces/[workspaceId]/members - List workspace members
  * POST /api/workspaces/[workspaceId]/members - Invite/add member (admin only)
@@ -62,7 +64,7 @@ export async function GET(request: Request, { params }: RouteParams) {
 
     return NextResponse.json(mergedMembers, { status: 200 });
   } catch (err) {
-    console.error('Error fetching members:', err);
+    logger.error('Error fetching members:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -84,7 +86,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       .select('role')
       .eq('workspace_id', workspaceId)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (currentMemberError || currentMember?.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden: Admin role required' }, { status: 403 });
@@ -95,7 +97,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       .from('workspaces')
       .select('name')
       .eq('id', workspaceId)
-      .single();
+      .maybeSingle();
 
     if (workspaceError || !workspace) {
       return NextResponse.json({ error: 'Workspace not found' }, { status: 404 });
@@ -122,7 +124,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: usersError.message }, { status: 500 });
     }
 
-    const foundUser = usersData.users.find((u: any) => u.email?.toLowerCase() === email.toLowerCase());
+    const foundUser = usersData.users.find((u: { id: string }) => u.email?.toLowerCase() === email.toLowerCase());
 
     if (foundUser) {
       // User is already registered in the app — use their existing user object
@@ -237,12 +239,12 @@ export async function POST(request: Request, { params }: RouteParams) {
         inviteUrl: inviteLink,
       }),
     }).catch((err) => {
-      console.error('Failed to send workspace invitation email:', err);
+      logger.error('Failed to send workspace invitation email:', err);
     });
 
     return NextResponse.json(member, { status: 201 });
   } catch (err) {
-    console.error('Error inviting member:', err);
+    logger.error('Error inviting member:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -270,7 +272,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       .select('role')
       .eq('workspace_id', workspaceId)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (currentMemberError || currentMember?.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden: Admin role required' }, { status: 403 });
@@ -304,7 +306,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
-    console.error('Error removing member:', err);
+    logger.error('Error removing member:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

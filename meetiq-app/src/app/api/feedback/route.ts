@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { AIFeedbackSchema } from '@/lib/schemas';
 
+import { logger } from '@/lib/logger';
+
 /**
  * POST /api/feedback - Save thumbs up/down feedback on AI outputs
  */
@@ -45,8 +47,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(data, { status: 201 });
-  } catch (err: any) {
-    console.error('Error saving AI feedback:', err);
+  } catch (err: unknown) {
+    logger.error('Error saving AI feedback:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

@@ -126,28 +126,4 @@ export function usePublishMeeting(meetingId: string, workspaceId: string) {
   });
 }
 
-/**
- * Hook to delete a meeting.
- */
-export function useDeleteMeeting(meetingId: string, workspaceId: string) {
-  const queryClient = useQueryClient();
 
-  return useMutation<void, Error, void>({
-    mutationFn: async () => {
-      const res = await fetch(`/api/meetings/${meetingId}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error ?? 'Failed to delete meeting');
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['meetings', workspaceId] });
-      toast.success('Meeting deleted successfully');
-    },
-    onError: (err) => {
-      toast.error(err.message);
-    },
-  });
-}

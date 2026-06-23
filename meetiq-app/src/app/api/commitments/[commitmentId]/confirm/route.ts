@@ -3,6 +3,9 @@ import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { CommitmentConfirmWithValidation } from '@/lib/schemas';
 import { sendEmail } from '@/lib/email/send';
 import { CommitmentConfirmedEmail } from '@/lib/email/templates/commitment-confirmed';
+import { Profile } from '@/types/database';
+
+import { logger } from '@/lib/logger';
 
 /**
  * POST /api/commitments/[commitmentId]/confirm - Accept, Reject, or Request Changes on a commitment
@@ -29,7 +32,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       .from('commitments')
       .select('*, meeting:meetings(workspace_id)')
       .eq('id', commitmentId)
-      .single();
+      .maybeSingle();
 
     if (fetchError || !commitment) {
       return NextResponse.json({ error: 'Commitment not found' }, { status: 404 });
@@ -86,7 +89,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       new_value: `${action.toUpperCase()}${reason ? `: ${reason}` : ''}`,
     });
 
-    const workspaceId = (commitment.meeting as any).workspace_id;
+    const workspaceId = (commitment.meeting as { workspace_id: string }).workspace_id;
 
     // Send notification to the assigner
     if (commitment.assigner_id) {
@@ -114,7 +117,7 @@ export async function POST(request: Request, { params }: RouteParams) {
           .from('profiles')
           .select('display_name')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         const ownerName = ownerProfile?.display_name || user.email || 'A team member';
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://meetiq-seven.vercel.app';
@@ -137,7 +140,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     await adminSupabase.from('activity_feed').insert({
       workspace_id: workspaceId,
       actor_id: user.id,
-      action: `commitment_${action}ed` as any, // commitment_accepted, commitment_rejected, commitment_changes_requested
+      action: `commitment_${action}ed` as const, // commitment_accepted, commitment_rejected, commitment_changes_requested
       entity_type: 'commitment',
       entity_id: commitmentId,
       details: {
@@ -147,8 +150,8 @@ export async function POST(request: Request, { params }: RouteParams) {
     });
 
     return NextResponse.json(updated, { status: 200 });
-  } catch (err: any) {
-    console.error('Error confirming commitment:', err);
+  } catch (err: unknown) {
+    logger.error('Error confirming commitment:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

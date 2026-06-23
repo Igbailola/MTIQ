@@ -10,6 +10,8 @@ import { toast } from 'sonner';
 import { ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+import { logger } from '@/lib/logger';
+
 interface DecisionCardProps {
   decision: Decision;
 }
@@ -26,7 +28,7 @@ export function DecisionCard({ decision }: DecisionCardProps) {
     setShowForm(false);
 
     try {
-      await fetch('/api/feedback', {
+      const fbRes = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -35,9 +37,10 @@ export function DecisionCard({ decision }: DecisionCardProps) {
           feedback: 'thumbs_up',
         }),
       });
+      if (!fbRes.ok) throw new Error('Feedback submission failed');
       toast.success('Thanks for your feedback! 👍');
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
     }
   };
 
@@ -74,7 +77,7 @@ export function DecisionCard({ decision }: DecisionCardProps) {
         toast.error('Failed to save feedback');
       }
     } catch (err) {
-      console.error(err);
+      logger.error("Error occurred", err, err);
       toast.error('Error saving feedback');
     } finally {
       setSubmitting(false);

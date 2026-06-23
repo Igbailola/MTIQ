@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+import { logger } from '@/lib/logger';
+
 /**
  * GET /api/meetings/[meetingId] - Fetch single meeting with decisions and commitments
  * PATCH /api/meetings/[meetingId] - Update meeting summary / details
@@ -28,10 +30,21 @@ export async function GET(request: Request, { params }: RouteParams) {
       .from('meetings')
       .select('*')
       .eq('id', meetingId)
-      .single();
+      .maybeSingle();
 
     if (meetingError || !meeting) {
       return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
+    }
+
+    // Verify workspace membership
+    const { data: getMember } = await supabase
+      .from('workspace_members')
+      .select('role')
+      .eq('workspace_id', meeting.workspace_id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (!getMember) {
+      return NextResponse.json({ error: 'Forbidden: Not a workspace member' }, { status: 403 });
     }
 
     // Fetch decisions
@@ -51,7 +64,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       .from('profiles')
       .select('*')
       .eq('id', meeting.uploaded_by)
-      .single();
+      .maybeSingle();
 
     return NextResponse.json(
       {
@@ -63,7 +76,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       { status: 200 }
     );
   } catch (err) {
-    console.error('Error fetching meeting details:', err);
+    logger.error('Error fetching meeting details:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -76,6 +89,26 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Fetch meeting to verify membership
+    const { data: patchMeeting } = await supabase
+      .from('meetings')
+      .select('workspace_id')
+      .eq('id', meetingId)
+      .maybeSingle();
+    if (!patchMeeting) {
+      return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
+    }
+
+    const { data: patchMember } = await supabase
+      .from('workspace_members')
+      .select('role')
+      .eq('workspace_id', patchMeeting.workspace_id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (!patchMember) {
+      return NextResponse.json({ error: 'Forbidden: Not a workspace member' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -94,7 +127,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     return NextResponse.json(meeting, { status: 200 });
   } catch (err) {
-    console.error('Error updating meeting:', err);
+    logger.error('Error updating meeting:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -114,7 +147,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       .from('meetings')
       .select('workspace_id, title')
       .eq('id', meetingId)
-      .single();
+      .maybeSingle();
 
     if (meetingError || !meeting) {
       return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
@@ -126,7 +159,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       .select('role')
       .eq('workspace_id', meeting.workspace_id)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (memberError || member?.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden: Admin role required to delete meetings' }, { status: 403 });
@@ -154,7 +187,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
-    console.error('Error deleting meeting:', err);
+    logger.error('Error deleting meeting:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 
+import { logger } from '@/lib/logger';
+
 export async function DELETE() {
   try {
     const supabase = await createClient();
@@ -84,7 +86,7 @@ export async function DELETE() {
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
-    console.error('Error deleting account:', err);
+    logger.error('Error deleting account:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

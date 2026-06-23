@@ -2,18 +2,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, Loader2, Trash2, Calendar, ArrowRight, Mail, Check, X, Info } from 'lucide-react';
+import { Bell, Loader2, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { useCurrentWorkspace } from '@/hooks/use-workspace';
 import type { Notification } from '@/types/database';
-import { formatDistanceToNow, format } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
+import { NotificationDetailDialog } from './notification-detail-dialog';
+
+import { logger } from '@/lib/logger';
 
 export function NotificationBell() {
   const { user } = useAuth();
@@ -52,7 +53,7 @@ export function NotificationBell() {
         if (countError) throw countError;
         setUnreadCount(count || 0);
       } catch (err) {
-        console.error('Error fetching notifications:', err);
+        logger.error('Error fetching notifications:', err);
       } finally {
         setLoading(false);
       }
@@ -71,7 +72,7 @@ export function NotificationBell() {
           table: 'notifications',
           filter: `user_id=eq.${user.id}`,
         },
-        (payload: any) => {
+        (payload: { new: Notification }) => {
           const newNotif = payload.new as Notification;
           setNotifications((prev) => [newNotif, ...prev.slice(0, 9)]);
           setUnreadCount((c) => c + 1);
@@ -120,7 +121,7 @@ export function NotificationBell() {
         );
         setUnreadCount((c) => Math.max(0, c - 1));
       } catch (err) {
-        console.error('Error marking notification as read:', err);
+        logger.error('Error marking notification as read:', err);
       }
     }
 
@@ -187,7 +188,7 @@ export function NotificationBell() {
       await refreshWorkspaces();
       router.push('/dashboard');
       router.refresh();
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error(e.message || 'Failed to join workspace');
     } finally {
       setActionLoading(false);
@@ -221,7 +222,7 @@ export function NotificationBell() {
 
       setSelectedNotification(null);
       await refreshWorkspaces();
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error(e.message || 'Failed to decline invitation');
     } finally {
       setActionLoading(false);
@@ -244,7 +245,7 @@ export function NotificationBell() {
       setUnreadCount(0);
       toast.success('All notifications marked as read');
     } catch (err) {
-      console.error('Error marking all read:', err);
+      logger.error('Error marking all read:', err);
       toast.error('Failed to mark all as read');
     }
   };
@@ -264,7 +265,7 @@ export function NotificationBell() {
       setUnreadCount(0);
       toast.success('All notifications deleted');
     } catch (err) {
-      console.error('Error deleting notifications:', err);
+      logger.error('Error deleting notifications:', err);
       toast.error('Failed to delete notifications');
     }
   };
@@ -352,104 +353,13 @@ export function NotificationBell() {
         </PopoverContent>
       </Popover>
 
-      <Dialog open={selectedNotification !== null} onOpenChange={(open) => !open && setSelectedNotification(null)}>
-        <DialogContent className="sm:max-w-md p-9">
-          {selectedNotification && (
-            <>
-              <DialogHeader className="pb-4 border-b border-slate-100">
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant={selectedNotification.read ? "secondary" : "default"} className="text-[10px] font-semibold tracking-wider uppercase">
-                    {selectedNotification.read ? "Read" : "Unread"}
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(selectedNotification.created_at), { addSuffix: true })}
-                  </span>
-                </div>
-                <DialogTitle className="font-heading text-lg font-bold text-primary flex items-start gap-2">
-                  <Info className="h-5 w-5 text-accent mt-0.5 shrink-0" />
-                  <span>{selectedNotification.title}</span>
-                </DialogTitle>
-              </DialogHeader>
-              
-              <div className="py-4 space-y-4">
-                <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
-                  {selectedNotification.message}
-                </div>
-                
-                <div className="flex items-center gap-2 text-xs text-slate-400">
-                  <Calendar className="h-3.5 w-3.5" />
-                  <span>Received: {format(new Date(selectedNotification.created_at), 'PPP p')}</span>
-                </div>
-              </div>
-
-              <DialogFooter className="bg-transparent border-t-0 p-0 m-0 rounded-none sm:justify-end gap-2 pt-2">
-                {selectedNotification.type === 'member_invited' && selectedNotification.workspace_id ? (
-                  <div className="flex w-full gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => handleDeclineInvite(selectedNotification.workspace_id!)}
-                      disabled={actionLoading}
-                      className="flex-1 h-11 text-red-600 hover:bg-red-50 hover:text-red-700 font-semibold"
-                    >
-                      {actionLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <>
-                          <X className="h-4 w-4 mr-1.5" />
-                          Decline
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      onClick={() => handleAcceptInvite(selectedNotification.workspace_id!)}
-                      disabled={actionLoading}
-                      className="flex-1 h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
-                    >
-                      {actionLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <>
-                          <Check className="h-4 w-4 mr-1.5" />
-                          Accept
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    <Button
-                      variant="outline"
-                      onClick={() => setSelectedNotification(null)}
-                      className="h-11 px-6 text-sm"
-                    >
-                      Close
-                    </Button>
-                    {selectedNotification.entity_id && (
-                      <Button
-                        onClick={() => {
-                          const notif = selectedNotification;
-                          setSelectedNotification(null);
-                          if (notif.entity_type === 'commitment') {
-                            router.push(`/commitments/${notif.entity_id}`);
-                          } else if (notif.entity_type === 'meeting') {
-                            router.push(`/meetings/${notif.entity_id}`);
-                          } else if (notif.entity_type === 'workspace') {
-                            router.push(`/team`);
-                          }
-                        }}
-                        className="h-11 px-5 text-sm gap-2"
-                      >
-                        <span>View Details</span>
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </>
-                )}
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      <NotificationDetailDialog
+        notification={selectedNotification}
+        actionLoading={actionLoading}
+        onClose={() => setSelectedNotification(null)}
+        onAccept={handleAcceptInvite}
+        onDecline={handleDeclineInvite}
+      />
     </>
   );
 }
