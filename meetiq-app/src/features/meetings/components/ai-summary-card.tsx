@@ -79,7 +79,7 @@ export function AISummaryCard({ summary, meetingId }: AISummaryCardProps) {
         toast.error('Failed to save feedback');
       }
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
       toast.error('Error saving feedback');
     } finally {
       setSubmitting(false);

@@ -71,7 +71,7 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
         status: status as CommitmentStatus,
       });
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     } finally {
       setUpdating(false);
     }
@@ -85,7 +85,7 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
       await deleteMutation.mutateAsync();
       router.push('/commitments');
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     }
   };
 

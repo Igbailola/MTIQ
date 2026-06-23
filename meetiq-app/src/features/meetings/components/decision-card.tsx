@@ -40,7 +40,7 @@ export function DecisionCard({ decision }: DecisionCardProps) {
       if (!fbRes.ok) throw new Error('Feedback submission failed');
       toast.success('Thanks for your feedback! 👍');
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     }
   };
 
@@ -77,7 +77,7 @@ export function DecisionCard({ decision }: DecisionCardProps) {
         toast.error('Failed to save feedback');
       }
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
       toast.error('Error saving feedback');
     } finally {
       setSubmitting(false);

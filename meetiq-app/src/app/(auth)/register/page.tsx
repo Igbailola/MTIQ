@@ -84,7 +84,7 @@ export default function RegisterPage() {
       }
     } catch (err) {
       toast.error('An unexpected error occurred. Please try again.');
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     } finally {
       setLoading(false);
     }
@@ -96,7 +96,7 @@ export default function RegisterPage() {
       await signInWithGoogle();
     } catch (err) {
       toast.error('Failed to initiate Google sign-in.');
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
       setGoogleLoading(false);
     }
   };

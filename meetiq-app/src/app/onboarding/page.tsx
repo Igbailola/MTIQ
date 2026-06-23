@@ -420,7 +420,7 @@ export default function OnboardingPage() {
           }).then(res => {
             if (!res.ok) logger.error('Failed to invite teammate:', email);
           }).catch((err) => {
-            logger.error('Failed to invite teammate:', email, err);
+            logger.error('Failed to invite teammate:', { email, err });
           });
         }
       }

@@ -146,7 +146,7 @@ export function ActivityFeed({ initialActivities, workspaceId, clearTrigger }: A
                   setActivities((prev) => prev.filter((a) => a.id !== item.id));
                   toast.success('Activity deleted');
                 } catch (e) {
-                  logger.error("Error occurred", e, e);
+                  logger.error("Error occurred", e);
                   toast.error('Failed to delete activity');
                 }
               }}

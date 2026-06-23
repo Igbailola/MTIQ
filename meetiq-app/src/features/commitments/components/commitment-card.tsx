@@ -91,7 +91,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
       });
       setEditMode(false);
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     } finally {
       setSavingEdit(false);
     }
@@ -102,7 +102,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
       try {
         await deleteMutation.mutateAsync();
       } catch (err) {
-        logger.error("Error occurred", err, err);
+        logger.error("Error occurred", err);
       }
     }
   };
@@ -115,7 +115,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
     try {
       await confirmMutation.mutateAsync({ action: 'accept' });
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     } finally {
       setAnimatingAction(null);
     }
@@ -135,7 +135,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
       setRejectFormOpen(false);
       setReason('');
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     } finally {
       setSubmitting(false);
       setAnimatingAction(null);
@@ -156,7 +156,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
       setChangesFormOpen(false);
       setReason('');
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     } finally {
       setSubmitting(false);
       setAnimatingAction(null);

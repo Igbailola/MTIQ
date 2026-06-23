@@ -477,7 +477,7 @@ export default function DashboardPage() {
                         refetchActivities();
                         toast.success('All activity cleared');
                       } catch (e) {
-                        logger.error("Error occurred", e, e);
+                        logger.error("Error occurred", e);
                         toast.error('Failed to clear activity');
                       }
                     }}

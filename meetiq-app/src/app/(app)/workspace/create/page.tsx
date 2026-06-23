@@ -50,7 +50,7 @@ export default function CreateWorkspacePage() {
       toast.success('Workspace created successfully!');
       router.push('/dashboard');
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     } finally {
       setLoading(false);
     }

@@ -36,7 +36,7 @@ export function InviteMemberDialog({ workspaceId }: InviteMemberDialogProps) {
       setRole('member');
       setOpen(false);
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     } finally {
       setLoading(false);
     }

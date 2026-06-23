@@ -126,7 +126,7 @@ export function MeetingUploadForm() {
       });
       router.push(`/meetings/${meeting.id}`);
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     } finally {
       setLoading(false);
     }

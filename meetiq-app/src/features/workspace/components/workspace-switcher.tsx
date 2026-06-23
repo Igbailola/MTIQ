@@ -56,7 +56,7 @@ export function WorkspaceSwitcher({ initial = 'M', showDetails = false }: Worksp
       router.push('/dashboard');
       router.refresh();
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     } finally {
       setCreating(false);
     }

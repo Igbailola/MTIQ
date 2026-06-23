@@ -90,7 +90,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
       setNewPriority('medium');
       setCreateFormOpen(false);
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     } finally {
       setCreatingCommitment(false);
     }
@@ -107,7 +107,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
     try {
       await processMutation.mutateAsync();
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     }
   };
 
@@ -115,7 +115,7 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
     try {
       await publishMutation.mutateAsync();
     } catch (err) {
-      logger.error("Error occurred", err, err);
+      logger.error("Error occurred", err);
     }
   };
 
