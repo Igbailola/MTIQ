@@ -189,7 +189,7 @@ export function NotificationBell() {
       router.push('/dashboard');
       router.refresh();
     } catch (e: unknown) {
-      toast.error(e.message || 'Failed to join workspace');
+      toast.error(e instanceof Error ? e.message : 'Failed to join workspace');
     } finally {
       setActionLoading(false);
     }
@@ -223,7 +223,7 @@ export function NotificationBell() {
       setSelectedNotification(null);
       await refreshWorkspaces();
     } catch (e: unknown) {
-      toast.error(e.message || 'Failed to decline invitation');
+      toast.error(e instanceof Error ? e.message : 'Failed to decline invitation');
     } finally {
       setActionLoading(false);
     }

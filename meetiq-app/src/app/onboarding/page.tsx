@@ -314,7 +314,7 @@ export default function OnboardingPage() {
       router.push('/dashboard');
       router.refresh();
     } catch (e: unknown) {
-      toast.error(e.message || 'Failed to join workspace');
+      toast.error(e instanceof Error ? e.message : 'Failed to join workspace');
     } finally {
       setLoading(false);
     }
@@ -343,7 +343,7 @@ export default function OnboardingPage() {
       setPendingInvites((prev) => prev.filter((inv) => inv.workspace_id !== workspaceId));
       setShowInviteCard(false);
     } catch (e: unknown) {
-      toast.error(e.message || 'Failed to decline invitation');
+      toast.error(e instanceof Error ? e.message : 'Failed to decline invitation');
     } finally {
       setLoading(false);
     }

@@ -144,7 +144,7 @@ export default function DashboardPage() {
       await refreshWorkspaces();
       await fetchPendingInvites();
     } catch (e: unknown) {
-      toast.error(e.message || 'Failed to join workspace');
+      toast.error(e instanceof Error ? e.message : 'Failed to join workspace');
     } finally {
       setActionLoadingId(null);
     }
@@ -175,7 +175,7 @@ export default function DashboardPage() {
       await refreshWorkspaces();
       await fetchPendingInvites();
     } catch (e: unknown) {
-      toast.error(e.message || 'Failed to decline invitation');
+      toast.error(e instanceof Error ? e.message : 'Failed to decline invitation');
     } finally {
       setActionLoadingId(null);
     }
