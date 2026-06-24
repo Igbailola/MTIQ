@@ -20,29 +20,6 @@ export async function POST(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (supabaseUrl && serviceRoleKey) {
-      try {
-        const edgeResponse = await fetch(`${supabaseUrl}/functions/v1/ai-processor`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${serviceRoleKey}`,
-          },
-          body: JSON.stringify({ meeting_id: meetingId }),
-        });
-
-        if (edgeResponse.ok) {
-          const data = await edgeResponse.json();
-          return NextResponse.json(data, { status: 200 });
-        }
-      } catch {
-        // Edge Function unavailable, fall through to local processing
-      }
-    }
-
     const adminSupabase = createAdminClient();
 
     const { data: meeting, error: meetingError } = await adminSupabase

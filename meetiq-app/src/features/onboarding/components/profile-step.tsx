@@ -94,7 +94,7 @@ export function ProfileStep({
           </Select>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100">
+        <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-slate-100">
           <Button
             type="button"
             variant="ghost"

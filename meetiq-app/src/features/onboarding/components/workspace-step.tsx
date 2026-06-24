@@ -149,30 +149,30 @@ export function WorkspaceStep({
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100">
+          <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-100">
             <Button
               type="button"
               variant="ghost"
-              className="h-12 hover:bg-slate-50"
+              className="h-12 flex-1 sm:flex-none hover:bg-slate-50 order-1"
               onClick={onBack}
               disabled={loading}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
+            <Button type="submit" className="h-12 flex-1 sm:flex-[999] gap-2 order-2 sm:order-3" disabled={loading}>
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              <span>Create Workspace</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
             <Button
               type="button"
               variant="outline"
-              className="h-12 hover:bg-slate-50 border-slate-200 text-slate-600"
+              className="h-12 flex-[0_0_100%] sm:flex-none hover:bg-slate-50 border-slate-200 text-slate-600 order-3 sm:order-2"
               onClick={onSkip}
               disabled={loading}
             >
               Skip Setup
-            </Button>
-            <Button type="submit" className="h-12 flex-grow gap-2" disabled={loading}>
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              <span>Create Workspace</span>
-              <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </form>

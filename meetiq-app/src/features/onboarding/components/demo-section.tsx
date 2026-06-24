@@ -115,12 +115,12 @@ export function DemoSection({
                     <span className="ai-label">AI Suggested Commitment</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border ${
+                    <span className={`inline-flex items-center gap-1 px-1.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold border w-[90px] sm:w-fit justify-center ${
                       c.ai_confidence === 'high'
                         ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                         : 'bg-amber-50 border-amber-200 text-amber-700'
                     }`}>
-                      {c.ai_confidence === 'high' ? 'High confidence' : 'Review suggested'}
+                      <span className="truncate">{c.ai_confidence === 'high' ? 'High confidence' : 'Review suggested'}</span>
                     </span>
                   </div>
                 </div>

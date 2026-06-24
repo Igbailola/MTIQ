@@ -105,7 +105,7 @@ export function AISummaryCard({ summary, meetingId }: AISummaryCardProps) {
 
           {/* Confidence Badge */}
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-medium text-emerald-700 bg-emerald-50 px-4 rounded-full border border-emerald-100 h-[30px] inline-flex items-center">
+            <span className="text-[10px] sm:text-sm font-medium text-emerald-700 bg-emerald-50 px-2 sm:px-4 rounded-full border border-emerald-100 h-[26px] sm:h-[30px] inline-flex items-center whitespace-nowrap">
               High Confidence
             </span>
           </div>
