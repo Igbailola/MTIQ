@@ -101,9 +101,21 @@ async function callAIAPI(systemPrompt: string, userPrompt: string) {
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 60_000);
+  const timeout = setTimeout(() => controller.abort(), 120_000);
 
   try {
+    const body: Record<string, unknown> = {
+      model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+    };
+
+    if (!isDeepSeek) {
+      body.response_format = { type: 'json_object' };
+    }
+
     const response = await fetch(`${baseUrl}/chat/completions`, {
       signal: controller.signal,
       method: 'POST',
@@ -111,14 +123,7 @@ async function callAIAPI(systemPrompt: string, userPrompt: string) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        model,
-        response_format: { type: 'json_object' },
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {

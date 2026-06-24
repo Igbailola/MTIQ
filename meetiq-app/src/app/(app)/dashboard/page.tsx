@@ -129,14 +129,18 @@ export default function DashboardPage() {
         .eq('workspace_id', workspaceId)
         .eq('type', 'member_invited');
 
-      // Log accepted activity in database
-      await supabase.from('notifications').insert({
-        user_id: user.id,
-        workspace_id: workspaceId,
-        type: 'member_accepted',
-        title: 'Workspace Joined',
-        message: 'You have joined the workspace.',
-      }).catch(() => {});
+      // Log accepted activity in database (best effort, ignore errors)
+      try {
+        await supabase.from('notifications').insert({
+          user_id: user.id,
+          workspace_id: workspaceId,
+          type: 'member_accepted',
+          title: 'Workspace Joined',
+          message: 'You have joined the workspace.',
+        });
+      } catch {
+        // silently ignore - best-effort logging
+      }
 
       // Save to localStorage so WorkspaceProvider selects it on refresh
       localStorage.setItem('meetiq_current_workspace', workspaceId);
@@ -287,20 +291,20 @@ export default function DashboardPage() {
   const hasNoData = (!meetings || meetings.length === 0) && (!commitments || commitments.length === 0);
 
   return (
-    <div className="space-y-8 font-body">
+    <div className="space-y-4 sm:space-y-8 font-body">
       
       {/* PENDING INVITES PERSISTENT DASHBOARD BANNER */}
       {pendingInvites.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-meetiq-xs animate-fade-in">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
-              <Mail className="h-5 w-5" />
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 rounded-xl p-3 sm:p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4 shadow-meetiq-xs animate-fade-in">
+          <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto">
+            <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
+              <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <span className="text-[10px] font-bold text-blue-800 uppercase tracking-widest block font-body">
                 Pending Invitations
               </span>
-              <p className="text-sm text-blue-900 mt-0.5 leading-relaxed font-semibold">
+              <p className="text-xs sm:text-sm text-blue-900 mt-0.5 leading-relaxed font-semibold truncate">
                 You have {pendingInvites.length} pending invite{pendingInvites.length > 1 ? 's' : ''} to join other team workspaces.
               </p>
             </div>
@@ -339,40 +343,40 @@ export default function DashboardPage() {
       )}
 
       {/* Page Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-primary font-heading">
+      <div className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-primary font-heading">
             Workspace Dashboard
           </h1>
-          <p className="text-sm text-muted-foreground mt-1.5">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1.5">
             Monitor AI-extracted commitments and team accountability execution metrics.
           </p>
         </div>
-        <Button onClick={() => router.push('/meetings/upload')} className="w-full sm:w-auto h-12 gap-2 px-6 shrink-0 bg-slate-900 hover:bg-slate-800 text-white font-semibold">
-          <Upload className="h-4 w-4" />
-          <span className="text-base">Upload Meeting</span>
+        <Button onClick={() => router.push('/meetings/upload')} className="w-full sm:w-auto h-10 sm:h-12 gap-2 px-4 sm:px-6 shrink-0 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm sm:text-base">
+          <Upload className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span>Upload Meeting</span>
         </Button>
       </div>
 
       {/* Render 3: EMPTY WORKSPACE DATA STATE */}
       {hasNoData ? (
-        <div className="flex flex-col items-center justify-center min-h-[360px] text-center px-6 bg-white border border-meetiq-border/30 rounded-2xl p-8 shadow-meetiq-sm">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-accent">
-            <Sparkles className="h-8 w-8" />
+        <div className="flex flex-col items-center justify-center min-h-[280px] sm:min-h-[360px] text-center px-4 sm:px-6 bg-white border border-meetiq-border/30 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-meetiq-xs sm:shadow-meetiq-sm">
+          <div className="mx-auto mb-4 sm:mb-6 flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-xl sm:rounded-2xl bg-indigo-50 text-accent">
+            <Sparkles className="h-6 w-6 sm:h-8 sm:w-8" />
           </div>
-          <h2 className="text-2xl font-bold text-primary font-heading">Upload your first meeting notes</h2>
-          <p className="text-sm text-slate-500 mt-2 max-w-md leading-relaxed">
+          <h2 className="text-xl sm:text-2xl font-bold text-primary font-heading">Upload your first meeting notes</h2>
+          <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-md leading-relaxed">
             There are no meetings or commitments in this workspace yet. Paste a transcript or paste meeting notes to trigger AI accountability extraction.
           </p>
-          <Button onClick={() => router.push('/meetings/upload')} className="mt-6 h-12 px-8 text-base gap-2 bg-slate-900 hover:bg-slate-800 text-white shadow-sm font-semibold">
-            <Upload className="h-4 w-4" />
+          <Button onClick={() => router.push('/meetings/upload')} className="mt-4 sm:mt-6 h-10 sm:h-12 px-6 sm:px-8 text-sm sm:text-base gap-2 bg-slate-900 hover:bg-slate-800 text-white shadow-sm font-semibold">
+            <Upload className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span>Upload Transcript</span>
           </Button>
         </div>
       ) : (
         <>
           {/* KPI Overview Section */}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:gap-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
             <KPICard
               title="Meetings This Week"
               value={stats?.totalMeetingsThisWeek || 0}
@@ -408,61 +412,61 @@ export default function DashboardPage() {
           {/* Status Breakdown Bar Widget */}
           {stats && (
             <Card className="border border-meetiq-border/5 bg-white shadow-meetiq-xs">
-              <CardHeader className="pb-3 border-b border-slate-50">
-                <CardTitle className="text-sm font-heading font-semibold text-primary">
+              <CardHeader className="pb-2 sm:pb-3 border-b border-slate-50 px-4 sm:px-5">
+                <CardTitle className="text-xs sm:text-sm font-heading font-semibold text-primary">
                   Commitment Status Breakdown
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-4">
+              <CardContent className="pt-3 sm:pt-4 px-3 sm:px-5">
                 <StatusBreakdownBar breakdown={stats.statusBreakdown} />
               </CardContent>
             </Card>
           )}
 
           {/* Tables and Side Columns Grid */}
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
             {/* Left column (2/3 width on large screens) */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               {/* Recent Meetings */}
               <Card className="border border-meetiq-border/5 bg-white shadow-meetiq-xs">
-                <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                  <CardTitle className="text-sm font-heading font-semibold text-primary">
+                <CardHeader className="pb-2 sm:pb-3 flex flex-row items-center justify-between px-4 sm:px-5">
+                  <CardTitle className="text-xs sm:text-sm font-heading font-semibold text-primary">
                     Recent Meetings
                   </CardTitle>
                   <Link href="/meetings" className="text-xs text-muted-foreground hover:text-accent font-medium transition-colors">
                     View all
                   </Link>
                 </CardHeader>
-                <CardContent className="px-5 py-0">
+                <CardContent className="px-3 sm:px-5 py-0">
                   <RecentMeetingsTable meetings={meetings || []} />
                 </CardContent>
               </Card>
 
               {/* Team Accountability */}
               <Card className="border border-meetiq-border/5 bg-white shadow-meetiq-xs">
-                <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                  <CardTitle className="text-sm font-heading font-semibold text-primary">
-                    Team Accountability Matrix
+                <CardHeader className="pb-2 sm:pb-3 flex flex-row items-center justify-between px-4 sm:px-5">
+                  <CardTitle className="text-xs sm:text-sm font-heading font-semibold text-primary">
+                    Team Accountability
                   </CardTitle>
                   <Link href="/team" className="text-xs text-muted-foreground hover:text-accent font-medium transition-colors">
                     View all
                   </Link>
                 </CardHeader>
-                <CardContent className="px-5 py-0">
+                <CardContent className="px-3 sm:px-5 py-0">
                   <TeamAccountabilityTable stats={stats?.teamMemberStats || []} />
                 </CardContent>
               </Card>
             </div>
 
             {/* Right column (1/3 width on large screens) */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Overdue Commitments */}
               <OverdueCommitmentsSection commitments={commitments || []} />
 
               {/* Real-time Activity Feed */}
               <Card className="border border-meetiq-border/5 bg-white shadow-meetiq-xs">
-                <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                  <CardTitle className="text-sm font-heading font-semibold text-primary">
+                <CardHeader className="pb-2 sm:pb-3 flex flex-row items-center justify-between px-4 sm:px-5">
+                  <CardTitle className="text-xs sm:text-sm font-heading font-semibold text-primary">
                     Workspace Activity
                   </CardTitle>
                   <Button
@@ -487,7 +491,7 @@ export default function DashboardPage() {
                     Delete all
                   </Button>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-3 sm:px-5">
                   <ActivityFeed
                     initialActivities={activities || []}
                     workspaceId={currentWorkspace?.id || ''}

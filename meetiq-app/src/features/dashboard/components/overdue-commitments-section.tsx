@@ -33,7 +33,7 @@ export function OverdueCommitmentsSection({ commitments }: OverdueCommitmentsSec
   if (overdueItems.length === 0) {
     return (
       <Card className="border border-emerald-200 bg-emerald-50/25">
-        <CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-2">
+        <CardContent className="p-4 sm:p-6 flex flex-col items-center justify-center text-center space-y-2">
           <CheckCircle className="h-8 w-8 text-emerald-500" />
           <h3 className="font-heading font-semibold text-sm text-slate-800">
             No overdue commitments
@@ -48,7 +48,7 @@ export function OverdueCommitmentsSection({ commitments }: OverdueCommitmentsSec
 
   return (
     <Card className="border border-red-200 bg-red-50/10">
-      <CardContent className="p-5 space-y-4">
+      <CardContent className="p-4 sm:p-5 space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2 text-red-700">
           <AlertTriangle className="h-4 w-4" />
           <h3 className="font-heading font-semibold text-sm">
@@ -84,8 +84,8 @@ export function OverdueCommitmentsSection({ commitments }: OverdueCommitmentsSec
                   </div>
                 </div>
 
-                <Badge variant="destructive" className="bg-red-600 hover:bg-red-600 text-white rounded-full shrink-0 h-[30px]">
-                  {days} {days === 1 ? 'day' : 'days'} overdue
+                <Badge variant="destructive" className="bg-red-600 hover:bg-red-600 text-white rounded-full shrink-0 h-[26px] sm:h-[30px] text-[10px] sm:text-sm px-2 sm:px-4">
+                  {days}d
                 </Badge>
               </div>
             );
