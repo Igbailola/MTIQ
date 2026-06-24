@@ -24,17 +24,17 @@ export function HeroSection() {
           Stop losing track of sync items. MeetIQ extracts decisions, suggests owners, and demands explicit commitment confirmation from assignees.
         </p>
 
-        <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+        <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/register"
-            className="group inline-flex items-center gap-2 rounded-xl bg-slate-950 px-8 py-2 text-base font-bold text-white h-[54px] shadow-meetiq-md transition-all hover:bg-slate-900 hover:shadow-meetiq-lg hover:-translate-y-0.5"
+            className="group inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-8 py-2 text-base font-bold text-white h-[54px] shadow-meetiq-md transition-all hover:bg-slate-900 hover:shadow-meetiq-lg hover:-translate-y-0.5 sm:w-auto"
           >
             Start Free Trial
             <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Link>
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-8 py-2 text-base font-semibold text-slate-700 h-[54px] shadow-meetiq-xs transition-all hover:border-slate-300 hover:shadow-meetiq-sm"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-8 py-2 text-base font-semibold text-slate-700 h-[54px] shadow-meetiq-xs transition-all hover:border-slate-300 hover:shadow-meetiq-sm sm:w-auto"
           >
             Access Dashboard
           </Link>
