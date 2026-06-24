@@ -86,6 +86,7 @@ export interface Meeting {
   summary: MeetingSummary | null;
   created_at: string;
   updated_at: string | null;
+  deleted_at: string | null;
   // Joined fields
   uploader?: Profile;
   decisions?: Decision[];

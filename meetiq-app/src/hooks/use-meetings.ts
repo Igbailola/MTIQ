@@ -8,20 +8,29 @@ interface MeetingDetail extends Meeting {
   commitments: Commitment[];
 }
 
+interface UseMeetingsOptions {
+  includeDeleted?: boolean;
+  enabled?: boolean;
+}
+
 /**
  * Hook to query meetings in a workspace.
  */
-export function useMeetings(workspaceId?: string) {
+export function useMeetings(workspaceId?: string, opts?: UseMeetingsOptions) {
+  const includeDeleted = opts?.includeDeleted ?? false;
+
   return useQuery<Meeting[]>({
-    queryKey: ['meetings', workspaceId],
+    queryKey: ['meetings', workspaceId, includeDeleted ? 'trash' : 'active'],
     queryFn: async () => {
-      const res = await fetch(`/api/meetings?workspaceId=${workspaceId}`);
+      const params = new URLSearchParams({ workspaceId: workspaceId! });
+      if (includeDeleted) params.set('includeDeleted', 'true');
+      const res = await fetch(`/api/meetings?${params}`);
       if (!res.ok) {
         throw new Error('Failed to fetch meetings');
       }
       return res.json();
     },
-    enabled: !!workspaceId,
+    enabled: opts?.enabled ?? !!workspaceId,
   });
 }
 
@@ -91,6 +100,32 @@ export function useProcessMeeting(meetingId: string, workspaceId: string) {
       queryClient.invalidateQueries({ queryKey: ['meeting', meetingId] });
       queryClient.invalidateQueries({ queryKey: ['meetings', workspaceId] });
       toast.success('AI Analysis started!');
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+}
+
+/**
+ * Hook to delete a meeting.
+ */
+export function useDeleteMeeting(workspaceId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: async (meetingId) => {
+      const res = await fetch(`/api/meetings/${meetingId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? 'Failed to delete meeting');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meetings', workspaceId] });
+      toast.success('Meeting deleted');
     },
     onError: (err) => {
       toast.error(err.message);

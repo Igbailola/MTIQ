@@ -12,15 +12,24 @@ import { logger } from '@/lib/logger';
 export const GET = withAuth(async ({ supabase, user, request }) => {
   const { searchParams } = new URL(request.url);
   const workspaceId = searchParams.get('workspaceId');
+  const includeDeleted = searchParams.get('includeDeleted') === 'true';
 
   if (!workspaceId) {
     return NextResponse.json({ error: 'Missing workspaceId parameter' }, { status: 400 });
   }
 
-  const { data: meetings, error: meetingsError } = await supabase
+  let query = supabase
     .from('meetings')
     .select('*')
-    .eq('workspace_id', workspaceId)
+    .eq('workspace_id', workspaceId);
+
+  if (includeDeleted) {
+    query = query.not('deleted_at', 'is', 'null');
+  } else {
+    query = query.is('deleted_at', null);
+  }
+
+  const { data: meetings, error: meetingsError } = await query
     .order('meeting_date', { ascending: false });
 
   if (meetingsError) {

@@ -153,7 +153,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     // Get the meeting first to check workspace ID
     const { data: meeting, error: meetingError } = await supabase
       .from('meetings')
-      .select('workspace_id, title')
+      .select('workspace_id, title, uploaded_by')
       .eq('id', meetingId)
       .maybeSingle();
 
@@ -161,22 +161,25 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
     }
 
-    // Check if the current user is an admin in the workspace
-    const { data: member, error: memberError } = await supabase
+    // Allow the uploader or an admin to soft-delete
+    const { data: member } = await supabase
       .from('workspace_members')
       .select('role')
       .eq('workspace_id', meeting.workspace_id)
       .eq('user_id', user.id)
       .maybeSingle();
 
-    if (memberError || member?.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden: Admin role required to delete meetings' }, { status: 403 });
+    const isUploader = meeting.uploaded_by === user.id;
+    const isAdmin = member?.role === 'admin';
+
+    if (!isUploader && !isAdmin) {
+      return NextResponse.json({ error: 'Forbidden: Only the uploader or an admin can delete this meeting' }, { status: 403 });
     }
 
-    // Delete meeting (cascade delete will handle decisions and commitments)
+    // Soft-delete: set deleted_at timestamp
     const { error: deleteError } = await supabase
       .from('meetings')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', meetingId);
 
     if (deleteError) {

@@ -293,28 +293,12 @@ export default function OnboardingPage() {
         });
       } catch {} // non-critical
 
-      // Mark onboarding as completed
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ onboarding_completed: true })
-        .eq('id', user.id);
-
-      if (profileError) throw profileError;
-
       localStorage.setItem('meetiq_current_workspace', workspaceId);
-      
-      // Clean up localStorage onboarding states
-      localStorage.removeItem('meetiq_onboarding_step');
-      localStorage.removeItem('meetiq_onboarding_profile');
-      localStorage.removeItem('meetiq_onboarding_workspace');
-      localStorage.removeItem('meetiq_onboarding_choice');
-      localStorage.removeItem('meetiq_onboarding_meeting_id');
 
-      toast.success('Joined workspace successfully! Welcome to MeetIQ.');
+      toast.success('Joined workspace successfully!');
       await refreshProfile();
       await refreshWorkspaces();
-      router.push('/dashboard');
-      router.refresh();
+      updateStep(2);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'Failed to join workspace');
     } finally {
