@@ -65,20 +65,30 @@ export async function updateSession(request: NextRequest) {
 
   // Handle redirects for authenticated users
   if (user) {
-    // Fetch profile onboarding status
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('onboarding_completed')
-      .eq('id', user.id)
-      .maybeSingle();
+    // Check cached onboarding status from cookie (set after first DB query)
+    const cachedOnboarding = request.cookies.get('onboarding_completed')?.value;
+    let onboardingCompleted: boolean;
 
-    const onboardingCompleted = profile?.onboarding_completed ?? false;
+    if (cachedOnboarding === 'true') {
+      onboardingCompleted = true;
+    } else if (cachedOnboarding === 'false') {
+      onboardingCompleted = false;
+    } else {
+      // Fetch profile onboarding status (first time or cache expired)
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarding_completed')
+        .eq('id', user.id)
+        .maybeSingle();
 
-    // Authenticated users trying to access auth pages
-    if (isPublicRoute) {
-      const url = request.nextUrl.clone();
-      url.pathname = onboardingCompleted ? '/dashboard' : '/onboarding';
-      return NextResponse.redirect(url);
+      onboardingCompleted = profile?.onboarding_completed ?? false;
+
+      // Cache result in cookie for 5 minutes to avoid repeated DB queries
+      supabaseResponse.cookies.set('onboarding_completed', String(onboardingCompleted), {
+        maxAge: 300,
+        httpOnly: true,
+        sameSite: 'lax',
+      });
     }
 
     // Authenticated users who haven't completed onboarding should be forced to onboarding

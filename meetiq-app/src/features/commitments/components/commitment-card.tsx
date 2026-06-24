@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { Commitment, Profile } from '@/types/database';
+import type { Commitment, Profile, CommitmentStatus, CommitmentPriority } from '@/types/database';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -197,7 +197,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
         animatingAction ? 'confirm-animation' : ''
       )}
     >
-      <CardContent className="p-5 space-y-4">
+      <CardContent className="p-4 sm:p-5 space-y-4">
         {/* Header Block: AI Indicator and Confidence Badge */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-1.5">
@@ -330,10 +330,10 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
             <span className="block text-xs text-amber-700 font-medium bg-amber-50 px-2 py-1 rounded border border-amber-100">
               Please confirm if you accept this accountability
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <Button
                 variant="outline"
-                className="py-4 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                className="w-full sm:w-auto py-4 text-xs text-red-600 border-red-200 hover:bg-red-50"
                 onClick={() => {
                   setRejectFormOpen(true);
                   setChangesFormOpen(false);
@@ -344,7 +344,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
               </Button>
               <Button
                 variant="outline"
-                className="py-4 text-xs text-slate-600 border-slate-300/50 hover:bg-slate-50"
+                className="w-full sm:w-auto py-4 text-xs text-slate-600 border-slate-300/50 hover:bg-slate-50"
                 onClick={() => {
                   setChangesFormOpen(true);
                   setRejectFormOpen(false);
@@ -354,7 +354,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                 Request Changes
               </Button>
               <Button
-                className="py-4 gap-2 px-6 bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="w-full sm:w-auto py-4 gap-2 px-6 bg-emerald-600 hover:bg-emerald-700 text-white"
                 onClick={handleAccept}
                 disabled={animatingAction !== null}
               >
@@ -386,13 +386,13 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                 required
               />
             </div>
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() => setRejectFormOpen(false)}
-                className="h-8 text-xs"
+                className="w-full sm:w-auto h-8 text-xs"
                 disabled={submitting}
               >
                 Cancel
@@ -401,7 +401,7 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                 type="submit"
                 variant="destructive"
                 size="sm"
-                className="h-8 text-xs"
+                className="w-full sm:w-auto h-8 text-xs"
                 disabled={submitting}
               >
                 {submitting ? 'Rejecting...' : 'Confirm Rejection'}
@@ -428,20 +428,20 @@ export function CommitmentCard({ commitment, workspaceId }: CommitmentCardProps)
                 required
               />
             </div>
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() => setChangesFormOpen(false)}
-                className="h-8 text-xs"
+                className="w-full sm:w-auto h-8 text-xs"
                 disabled={submitting}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="h-12 gap-2 px-6"
+                className="w-full sm:w-auto h-12 gap-2 px-6"
                 disabled={submitting}
               >
                 {submitting ? (

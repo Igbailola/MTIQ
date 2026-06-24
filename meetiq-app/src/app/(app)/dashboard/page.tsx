@@ -225,13 +225,13 @@ export default function DashboardPage() {
                       <p className="text-xs text-slate-400">Role: {invite.role}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => handleDeclineInvite(invite.workspace_id)}
                       disabled={actionLoadingId !== null}
-                      className="h-9 px-3 text-red-600 hover:bg-red-50 hover:text-red-700 font-semibold"
+                      className="w-full sm:w-auto h-9 px-3 text-red-600 hover:bg-red-50 hover:text-red-700 font-semibold"
                     >
                       {actionLoadingId === `${invite.workspace_id}-decline` ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -243,7 +243,7 @@ export default function DashboardPage() {
                       size="sm"
                       onClick={() => handleAcceptInvite(invite.workspace_id)}
                       disabled={actionLoadingId !== null}
-                      className="h-9 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                      className="w-full sm:w-auto h-9 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
                     >
                       {actionLoadingId === `${invite.workspace_id}-accept` ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -348,7 +348,7 @@ export default function DashboardPage() {
             Monitor AI-extracted commitments and team accountability execution metrics.
           </p>
         </div>
-        <Button onClick={() => router.push('/meetings/upload')} className="h-12 gap-2 px-6 shrink-0 bg-slate-900 hover:bg-slate-800 text-white font-semibold">
+        <Button onClick={() => router.push('/meetings/upload')} className="w-full sm:w-auto h-12 gap-2 px-6 shrink-0 bg-slate-900 hover:bg-slate-800 text-white font-semibold">
           <Upload className="h-4 w-4" />
           <span className="text-base">Upload Meeting</span>
         </Button>

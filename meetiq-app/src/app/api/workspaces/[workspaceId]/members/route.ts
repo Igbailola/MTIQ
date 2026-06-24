@@ -124,7 +124,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: usersError.message }, { status: 500 });
     }
 
-    const foundUser = usersData.users.find((u: { id: string }) => u.email?.toLowerCase() === email.toLowerCase());
+    const foundUser = usersData.users.find((u: { id: string; email?: string }) => u.email?.toLowerCase() === email.toLowerCase());
 
     if (foundUser) {
       // User is already registered in the app — use their existing user object

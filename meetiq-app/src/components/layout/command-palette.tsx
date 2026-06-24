@@ -65,8 +65,8 @@ export function CommandPalette() {
 
       // Filter commitments by workspace
       const wsCommitments = (matchedCommitments || []).filter(
-        (c: Commitment) => c.meeting?.workspace_id === currentWorkspace.id
-      ) as Commitment[];
+        (c: Commitment) => c.meeting?.[0]?.workspace_id === currentWorkspace.id
+      );
 
       setMeetings(matchedMeetings || []);
       setCommitments(wsCommitments);

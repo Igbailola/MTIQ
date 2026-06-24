@@ -11,7 +11,7 @@ import { Sparkles, UploadCloud, FileText, Loader2, ArrowRight } from 'lucide-rea
 interface UploadData {
   summary: { bullets: string[] };
   decisions: { content: string }[];
-  commitments: { title: string; description: string | null; ai_confidence: string; priority: string; due_date: string | null }[];
+  commitments: { title: string; description: string | null; ai_confidence: string | null; priority: string; due_date: string | null }[];
 }
 
 interface UploadSectionProps {
@@ -238,7 +238,7 @@ export function UploadSection({
 
           <div className="flex justify-end pt-6 border-t mt-8">
             <Button onClick={onFinish} className="h-12 px-8 gap-2 bg-slate-900 hover:bg-slate-800 text-white shadow-md font-bold text-base" disabled={uploadLoading}>
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              {uploadLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               <span>Finish Onboarding</span>
               <ArrowRight className="h-5 w-5" />
             </Button>

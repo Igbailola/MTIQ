@@ -5,6 +5,7 @@ import type { CommitmentHistory, Profile } from '@/types/database';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { Activity } from 'lucide-react';
+import { getInitials } from '@/lib/utils';
 
 interface CommitmentHistoryTimelineProps {
   history: (CommitmentHistory & { changer: Profile | null })[];

@@ -49,9 +49,9 @@ export function CommitmentEditForm({
   onCancel,
 }: CommitmentEditFormProps) {
   return (
-    <Card className="border border-meetiq-border/50 bg-white shadow-meetiq-xs">
+    <Card className="border border-meetiq-border/50 bg-white shadow-meetiq-xs w-full">
       <form onSubmit={onSave}>
-        <CardContent className="p-6 space-y-5">
+        <CardContent className="p-4 sm:p-6 space-y-5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase">
               Edit Commitment
@@ -153,18 +153,18 @@ export function CommitmentEditForm({
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2 border-t">
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={onCancel}
-              className="h-12 text-xs"
+              className="w-full sm:w-auto h-12 text-xs"
               disabled={savingEdit}
             >
               Cancel
             </Button>
-            <Button type="submit" className="h-12 gap-2 px-6" disabled={savingEdit}>
+            <Button type="submit" className="w-full sm:w-auto h-12 gap-2 px-6" disabled={savingEdit}>
               {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               <span className="text-base">Save Changes</span>
             </Button>

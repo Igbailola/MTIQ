@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sendEmail } from '@/lib/email/send';
 import { WelcomeEmail } from '@/lib/email/templates/welcome';
+import { EmailWelcomeSchema } from '@/lib/schemas';
 
 import { logger } from '@/lib/logger';
 
@@ -14,11 +15,15 @@ import { logger } from '@/lib/logger';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, displayName } = body;
-
-    if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    const result = EmailWelcomeSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: result.error.format() },
+        { status: 400 }
+      );
     }
+
+    const { email, displayName } = result.data;
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://meetiq-seven.vercel.app';
 

@@ -39,7 +39,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
 
     // Verify workspace membership
-    const getMeetingData = commitment.meeting as { workspace_id: string } | null;
+    const getMeetingData = commitment.meeting?.[0] ?? null;
     if (getMeetingData) {
       const { data: getMember } = await supabase
         .from('workspace_members')
@@ -122,7 +122,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       .eq('id', commitmentId)
       .maybeSingle();
     if (patchCmt) {
-      const patchWs = patchCmt.meeting as { workspace_id: string } | null;
+      const patchWs = patchCmt.meeting?.[0] ?? null;
       if (patchWs) {
         const { data: patchMember } = await supabase
           .from('workspace_members')
@@ -187,7 +187,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     }
 
     // Check if the current user is an admin in the workspace
-    const workspaceId = (commitment.meeting as { workspace_id: string }).workspace_id;
+    const workspaceId = commitment.meeting?.[0]?.workspace_id;
     const { data: member, error: memberError } = await supabase
       .from('workspace_members')
       .select('role')

@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, CheckCircle, Calendar } from 'lucide-react';
 import { differenceInDays, format } from 'date-fns';
+import { getInitials } from '@/lib/utils';
 import Link from 'next/link';
 
 interface OverdueCommitmentsSectionProps {
@@ -83,7 +84,7 @@ export function OverdueCommitmentsSection({ commitments }: OverdueCommitmentsSec
                   </div>
                 </div>
 
-                <Badge variant="destructive" className="bg-red-600 hover:bg-red-600 rounded-full shrink-0 h-[30px]">
+                <Badge variant="destructive" className="bg-red-600 hover:bg-red-600 text-white rounded-full shrink-0 h-[30px]">
                   {days} {days === 1 ? 'day' : 'days'} overdue
                 </Badge>
               </div>

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { Activity, Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { getInitials } from '@/lib/utils';
 
 import { logger } from '@/lib/logger';
 
@@ -128,9 +129,9 @@ export function ActivityFeed({ initialActivities, workspaceId, clearTrigger }: A
                   {item.actor?.display_name || 'System'}
                 </span>{' '}
                 {getActionText(item.action)}{' '}
-                {item.details?.title && (
+                {!!item.details?.title && (
                   <span className="font-semibold text-slate-800">
-                    &ldquo;{String(item.details?.title)}&rdquo;
+                    &ldquo;{String(item.details.title)}&rdquo;
                   </span>
                 )}
               </p>

@@ -89,7 +89,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       new_value: `${action.toUpperCase()}${reason ? `: ${reason}` : ''}`,
     });
 
-    const workspaceId = (commitment.meeting as { workspace_id: string }).workspace_id;
+    const workspaceId = commitment.meeting?.[0]?.workspace_id;
 
     // Send notification to the assigner
     if (commitment.assigner_id) {

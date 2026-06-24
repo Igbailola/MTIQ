@@ -60,6 +60,19 @@ export const MeetingUploadSchema = z.object({
 });
 export type MeetingUploadInput = z.infer<typeof MeetingUploadSchema>;
 
+export const MeetingUpdateSchema = z.object({
+  title: z.string().min(1).max(MEETING_TITLE_MAX).trim().optional(),
+  meeting_date: z.string().min(1).optional(),
+  raw_text: z.string().max(RAW_TEXT_MAX).optional(),
+  summary: z
+    .object({
+      bullets: z.array(z.string()),
+      ai_confidence: z.enum(['high', 'medium', 'low']),
+    })
+    .optional(),
+});
+export type MeetingUpdateInput = z.infer<typeof MeetingUpdateSchema>;
+
 // ── Commitment Schemas ──
 
 export const CommitmentCreateSchema = z.object({
@@ -106,6 +119,14 @@ export const CommitmentConfirmWithValidation = CommitmentConfirmSchema.refine(
     path: ['reason'],
   }
 );
+
+// ── Email Schemas ──
+
+export const EmailWelcomeSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  displayName: z.string().max(100).trim().optional(),
+});
+export type EmailWelcomeInput = z.infer<typeof EmailWelcomeSchema>;
 
 // ── AI Feedback Schema ──
 

@@ -30,6 +30,7 @@ export type ActivityAction =
   | 'commitment_blocked'
   | 'meeting_uploaded'
   | 'meeting_processed'
+  | 'meeting_deleted'
   | 'member_invited'
   | 'member_joined';
 
@@ -125,7 +126,7 @@ export interface Commitment {
   // Joined fields
   owner?: Profile | null;
   assigner?: Profile | null;
-  meeting?: Pick<Meeting, 'id' | 'title' | 'meeting_date'>;
+  meeting?: Pick<Meeting, 'id' | 'title' | 'meeting_date' | 'workspace_id'>[];
 }
 
 export interface CommitmentHistory {

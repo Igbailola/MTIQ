@@ -84,9 +84,9 @@ export default function CommitmentsPage() {
         </Tabs>
 
         {/* Search & Assignee filter grid */}
-        <div className="flex flex-col sm:flex-row gap-4 items-end sm:items-center justify-between">
+        <div className="flex flex-row flex-wrap gap-4 items-end sm:items-center justify-between">
           {/* Search */}
-          <div className="relative w-full max-w-[320px]">
+          <div className="relative flex-1 min-w-[180px] max-w-[320px]">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search commitments..."
@@ -98,12 +98,12 @@ export default function CommitmentsPage() {
           </div>
 
           {/* Owner filter dropdown */}
-          <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-end">
+          <div className="flex items-center gap-2 shrink-0">
             <Label htmlFor="owner-filter" className="text-sm font-semibold text-slate-500 whitespace-nowrap">
               Assignee:
             </Label>
             <Select value={selectedOwner} onValueChange={(val) => setSelectedOwner(val || 'all')} disabled={isLoading}>
-              <SelectTrigger id="owner-filter" className="w-[180px] text-sm h-9 bg-white">
+              <SelectTrigger id="owner-filter" className="w-[160px] sm:w-[180px] text-sm h-9 bg-white">
                 <SelectValue placeholder="All Members" />
               </SelectTrigger>
               <SelectContent>

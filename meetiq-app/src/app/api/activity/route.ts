@@ -1,87 +1,70 @@
 import { ACTIVITY_PAGE_SIZE } from '@/lib/constants';
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { withAuth } from '@/lib/supabase/with-auth';
 import { Profile } from '@/types/database';
-
-import { logger } from '@/lib/logger';
 
 /**
  * GET /api/activity?workspaceId=[id]&limit=[limit]&offset=[offset] - Get chronological activity feed for workspace
- * DELETE /api/activity?workspaceId=[id]&deleteAll=true - Delete all activity for a workspace
  */
 
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const workspaceId = searchParams.get('workspaceId');
-    const limit = parseInt(searchParams.get('limit') || String(ACTIVITY_PAGE_SIZE), 10);
-    const offset = parseInt(searchParams.get('offset') || '0', 10);
+export const GET = withAuth(async ({ supabase, user, request }) => {
+  const { searchParams } = new URL(request.url);
+  const workspaceId = searchParams.get('workspaceId');
+  const limit = parseInt(searchParams.get('limit') || String(ACTIVITY_PAGE_SIZE), 10);
+  const offset = parseInt(searchParams.get('offset') || '0', 10);
 
-    if (!workspaceId) {
-      return NextResponse.json({ error: 'Missing workspaceId parameter' }, { status: 400 });
-    }
-
-    const supabase = await createClient();
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Verify workspace membership
-    const { data: actMember } = await supabase
-      .from('workspace_members')
-      .select('role')
-      .eq('workspace_id', workspaceId)
-      .eq('user_id', user.id)
-      .maybeSingle();
-    if (!actMember) {
-      return NextResponse.json({ error: 'Forbidden: Not a workspace member' }, { status: 403 });
-    }
-
-    // Fetch activity rows
-    const { data: activities, error: activityError } = await supabase
-      .from('activity_feed')
-      .select('*')
-      .eq('workspace_id', workspaceId)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (activityError) {
-      return NextResponse.json({ error: activityError.message }, { status: 500 });
-    }
-
-    if (!activities || activities.length === 0) {
-      return NextResponse.json([], { status: 200 });
-    }
-
-    // Collect actor profiles
-    const actorIds = Array.from(new Set(activities.map((a) => a.actor_id).filter(Boolean))) as string[];
-    let profiles: Profile[] = [];
-    if (actorIds.length > 0) {
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('id, display_name, avatar_url')
-        .in('id', actorIds);
-      profiles = (profilesData || []) as Profile[];
-    }
-
-    // Merge actor profiles
-    const mergedActivities = activities.map((activity) => {
-      const actor = profiles.find((p) => p.id === activity.actor_id) || null;
-      return {
-        ...activity,
-        actor,
-      };
-    });
-
-    return NextResponse.json(mergedActivities, { status: 200 });
-  } catch (err) {
-    logger.error('Error fetching activity feed:', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  if (!workspaceId) {
+    return NextResponse.json({ error: 'Missing workspaceId parameter' }, { status: 400 });
   }
-}
 
+  const { data: actMember } = await supabase
+    .from('workspace_members')
+    .select('role')
+    .eq('workspace_id', workspaceId)
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (!actMember) {
+    return NextResponse.json({ error: 'Forbidden: Not a workspace member' }, { status: 403 });
+  }
+
+  const { data: activities, error: activityError } = await supabase
+    .from('activity_feed')
+    .select('*')
+    .eq('workspace_id', workspaceId)
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (activityError) {
+    return NextResponse.json({ error: activityError.message }, { status: 500 });
+  }
+
+  if (!activities || activities.length === 0) {
+    return NextResponse.json([], { status: 200 });
+  }
+
+  const actorIds = Array.from(new Set(activities.map((a) => a.actor_id).filter(Boolean))) as string[];
+  let profiles: Profile[] = [];
+  if (actorIds.length > 0) {
+    const { data: profilesData } = await supabase
+      .from('profiles')
+      .select('id, display_name, avatar_url')
+      .in('id', actorIds);
+    profiles = (profilesData || []) as Profile[];
+  }
+
+  const mergedActivities = activities.map((activity) => {
+    const actor = profiles.find((p) => p.id === activity.actor_id) || null;
+    return { ...activity, actor };
+  });
+
+  return NextResponse.json(mergedActivities, { status: 200 });
+});
+
+/**
+ * DELETE /api/activity?id=[id] - Delete a single activity
+ * DELETE /api/activity?workspaceId=[id]&deleteAll=true - Delete all activity for a workspace
+ */
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -90,14 +73,15 @@ export async function DELETE(request: Request) {
     const id = searchParams.get('id');
 
     const supabase = await createClient();
-
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const adminSupabase = createAdminClient();
+
     if (id) {
-      const { error } = await supabase
+      const { error } = await adminSupabase
         .from('activity_feed')
         .delete()
         .eq('id', id);
@@ -113,7 +97,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
-    const { error } = await supabase
+    const { error } = await adminSupabase
       .from('activity_feed')
       .delete()
       .eq('workspace_id', workspaceId);
@@ -124,7 +108,6 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
-    logger.error('Error deleting activity feed:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

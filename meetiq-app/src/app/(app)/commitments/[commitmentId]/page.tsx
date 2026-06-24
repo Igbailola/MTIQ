@@ -127,7 +127,7 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-lg font-bold tracking-tight text-primary font-heading leading-tight truncate max-w-[300px] sm:max-w-md">
+            <h1 className="text-lg font-bold tracking-tight text-primary font-heading leading-tight truncate max-w-full sm:max-w-md">
               {commitment.title}
             </h1>
             <div className="flex items-center gap-2 mt-1">
@@ -138,7 +138,7 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
         </div>
 
         {isAdmin && (
-          <Button variant="outline" className="text-destructive hover:bg-red-50 border-red-200 text-xs py-1.5 h-auto" onClick={handleDelete}>
+          <Button variant="outline" className="w-full sm:w-auto text-destructive hover:bg-red-50 border-red-200 text-xs py-1.5 h-auto" onClick={handleDelete}>
             <Trash2 className="h-4 w-4 mr-1" />
             Delete Commitment
           </Button>
@@ -228,7 +228,7 @@ export default function CommitmentDetailPage({ params }: CommitmentDetailPagePro
 
                 {canEdit && (
                   <div className="flex justify-end pt-4 border-t border-slate-50">
-                    <Button type="submit" disabled={updating} className="h-12 gap-2 px-6">
+                    <Button type="submit" disabled={updating} className="w-full sm:w-auto h-12 gap-2 px-6">
                       {updating ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" />

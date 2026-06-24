@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { MeetingUpdateSchema } from '@/lib/schemas';
 
 import { logger } from '@/lib/logger';
 
@@ -112,11 +113,18 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    
+    const validationResult = MeetingUpdateSchema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: validationResult.error.format() },
+        { status: 400 }
+      );
+    }
+
     // Update meeting details (like summary)
     const { data: meeting, error: updateError } = await supabase
       .from('meetings')
-      .update(body)
+      .update(validationResult.data)
       .eq('id', meetingId)
       .select()
       .single();
