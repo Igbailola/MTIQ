@@ -12,7 +12,7 @@ import {
   Plus,
   Users,
   Settings,
-  MoreHorizontal,
+  UserCircle,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -80,8 +80,8 @@ export function BottomTabBar() {
               <button className="flex flex-col items-center justify-center flex-1 h-full text-slate-500 hover:text-slate-900 focus-visible:outline-none" />
             }
           >
-            <MoreHorizontal className="h-5 w-5 shrink-0" />
-            <span className="text-[10px] font-medium mt-0.5">More</span>
+            <UserCircle className="h-5 w-5 shrink-0" />
+            <span className="text-[10px] font-medium mt-0.5">Profile</span>
           </SheetTrigger>
           <SheetContent side="bottom" className="rounded-t-2xl p-6">
             <SheetHeader className="text-left pb-4 border-b border-meetiq-border/50">
