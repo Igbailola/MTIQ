@@ -165,13 +165,15 @@ export function NotificationBell() {
         .eq('workspace_id', workspaceId)
         .eq('type', 'member_invited');
 
-      await supabase.from('notifications').insert({
-        user_id: user.id,
-        workspace_id: workspaceId,
-        type: 'member_accepted',
-        title: 'Workspace Joined',
-        message: 'You have joined the workspace.',
-      }).catch(() => {});
+      try {
+        await supabase.from('notifications').insert({
+          user_id: user.id,
+          workspace_id: workspaceId,
+          type: 'member_accepted',
+          title: 'Workspace Joined',
+          message: 'You have joined the workspace.',
+        });
+      } catch {} // non-critical;
 
       localStorage.setItem('meetiq_current_workspace', workspaceId);
       toast.success('Joined workspace successfully!');

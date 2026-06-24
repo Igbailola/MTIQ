@@ -27,6 +27,7 @@ import {
   Sparkles,
   CheckCircle,
   Plus,
+  Trash2,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
@@ -52,6 +53,10 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
   const processMutation = useProcessMeeting(meetingId, currentWorkspace?.id || '');
   const publishMutation = usePublishMeeting(meetingId, currentWorkspace?.id || '');
   const createCommitmentMutation = useCreateCommitment(currentWorkspace?.id || '');
+
+  // Delete State
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Manual Creation States
   const [createFormOpen, setCreateFormOpen] = useState(false);
@@ -116,6 +121,24 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
       await publishMutation.mutateAsync();
     } catch (err) {
       logger.error("Error occurred", err);
+    }
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/meetings/${meetingId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(body.error || 'Failed to delete meeting');
+      }
+      toast.success('Meeting deleted');
+      router.push('/meetings');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete meeting');
+    } finally {
+      setDeleting(false);
+      setDeleteConfirmOpen(false);
     }
   };
 
@@ -193,27 +216,37 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
           </div>
         </div>
 
-        {/* Header Action Button (Publish) */}
-        <div className="flex items-center gap-3">
+        {/* Header Action Buttons */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {isAdmin && (
+            <Button
+              variant="outline"
+              onClick={() => setDeleteConfirmOpen(true)}
+              className="gap-1.5 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 h-9 sm:h-auto px-2.5 sm:px-3 text-xs sm:text-sm"
+            >
+              <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Delete</span>
+            </Button>
+          )}
           {isAdmin && hasCommitments && (
             hasUnpublished ? (
-              <Button onClick={handlePublish} disabled={publishMutation.isPending} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-4 h-auto">
+              <Button onClick={handlePublish} disabled={publishMutation.isPending} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-3 sm:py-2.5 sm:px-4 h-auto text-xs sm:text-sm">
                 {publishMutation.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-base">Publishing...</span>
+                    <span>Publishing...</span>
                   </>
                 ) : (
                   <>
-                    <Share2 className="h-4 w-4" />
-                    <span className="text-base">Publish Commitments</span>
+                    <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span>Publish</span>
                   </>
                 )}
               </Button>
             ) : (
-              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 h-9">
-                <CheckCircle className="h-3.5 w-3.5" />
-                Published to Team
+              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 h-7 sm:h-9 text-[10px] sm:text-xs px-2 sm:px-3">
+                <CheckCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                Published
               </Badge>
             )
           )}
@@ -389,6 +422,38 @@ export default function MeetingDetailPage({ params }: MeetingDetailPageProps) {
           </div>
         </div>
       </div>
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-sm p-[26px]">
+          <DialogHeader className="p-0">
+            <DialogTitle className="font-heading text-lg">Delete Meeting</DialogTitle>
+            <DialogDescription className="font-body text-xs text-muted-foreground">
+              Are you sure you want to delete this meeting? This will permanently remove all associated decisions and commitments. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={deleting}
+              className="h-10 text-sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="h-10 text-sm gap-2"
+            >
+              {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              {deleting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

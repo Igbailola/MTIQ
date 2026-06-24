@@ -95,41 +95,34 @@ export default function DashboardPage() {
     if (!user) return;
     setActionLoadingId(`${workspaceId}-accept`);
     try {
-      const { error } = await supabase
+      // Delete old pending membership and re-insert as active member.
+      // Using delete+insert (not update) because anon key RLS typically
+      // allows users to delete/insert their own rows but not update.
+      await supabase
         .from('workspace_members')
-        .update({ status: 'active' })
+        .delete()
         .eq('user_id', user.id)
         .eq('workspace_id', workspaceId);
 
-      if (error && (error.message?.includes('status') || error.code === 'PGRST100')) {
-        // Fallback: status column does not exist. Make sure they exist in workspace_members.
-        const { data: exists } = await supabase
-          .from('workspace_members')
-          .select('*')
+      await supabase.from('workspace_members').insert({
+        user_id: user.id,
+        workspace_id: workspaceId,
+        role: 'member',
+      });
+
+      // Mark the invite notification as read (best effort)
+      try {
+        await supabase
+          .from('notifications')
+          .update({ read: true })
           .eq('user_id', user.id)
           .eq('workspace_id', workspaceId)
-          .maybeSingle();
-
-        if (!exists) {
-          await supabase.from('workspace_members').insert({
-            user_id: user.id,
-            workspace_id: workspaceId,
-            role: 'member',
-          });
-        }
-      } else if (error) {
-        throw error;
+          .eq('type', 'member_invited');
+      } catch {
+        // silently ignore
       }
 
-      // Mark the invite notification as read
-      await supabase
-        .from('notifications')
-        .update({ read: true })
-        .eq('user_id', user.id)
-        .eq('workspace_id', workspaceId)
-        .eq('type', 'member_invited');
-
-      // Log accepted activity in database (best effort, ignore errors)
+      // Log accepted activity (best effort)
       try {
         await supabase.from('notifications').insert({
           user_id: user.id,
@@ -139,7 +132,7 @@ export default function DashboardPage() {
           message: 'You have joined the workspace.',
         });
       } catch {
-        // silently ignore - best-effort logging
+        // silently ignore
       }
 
       // Save to localStorage so WorkspaceProvider selects it on refresh
@@ -188,18 +181,18 @@ export default function DashboardPage() {
   // Render 1: NO WORKSPACE EMPTY STATE
   if (!currentWorkspace && !isPageLoading) {
     return (
-      <div className="max-w-4xl mx-auto space-y-8 py-8 font-body">
-        <div className="flex flex-col items-center justify-center min-h-[360px] text-center px-6 bg-white border border-meetiq-border/30 rounded-2xl p-8 shadow-meetiq-sm">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-accent">
-            <Building2 className="h-8 w-8" />
+      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 py-4 sm:py-8 font-body">
+        <div className="flex flex-col items-center justify-center min-h-[280px] sm:min-h-[360px] text-center px-4 sm:px-6 bg-white border border-meetiq-border/30 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-meetiq-xs sm:shadow-meetiq-sm">
+          <div className="mx-auto mb-4 sm:mb-6 flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-xl sm:rounded-2xl bg-blue-50 text-accent">
+            <Building2 className="h-6 w-6 sm:h-8 sm:w-8" />
           </div>
-          <h2 className="text-2xl font-bold text-primary font-heading">Set up your workspace</h2>
-          <p className="text-sm text-slate-500 mt-2 max-w-sm leading-relaxed">
+          <h2 className="text-xl sm:text-2xl font-bold text-primary font-heading">Set up your workspace</h2>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1.5 sm:mt-2 max-w-sm leading-relaxed">
             Workspaces organize meetings, commitments, and team members. Create one to begin or accept a pending invitation below.
           </p>
-          <Link href="/workspace/create">
-            <Button className="mt-6 h-12 px-8 text-base gap-2 bg-slate-900 hover:bg-slate-800 text-white shadow-sm font-semibold">
-              <Building2 className="h-4 w-4" />
+          <Link href="/workspace/create" className="w-full sm:w-auto">
+            <Button className="mt-4 sm:mt-6 h-10 sm:h-12 px-6 sm:px-8 text-sm sm:text-base gap-2 w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white shadow-sm font-semibold">
+              <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Create Workspace
             </Button>
           </Link>

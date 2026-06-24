@@ -283,13 +283,15 @@ export default function OnboardingPage() {
         .eq('workspace_id', workspaceId)
         .eq('type', 'member_invited');
 
-      await supabase.from('notifications').insert({
-        user_id: user.id,
-        workspace_id: workspaceId,
-        type: 'member_accepted',
-        title: 'Workspace Joined',
-        message: 'You have joined the workspace.',
-      }).catch(() => {});
+      try {
+        await supabase.from('notifications').insert({
+          user_id: user.id,
+          workspace_id: workspaceId,
+          type: 'member_accepted',
+          title: 'Workspace Joined',
+          message: 'You have joined the workspace.',
+        });
+      } catch {} // non-critical
 
       // Mark onboarding as completed
       const { error: profileError } = await supabase
